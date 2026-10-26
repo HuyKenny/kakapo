@@ -12,8 +12,37 @@
   "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots-local" }],
   "ratelimits": [
     { "name": "RL_GO", "namespace_id": "73001", "simple": { "limit": 40, "period": 60 } },
-    { "name": "RL_ADMIN", "namespace_id": "73002", "simple": { "limit": 120, "period": 60 } }
+    { "name": "RL_ADMIN", "namespace_id": "73002", "simple": { "limit": 120, "period": 60 } },
+    { "name": "RL_SEARCH", "namespace_id": "73003", "simple": { "limit": 90, "period": 60 } }
   ],
   "vars": { "ENVIRONMENT": "local", "SITE_URL": "http://localhost:8791", "ALLOWED_HOSTS": "localhost,127.0.0.1" },
-  "observability": { "enabled": true, "head_sampling_rate": 1 }
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+
+  "env": {
+    "staging": {
+      "name": "kakapo-staging",
+      // Only reachable as kakapo-staging.huy-kenny.workers.dev, behind Cloudflare Access (whole host);
+      // the Worker re-checks the Access JWT on every request (REQUIRE_ACCESS_EVERYWHERE).
+      "workers_dev": true,
+      "preview_urls": false,
+      "d1_databases": [{ "binding": "DB", "database_name": "kakapo-staging", "database_id": "ad3a4546-c879-4fc2-85e2-80670c43ab84", "migrations_dir": "migrations" }],
+      "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots-staging" }],
+      "services": [{ "binding": "IMPORTER", "service": "kakapo-import-staging" }],
+      "ratelimits": [
+        { "name": "RL_GO", "namespace_id": "73011", "simple": { "limit": 40, "period": 60 } },
+        { "name": "RL_ADMIN", "namespace_id": "73012", "simple": { "limit": 120, "period": 60 } },
+        { "name": "RL_SEARCH", "namespace_id": "73013", "simple": { "limit": 90, "period": 60 } }
+      ],
+      "vars": {
+        "ENVIRONMENT": "staging",
+        "SITE_URL": "https://kakapo-staging.huy-kenny.workers.dev",
+        "ALLOWED_HOSTS": "kakapo-staging.huy-kenny.workers.dev",
+        "REQUIRE_ACCESS_EVERYWHERE": "1",
+        "ANALYTICS_ENABLED": "0",
+        "ACCESS_TEAM_DOMAIN": "proud-pine-5d46.cloudflareaccess.com"
+      }
+      // secrets (wrangler secret put --env staging): ACCESS_AUD, IP_HASH_SALT, IMPORT_SHARED_SECRET
+    }
+    // production is added at the cutover (needs Kenny's explicit go-ahead): custom domain kakapo.cz routes, D1 kakapo-production.
+  }
 }

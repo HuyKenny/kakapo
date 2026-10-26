@@ -49,6 +49,8 @@ export async function rebuildSnapshots(db: D1Database, now = new Date().toISOStr
   await db.batch([
     db.prepare('INSERT INTO site_cache (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at').bind('registry', JSON.stringify(registry), now),
     db.prepare('INSERT INTO site_cache (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at').bind('facets', JSON.stringify(facets), now),
+    // bumps every edge-cache key (middleware): a price change is visible right after the import
+    db.prepare('INSERT INTO site_cache (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at').bind('data_version', now, now),
   ]);
   return { registry, facets };
 }

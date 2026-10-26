@@ -103,3 +103,13 @@ export function stableHash(parts: unknown[]): string {
   };
   return h(0) + h(7);
 }
+
+/** Europe/Prague wall-clock (date + hour) -> UTC Date. Handles DST by probing the zone offset. */
+export function pragueLocalToUtc(ymd: string, hour: number): Date {
+  const guess = new Date(`${ymd}T${String(hour).padStart(2, '0')}:00:00Z`);
+  const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Prague', hour: '2-digit', hourCycle: 'h23' });
+  const h = (d: Date) => Number(fmt.format(d));
+  let off = h(guess) - hour; // offset hours at the guessed instant
+  if (off > 12) off -= 24; else if (off < -12) off += 24;
+  return new Date(guess.getTime() - off * 3600_000);
+}

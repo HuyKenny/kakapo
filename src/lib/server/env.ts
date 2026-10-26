@@ -6,12 +6,12 @@ export interface AppEnv {
   ASSETS?: Fetcher;
   IMPORTER?: Fetcher;
   RL_EVENTS?: RateLimit;
-  RL_SEARCH?: RateLimit;
   RL_ADMIN?: RateLimit;
   RL_GO?: RateLimit;
   ENVIRONMENT?: string;
   SITE_URL?: string;
   ALLOWED_HOSTS?: string;
+  RL_SEARCH?: RateLimit;
   REQUIRE_ACCESS_EVERYWHERE?: string;
   ANALYTICS_ENABLED?: string;
   GA4_ID?: string;
