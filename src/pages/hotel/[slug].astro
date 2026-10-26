@@ -28,7 +28,6 @@ const v = res.view;
 const h = v.hotel;
 const verifiedAt = v.offers.map((o) => o.verified_at ?? '').filter(Boolean).sort().pop()?.slice(0, 10) ?? '';
 const sel = v.selection;
-const singleOffer = v.offers.length === 1 ? v.offers[0]! : null;
 const gal = v.images.slice(0, 10);
 const grid = gal.length >= 5;
 const rStr = v.rating !== null ? v.rating.toFixed(1).replace('.', ',') : '';
@@ -289,9 +288,6 @@ const heroSizes = '(min-width:640px) 50vw, 88vw';
 						? <p class="mt-1 text-slate-600">Odpovídá {sel.matchCount} {sel.matchCount === 1 ? 'nabídka' : sel.matchCount < 5 ? 'nabídky' : 'nabídek'}{sel.otherCount > 0 ? `, dalších ${sel.otherCount} je jiných termínů a variant (níže).` : '.'} Nabídky ve výběru jsou na prvních místech.</p>
 						: <p class="mt-1 text-slate-700">Tento hotel nemá nabídku přesně podle výběru{sel.unmet.length ? ` (nevyšlo: ${sel.unmet.join(', ')})` : ''}. Níže jsou jeho nejbližší dostupné varianty.</p>}
 				</div>
-			)}
-			{singleOffer && (
-				<a href={singleOffer.go_url + (singleOffer.go_url.includes('?') ? '&' : '?') + 'ctx=detail-single'} rel="nofollow sponsored noopener" class="btn-primary mb-4 w-full sm:w-auto" data-affiliate="1">Zobrazit u {singleOffer.partner_label}</a>
 			)}
 
 			{v.offers.length > 0 && v.months.length >= 2 && (
