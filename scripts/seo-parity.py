@@ -45,6 +45,8 @@ paths = [urlparse(u).path for u in urls]
 hot = [p for p in paths if p.startswith('/hotel/')]
 oth = [p for p in paths if not p.startswith('/hotel/')]
 random.seed(7)
+others_n = int(sys.argv[sys.argv.index('--others') + 1]) if '--others' in sys.argv else len(oth)
+if others_n < len(oth): oth = random.sample(oth, others_n)
 sample = oth + random.sample(hot, min(hotels_n, len(hot))) + ['/dovolena/', '/vlastni-dopravou/', '/nic-takoveho-neexistuje/', '/hotel/neexistuje-xyz/', '/kypr/kypr/']
 print(f'live sitemap URLs: {len(paths)} (hotels {len(hot)}), checking {len(sample)}')
 live_host = 'https://kakapo.cz'

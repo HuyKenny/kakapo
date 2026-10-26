@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
-import { getEnv, siteUrl } from '../lib/server/env';
-import { rebuildSitemaps } from '../lib/sitemap';
+import { getEnv } from '../lib/server/env';
 
 export const prerender = false;
 export const GET: APIRoute = async () => {
   const db = getEnv().DB;
-  let row = await db.prepare("SELECT value FROM site_cache WHERE key='sitemap:index'").first<{ value: string }>();
-  if (!row) { await rebuildSitemaps(db, siteUrl()); row = await db.prepare("SELECT value FROM site_cache WHERE key='sitemap:index'").first<{ value: string }>(); }
-  return new Response(row?.value ?? '', { headers: { 'content-type': 'application/xml; charset=UTF-8', 'cache-control': 'public, max-age=900' } });
+  // built by the import Worker (afterRun) or scripts/build-sitemaps.ts — never inside a visitor request (it takes minutes)
+  const row = await db.prepare("SELECT value FROM site_cache WHERE key='sitemap:index'").first<{ value: string }>();
+  if (!row) return new Response('Sitemap is being built', { status: 503, headers: { 'retry-after': '600', 'cache-control': 'no-store' } });
+  return new Response(row.value, { headers: { 'content-type': 'application/xml; charset=UTF-8', 'cache-control': 'public, max-age=900' } });
 };

@@ -47,7 +47,8 @@
     },
     "production": {
       "name": "kakapo-import",
-      "workers_dev": false,
+      // public URL is protected by the bearer secret (every route); Malina uploads the Cedok slim feed here
+      "workers_dev": true,
       "preview_urls": false,
       "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
       "limits": { "cpu_ms": 300000 },
@@ -56,7 +57,7 @@
       "vars": {
         "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz,export.ceskekormidlo.cz,feeds.mergado.com,www.atis.cz",
         "SITE_URL": "https://kakapo.cz",
-        "IMPORT_WINDOW": "0-7",
+        "IMPORT_WINDOW": "0-24",
         "MAX_DROP_PCT": "40",
         "LAST_MINUTE_DAYS": "14",
         "FIRST_MINUTE_DAYS": "120"
