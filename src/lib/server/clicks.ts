@@ -17,6 +17,7 @@ export const DEFAULT_ALLOWED_HOSTS = [
   'anrdoezrs.net', 'jdoqocy.com', 'tkqlhce.com', 'dpbolvw.net', 'kqzyfj.com', // CJ
   'invia.cz', 'dovolena.cz', 'slevomat.cz', 'ehub.cz', 'radynacestu.cz', 'cedok.cz', 'fischer.cz', 'exim.cz', 'blue-style.cz', 'tui.cz',
   // direct partner hosts (feeds without a working network wrapper, e.g. Excursia since its eHUB campaign ended)
+  'tracking.affiliateport.eu', // AffiliatePort (Scaleo), Excursia: click?o=1919&a=5453&deep_link=<url>
   'excursia.cz', 'zazitky.cz', 'adrop.cz', 'ceskekormidlo.cz', 'atis.cz', 'eximtours.cz', 'spa.cz',
 ];
 
