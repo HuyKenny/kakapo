@@ -26,7 +26,7 @@ export async function rebuildSnapshots(db: D1Database, now = new Date().toISOStr
   const registry: Registry = { countries: {}, destinations: {}, airports: {}, partners: {}, built_at: now };
   for (const r of await all<any>(db, "SELECT country_slug AS slug, country AS label, COUNT(*) AS cnt, MIN(min_price) AS min_price FROM hotels WHERE offers_active > 0 AND hidden = 0 AND country_slug != '' GROUP BY country_slug, country ORDER BY cnt DESC"))
     registry.countries[r.slug] = { label: r.label, cnt: r.cnt, min_price: r.min_price ?? 0 };
-  for (const r of await all<any>(db, "SELECT country_slug, destination_slug AS slug, destination AS label, COUNT(*) AS cnt, MIN(min_price) AS min_price FROM hotels WHERE offers_active > 0 AND hidden = 0 AND destination_slug != '' GROUP BY country_slug, destination_slug, destination ORDER BY cnt DESC LIMIT 500")) {
+  for (const r of await all<any>(db, "SELECT country_slug, destination_slug AS slug, destination AS label, COUNT(*) AS cnt, MIN(min_price) AS min_price FROM hotels WHERE offers_active > 0 AND hidden = 0 AND destination_slug != '' GROUP BY country_slug, destination_slug, destination ORDER BY cnt DESC LIMIT 3000")) {
     (registry.destinations[r.country_slug] ??= {})[r.slug] = { label: r.label, cnt: r.cnt, min_price: r.min_price ?? 0 };
   }
   for (const r of await all<any>(db, "SELECT airport_slug AS slug, airport AS label, COUNT(*) AS cnt FROM offers WHERE active = 1 AND airport_slug != '' GROUP BY airport_slug, airport ORDER BY cnt DESC LIMIT 30"))
