@@ -36,8 +36,9 @@ describe('streaming XML parser', () => {
   it('refuses DOCTYPE with entities (XXE / billion laughs)', async () => {
     const evil = '<?xml version="1.0"?><!DOCTYPE a [<!ENTITY x "boom">]><a><item>&x;</item></a>';
     await expect(collect(parseXmlItems(chunks(evil), 'item'))).rejects.toMatchObject({ code: 'doctype' });
-    const ext = '<!DOCTYPE a SYSTEM "http://evil.example/x.dtd"><a><item/></a>';
-    await expect(collect(parseXmlItems(chunks(ext), 'item'))).rejects.toMatchObject({ code: 'doctype' });
+    // an external id is never fetched (Invia sends one): accepted and ignored
+    const ext = '<!DOCTYPE offers SYSTEM "https://example.invalid/x.dtd"><offers><item>ok</item></offers>';
+    expect((await collect(parseXmlItems(chunks(ext), 'item'))).length).toBe(1);
   });
   it('does not decode unknown entities and keeps numeric ones', async () => {
     const [n] = await collect(parseXmlItems(chunks('<a><item>&nbsp;&#65;</item></a>'), 'item'));

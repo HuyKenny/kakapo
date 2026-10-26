@@ -28,7 +28,8 @@
   "env": {
     "staging": {
       "name": "kakapo-import-staging",
-      "workers_dev": false,
+      // reachable only with the bearer secret IMPORT_SHARED_SECRET (every route checks it); lets Malina/ops call the HTTP API
+      "workers_dev": true,
       "preview_urls": false,
       // No cron on staging: imports are started by hand (avoids doubling partner API traffic while WordPress still imports).
       "triggers": { "crons": [] },

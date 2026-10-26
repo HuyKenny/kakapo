@@ -119,7 +119,7 @@ export async function* parseXmlItems(chunks: AsyncIterable<string>, itemName: st
         const e = tagEnd(buf, pos);
         if (e < 0) { if (buf.length - pos > 100_000) throw new XmlError('doctype', 'DOCTYPE too large'); buf = buf.slice(pos); return; }
         const decl = buf.slice(pos, e);
-        if (/ENTITY|SYSTEM|PUBLIC|\[/i.test(decl)) throw new XmlError('doctype', 'DOCTYPE with entities or external ids is not allowed');
+        if (/ENTITY|\[/i.test(decl)) throw new XmlError('doctype', 'DOCTYPE with entity declarations or an internal subset is not allowed'); // external ids (SYSTEM/PUBLIC, e.g. Invia dtd) are never fetched, so they are harmless
         pos = e; continue;
       }
       if (buf[pos + 1] === '/') {
