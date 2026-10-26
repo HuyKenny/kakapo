@@ -42,3 +42,7 @@ form[role="search"] select,form[role="search"] input[type=date]{min-height:1.75r
 .hotel-page>section{order:3}
 .hotel-page>#nabidky{order:1;margin-top:1.25rem}
 }
+@media (max-width:639px){
+main a.inline-flex,main button.inline-flex{min-height:2.75rem}
+.hotel-page>#nabidky{margin-top:0}
+}

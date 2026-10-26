@@ -50,7 +50,7 @@ export function describeSelection(s: Selection, airportLabels: Record<string, st
   const out: string[] = [];
   if (s.nights_min || s.nights_max) out.push(s.nights_min && s.nights_max ? (s.nights_min === s.nights_max ? `${s.nights_min} nocí` : `${s.nights_min}–${s.nights_max} nocí`) : s.nights_min ? `od ${s.nights_min} nocí` : `do ${s.nights_max} nocí`);
   if (s.meal) out.push(s.meal.map((m) => (MEAL_LABELS[m] ?? m).toLowerCase()).join(' / '));
-  if (s.airport) out.push('odlet z ' + s.airport.map((a) => airportLabels[a] ?? a).join(' / '));
+  if (s.airport) out.push('odlet z ' + s.airport.map((a) => airportLabels[a] ?? (a.charAt(0).toUpperCase() + a.slice(1).replace(/-/g, ' '))).join(' / '));
   if (s.date_from || s.date_to) out.push(`odjezd ${s.date_from ?? '…'} – ${s.date_to ?? '…'}`);
   if (s.price_max) out.push(`do ${s.price_max.toLocaleString('cs-CZ').replace(/ /g, ' ')} Kč`);
   if (s.transport) out.push({ letecky: 'letecky', autobusem: 'autobusem', vlastni: 'vlastní doprava' }[s.transport] ?? s.transport);
