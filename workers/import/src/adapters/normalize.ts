@@ -16,7 +16,12 @@ export function buildAffiliateUrl(deeplink: string, params: string): string {
   const p = params.trim();
   if (p === '') return d;
   if (p.includes('{url}')) return p.replace('{url}', encodeURIComponent(d));
-  return d + (d.includes('?') ? '&' : '?') + p.replace(/^[?&]+/, '');
+  // query params must go BEFORE the #fragment (Slevomat deeplinks end with #<offer id>; params after # never reach the
+  // partner, so the visit was not attributed — the WordPress importer had the same bug)
+  const hashAt = d.indexOf('#');
+  const base = hashAt === -1 ? d : d.slice(0, hashAt);
+  const frag = hashAt === -1 ? '' : d.slice(hashAt);
+  return base + (base.includes('?') ? '&' : '?') + p.replace(/^[?&]+/, '') + frag;
 }
 
 export interface NormCtx { today: string; affiliateParams: string; lastMinuteDays?: number; firstMinuteDays?: number }
