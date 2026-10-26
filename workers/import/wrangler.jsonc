@@ -31,8 +31,8 @@
       // reachable only with the bearer secret IMPORT_SHARED_SECRET (every route checks it); lets Malina/ops call the HTTP API
       "workers_dev": true,
       "preview_urls": false,
-      // No cron on staging: imports are started by hand (avoids doubling partner API traffic while WordPress still imports).
-      "triggers": { "crons": [] },
+      // Staging cron is for verification runs (HTTP-triggered runs only get ~30 s of waitUntil; slow feeds like Invia need cron invocations).
+      "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
       "limits": { "cpu_ms": 300000 },
       "d1_databases": [{ "binding": "DB", "database_name": "kakapo-staging", "database_id": "ad3a4546-c879-4fc2-85e2-80670c43ab84", "migrations_dir": "../../migrations" }],
       "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots-staging" }],
@@ -40,6 +40,23 @@
         "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz,export.ceskekormidlo.cz,feeds.mergado.com,www.atis.cz",
         "SITE_URL": "https://kakapo-staging.huy-kenny.workers.dev",
         "IMPORT_WINDOW": "0-24",
+        "MAX_DROP_PCT": "40",
+        "LAST_MINUTE_DAYS": "14",
+        "FIRST_MINUTE_DAYS": "120"
+      }
+    },
+    "production": {
+      "name": "kakapo-import",
+      "workers_dev": false,
+      "preview_urls": false,
+      "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
+      "limits": { "cpu_ms": 300000 },
+      "d1_databases": [{ "binding": "DB", "database_name": "kakapo-production", "database_id": "302b7cb9-53f0-47f3-bb6a-239a7402334f", "migrations_dir": "../../migrations" }],
+      "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots" }],
+      "vars": {
+        "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz,export.ceskekormidlo.cz,feeds.mergado.com,www.atis.cz",
+        "SITE_URL": "https://kakapo.cz",
+        "IMPORT_WINDOW": "0-7",
         "MAX_DROP_PCT": "40",
         "LAST_MINUTE_DAYS": "14",
         "FIRST_MINUTE_DAYS": "120"

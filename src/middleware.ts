@@ -21,6 +21,9 @@ const NO_CACHE = [/^\/admin\b/, /^\/api\/admin\//, /^\/go\//, /^\/akce\//, /^\/g
 const CACHE_TTL = 300;
 
 const LEGACY: Array<[RegExp, string]> = [
+  [/^\/(wp-)?sitemap\.xml$/, '/sitemap_index.xml'],
+  [/^\/favicon\.ico$/, '/wp-content/kakapo-assets/img/favicon-32.png'],
+  [/^\/ads\.txt$/, '/'],
   [/^\/dovolena\/?$/, '/zajezdy/'],
   [/^\/dovolena-i-more\/?$/, '/dovolena-u-more/'],
   [/^\/vlastni-dopravou\/?$/, '/dovolena-vlastni-dopravou/'],
@@ -56,6 +59,9 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   d1Stats.n = 0; d1Stats.ms = 0; d1Stats.slow = [];
   const env = getEnv();
 
+  // www → apex (the WordPress site did the same)
+  if (env.ENVIRONMENT === 'production' && url.hostname.toLowerCase() === 'www.kakapo.cz') return redirect('https://kakapo.cz' + url.pathname + url.search, 301);
+
   const hosts = allowedHosts(env);
   if (!isLocal(env) && hosts.length && !hosts.includes(url.hostname.toLowerCase())) {
     return finish(new Response('Not found', { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' } }), url);
@@ -86,6 +92,7 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     if (!url.pathname.endsWith('/') && !/\.[a-z0-9]{2,5}$/i.test(url.pathname) && !url.pathname.startsWith('/api/')) {
       return finish(redirect(url.pathname + '/' + url.search, 301), url);
     }
+    if (url.pathname === '/' && url.searchParams.has('s')) return finish(redirect('/zajezdy/' + (url.searchParams.get('s') ? '?q=' + encodeURIComponent(url.searchParams.get('s')!.slice(0, 100)) : ''), 301), url);
     for (const [re, to] of LEGACY) if (re.test(url.pathname)) return finish(redirect(to + url.search), url);
     if (!NO_CACHE.some((r) => r.test(url.pathname)) && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/wp-content/')) {
       try {
