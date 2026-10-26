@@ -30,3 +30,15 @@ nav[aria-label="Drobečková navigace"] a{display:inline-block;padding:.7rem .1r
 [x-ref="grid"]{row-gap:.75rem}
 .rail{padding-bottom:.25rem}
 }
+@media (max-width:639px){
+.home-lead{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.9375rem;margin-top:.6rem}
+form[role="search"]>div>label{padding:.55rem 1.1rem}
+form[role="search"] select,form[role="search"] input[type=date]{min-height:1.75rem}
+}
+/* hotel detail on phones/tablets: title + gallery, then the offers (the reason people come), then the long description */
+@media (max-width:1023px){
+.hotel-page{display:flex;flex-direction:column}
+.hotel-page>.grid{order:2}
+.hotel-page>section{order:3}
+.hotel-page>#nabidky{order:1;margin-top:1.25rem}
+}

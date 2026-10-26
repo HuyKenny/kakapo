@@ -47,7 +47,7 @@ const heroSizes = '(min-width:640px) 50vw, 88vw';
 <Base title={v.meta.title} description={v.meta.description} canonical={v.meta.canonical} robots={v.meta.robots} {...(v.meta.image ? { ogImage: v.meta.image } : {})} jsonLd={v.meta.jsonLd} pageType="hotel">
 {heroFull && <link slot="head" rel="preload" as="image" fetchpriority="high" href={heroFull} {...(heroSrcset ? { imagesrcset: heroSrcset, imagesizes: heroSizes } : {})} />}
 <main class="bg-white">
-	<div class="container-k py-6 sm:py-8">
+	<div class="container-k hotel-page py-6 sm:py-8">
 		<Breadcrumbs items={v.breadcrumbs} />
 
 		<div class="mb-5 flex flex-wrap items-start justify-between gap-3">

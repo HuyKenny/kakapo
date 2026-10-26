@@ -47,8 +47,8 @@ import { imgUrl } from '../../lib/helpers';
 		<div class="mt-auto pt-2">
 			{m.price !== null && (
 				<p class="text-[15px] text-ink">
-					<span class="text-slate-500">od</span>
-					<strong class="whitespace-nowrap font-extrabold">{formatPrice(m.price)}</strong>
+					<span class="text-slate-500">od</span>{' '}
+					<strong class="whitespace-nowrap font-extrabold">{formatPrice(m.price)}</strong>{' '}
 					<span class="text-slate-500">/ os.</span>
 					{m.priceOriginal !== null && <span class="ml-1 whitespace-nowrap text-sm text-slate-400 line-through">{formatPrice(m.priceOriginal)}</span>}
 				</p>
