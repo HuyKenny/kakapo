@@ -103,7 +103,7 @@ export const todayPrague = (): string => new Intl.DateTimeFormat('en-CA', { time
 export async function search(db: D1Database, filters: Filters, today = todayPrague()): Promise<SearchResult> {
   const f = filters;
   const { where, params, oc, op } = buildConditions(f);
-  const exists = oc.length ? ` AND EXISTS (SELECT 1 FROM offers o WHERE o.hotel_id = h.id AND o.active = 1 AND ${oc.join(' AND ')})` : '';
+  const exists = oc.length ? ` AND EXISTS (SELECT 1 FROM offers o INDEXED BY idx_offers_hotel WHERE o.hotel_id = h.id AND o.active = 1 AND ${oc.join(' AND ')})` : '';
   const whereSql = (where.length ? ' AND ' + where.join(' AND ') : '');
   const base = `FROM hotels h WHERE h.offers_active > 0 AND h.hidden = 0${whereSql}${exists}`;
   const all = [...params, ...op];
@@ -148,10 +148,23 @@ export async function similar(db: D1Database, hotel: any, minDesc: number, limit
   return rows.map((r) => ({ ...r, images: jsonArr<string>(r.images_json), best_offer: null }));
 }
 
+/** Prepared COUNT statement (use with db.batch: many counts in ONE D1 round trip). */
+export function countStatement(db: D1Database, f: Filters): D1PreparedStatement {
+  const { where, params, oc, op } = buildConditions(f);
+  const exists = oc.length ? ` AND EXISTS (SELECT 1 FROM offers o INDEXED BY idx_offers_hotel WHERE o.hotel_id = h.id AND o.active = 1 AND ${oc.join(' AND ')})` : '';
+  const sql = `SELECT COUNT(*) AS n FROM hotels h WHERE h.offers_active > 0 AND h.hidden = 0${where.length ? ' AND ' + where.join(' AND ') : ''}${exists}`;
+  return db.prepare(sql).bind(...params, ...op);
+}
 /** Count only (no card data, no best offers) — used by sitemap/noindex decisions. */
 export async function countHotels(db: D1Database, f: Filters): Promise<number> {
-  const { where, params, oc, op } = buildConditions(f);
-  const exists = oc.length ? ` AND EXISTS (SELECT 1 FROM offers o WHERE o.hotel_id = h.id AND o.active = 1 AND ${oc.join(' AND ')})` : '';
-  const sql = `SELECT COUNT(*) AS n FROM hotels h WHERE h.offers_active > 0 AND h.hidden = 0${where.length ? ' AND ' + where.join(' AND ') : ''}${exists}`;
-  return (await db.prepare(sql).bind(...params, ...op).first<{ n: number }>())?.n ?? 0;
+  return (await countStatement(db, f).first<{ n: number }>())?.n ?? 0;
+}
+/** Many counts in as few round trips as possible (D1 batch, chunks of 40). */
+export async function countMany(db: D1Database, filters: Filters[]): Promise<number[]> {
+  const out: number[] = [];
+  for (let i = 0; i < filters.length; i += 40) {
+    const res = await db.batch(filters.slice(i, i + 40).map((f) => countStatement(db, f)));
+    for (const r of res) out.push(Number((r.results as Array<{ n: number }>)[0]?.n ?? 0));
+  }
+  return out;
 }

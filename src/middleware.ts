@@ -10,7 +10,7 @@
  */
 import { defineMiddleware } from 'astro:middleware';
 import { authenticateAdmin } from './lib/server/access';
-import { allowedHosts, getEnv, isLocal } from './lib/server/env';
+import { allowedHosts, d1Stats, getEnv, isLocal } from './lib/server/env';
 import { clientIp, error } from './lib/server/http';
 import { dataVersion, invalidateVersionMemo } from './lib/server/versions';
 import { securityHeaders } from './lib/security';
@@ -45,6 +45,7 @@ function finish(res: Response, url: URL, extra: Record<string, string> = {}): Re
   for (const [k, v] of Object.entries(securityHeaders(env.ANALYTICS_ENABLED === '1'))) if (!out.headers.has(k)) out.headers.set(k, v);
   for (const [k, v] of Object.entries(extra)) out.headers.set(k, v);
   if (env.ENVIRONMENT !== 'production' || /^\/(admin|api\/admin|go|akce)\b/.test(url.pathname)) out.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  if (env.ENVIRONMENT !== 'production') { out.headers.set('X-D1-Queries', String(d1Stats.n)); out.headers.set('X-D1-Ms', String(d1Stats.ms)); if (d1Stats.slow.length) out.headers.set('X-D1-Slow', encodeURIComponent(d1Stats.slow.join(' || '))); }
   return out;
 }
 const redirect = (to: string, status = 301) => new Response(null, { status, headers: { location: to, 'cache-control': 'public, max-age=3600' } });
@@ -52,6 +53,7 @@ const redirect = (to: string, status = 301) => new Response(null, { status, head
 export const onRequest = defineMiddleware(async (ctx, next) => {
   const url = ctx.url;
   if (ctx.isPrerendered) return next();
+  d1Stats.n = 0; d1Stats.ms = 0; d1Stats.slow = [];
   const env = getEnv();
 
   const hosts = allowedHosts(env);

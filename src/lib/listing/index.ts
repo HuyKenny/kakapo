@@ -1,7 +1,7 @@
 // Loaders for listing / topic / home pages (data + meta + JSON-LD). Astro components in src/components/{listing,home} render them.
 import { jsonArr, MEAL_LABELS, partnerLabel, partnerLogoUrl } from '../helpers';
 import { loadRegistry, type Registry } from '../snapshots';
-import { countHotels, normalizeFilters, search, todayPrague, type Filters, type HotelRow, type SearchResult } from '../search';
+import { countMany, normalizeFilters, search, todayPrague, type Filters, type HotelRow, type SearchResult } from '../search';
 import topicData from '../../data/topic-landings.json';
 import partnerConsts from '../../data/partner-consts.json';
 import { facets, type Facets } from './facets';
@@ -80,23 +80,20 @@ async function longtailBlocks(db: D1Database, ctx: LandingCtx, country: string, 
   const lt = deps.longtail;
   if (!lt || !country) return { all: [] as Array<{ path: string; h1: string }>, groups: [] as ListingData['popularGroups'] };
   return memoized(`lt:${ctx.path}:${today}`, 3600, () => storedJson(db, `lt:${ctx.path}`, 3 * 3600, async () => {
-    const enough = async (slug: string) => {
-      const c = await lt.context(db, country, dest, slug);
-      if (!c || c.path === ctx.path) return null;
-      const n = await countHotels(db, normalizeFilters({ ...c.filters, page: 1 }));
-      return n >= Number(c.index_min ?? 12) ? { path: c.path, h1: c.h1 } : null;
-    };
-    const all: Array<{ path: string; h1: string }> = [];
-    const cache = new Map<string, { path: string; h1: string } | null>();
-    const slugsAll = lt.topicSlugs();
-    for (let i = 0; i < slugsAll.length; i += 8) {
-      const part = await Promise.all(slugsAll.slice(i, i + 8).map((slug) => enough(slug)));
-      part.forEach((r, k) => { cache.set(slugsAll[i + k]!, r); if (r) all.push(r); });
-    }
+    // all topic contexts first (pure), then every COUNT in one batch round trip
+    if ((globalThis as any).__D1_TRACE) console.log('LT start ' + ctx.path);
+    const slugs = [...new Set([...lt.topicSlugs(), ...POPULAR_SETS.flatMap(([, s]) => s)])];
+    const ctxs = await Promise.all(slugs.map((slug) => lt.context(db, country, dest, slug)));
+    const todo = ctxs.map((c, i) => (c && c.path !== ctx.path ? { slug: slugs[i]!, c } : null)).filter((x): x is { slug: string; c: NonNullable<typeof ctxs[number]> } => !!x);
+    if ((globalThis as any).__D1_TRACE) console.log('LT contexts ' + todo.length);
+    const counts = await countMany(db, todo.map((t) => normalizeFilters({ ...t.c.filters, page: 1 })));
+    const ok = new Map<string, { path: string; h1: string }>();
+    todo.forEach((t, i) => { if ((counts[i] ?? 0) >= Number(t.c.index_min ?? 12)) ok.set(t.slug, { path: t.c.path, h1: t.c.h1 }); });
+    const all = lt.topicSlugs().map((s) => ok.get(s)).filter((x): x is { path: string; h1: string } => !!x);
     const groups: ListingData['popularGroups'] = [];
-    for (const [label, slugs] of POPULAR_SETS) {
+    for (const [label, ss] of POPULAR_SETS) {
       const links: Array<{ path: string; h1: string }> = [];
-      for (const s of slugs) { const r = cache.has(s) ? cache.get(s)! : await enough(s); if (r) links.push(r); if (links.length >= 6) break; }
+      for (const s of ss) { const r = ok.get(s); if (r) links.push(r); if (links.length >= 6) break; }
       if (links.length) groups.push({ label, links });
     }
     return { all, groups };
