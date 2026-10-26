@@ -21,7 +21,13 @@ export function titleBudget(coreIn: string): string {
 export function landingTitle(ctx: { title?: string; h1?: string }): string {
   const title = decode((ctx.title ?? '').trim());
   if (title !== '' && len(title) <= TITLE_MAX) return title;
-  const core = (ctx.h1 ?? '').trim();
+  let core = (ctx.h1 ?? '').trim();
+  // the long hand-written title carried the season year ("Dovolená u moře 2027: kam jet…"); keep it in the rebuilt one
+  const year = /(?<![\d.\/-])(20\d\d)(?![\d\/-])/.exec(title)?.[1];
+  if (year && core !== '' && !/\b20\d\d\b/.test(core)) {
+    const withYear = `${core} ${year}`;
+    if (len(withYear + ' — ceny' + BRAND) <= TITLE_MAX || len(withYear + BRAND) <= TITLE_MAX) core = withYear;
+  }
   return core !== '' ? titleBudget(core) : title;
 }
 
