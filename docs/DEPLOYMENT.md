@@ -34,3 +34,4 @@ Před zrušením hostingu ověřit schránky/formuláře/jiné weby na pool 89.2
 - Sitemapy: import Worker (`rebuildSitemaps`), ručně `npx tsx scripts/build-sitemaps.ts production`.
 - Nasazení webu: `CLOUDFLARE_ENV=production BUILD_ID=$(git rev-parse --short HEAD) SITE_URL=https://kakapo.cz npx astro build && npx tsx scripts/verify-no-secrets.ts && npx wrangler deploy -c dist/server/wrangler.json`.
 - Zóna kakapo.cz: WP cache pravidla smazána, `browser_cache_ttl` = respektovat hlavičky, TLS 1.3, Brotli; A záznamy na WEDOS IP zůstávají jen jako kotva pro Workers routy.
+- Fotky: všechny přes wsrv.nl; import Worker v každém cron ticku předehřívá přesné URL z šablon (`src/lib/images.ts`, `engine/warm.ts`, max 700 požadavků/tick, evidence `img_warm`). Ruční běh: `POST /warm?budget=N` (bearer). Měřeno 26. 10.: fotka z cache wsrv 0,09 s; předehřátá, ale v daném datacentru ještě nenačtená ~1,1 s; úplně studená 1,8–7 s.
