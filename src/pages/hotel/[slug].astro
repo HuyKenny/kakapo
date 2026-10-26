@@ -1,0 +1,495 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import HotelCard from '../../components/hotel/HotelCard.astro';
+import { loadHotel } from '../../lib/hotel';
+import { autop } from '../../lib/hotel/text';
+import { amenityIcon, formatDate, formatPrice, nightsLabel } from '../../lib/helpers';
+import { svg } from '../../lib/icons';
+import { getEnv, siteUrl } from '../../lib/server/env';
+
+export const prerender = false;
+
+const slug = String(Astro.params.slug ?? '').toLowerCase();
+// The landing module (other fork) may export longtailLink(db, country, dest, topic) -> {h1, path} | null.
+const landing = Object.values(import.meta.glob('../../lib/landing/index.ts', { eager: true }))[0] as { longtailLink?: (db: D1Database, c: string, d: string, t: string) => Promise<{ h1: string; path: string } | null> } | undefined;
+const db = getEnv().DB;
+const res = await loadHotel(db, slug, {
+	siteUrl: siteUrl(),
+	longtailLink: landing?.longtailLink ? (c, d, t) => landing.longtailLink!(db, c, d, t) : undefined,
+});
+if (!res) return Astro.rewrite('/404');
+if (res.kind === 'redirect') return Astro.redirect(res.to, res.status as 301);
+if (res.kind === 'gone') return new Response('Gone', { status: 410, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+
+const v = res.view;
+const h = v.hotel;
+const gal = v.images.slice(0, 10);
+const grid = gal.length >= 5;
+const rStr = v.rating !== null ? v.rating.toFixed(1).replace('.', ',') : '';
+const alt = v.nearby.filter((n) => n.min_price).slice(0, 6);
+const ratingPct = v.rating !== null ? Math.max(0, Math.min(100, Math.round(v.rating * 10))) : 0;
+const ratingWord = v.rating !== null ? (v.rating >= 9 ? 'Vynikající' : v.rating >= 8 ? 'Výborné' : v.rating >= 7 ? 'Velmi dobré' : v.rating >= 6 ? 'Dobré' : 'Ucházející') : '';
+const mapLink = h.lat !== null && h.lng !== null ? `https://www.openstreetmap.org/?mlat=${Number(h.lat)}&mlon=${Number(h.lng)}#map=14/${Number(h.lat)}/${Number(h.lng)}` : '';
+const place = [h.destination, h.country].filter(Boolean).join(', ');
+const h2 = 'text-[1.35rem] font-extrabold tracking-tight text-ink';
+---
+<Base title={v.meta.title} description={v.meta.description} canonical={v.meta.canonical} robots={v.meta.robots} {...(v.meta.image ? { ogImage: v.meta.image } : {})} jsonLd={v.meta.jsonLd} pageType="hotel">
+<main class="bg-white">
+	<div class="container-k py-6 sm:py-8">
+		<Breadcrumbs items={v.breadcrumbs} />
+
+		<div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+			<div>
+				<div class="flex flex-wrap items-center gap-3">
+					<h1 class="font-display text-[1.75rem] font-extrabold leading-tight tracking-[-0.03em] text-ink sm:text-[2.1rem]">{h.name}</h1>
+					{v.stars > 0 && (
+						<span class="flex items-center gap-0.5 text-amber-400" role="img" aria-label={`${v.stars} z 5 hvězdiček`}>
+							{Array.from({ length: v.stars }).map(() => <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.26 6.86.83-5.07 4.7 1.35 6.77L12 17.2l-6.04 3.36 1.35-6.77-5.07-4.7 6.86-.83z"/></svg>)}
+						</span>
+					)}
+				</div>
+				<p class="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+					{v.locationLine}
+				</p>
+			</div>
+			{v.rating !== null && (
+				<div class="flex items-center gap-2">
+					<span class="rating-badge !text-xl">{rStr}</span>
+					<span class="text-sm text-slate-500">
+						<span class="block font-semibold text-ink">{v.ratingLabel}</span>
+						{Number(h.rating_count) > 0 && <>{Number(h.rating_count).toLocaleString('cs-CZ').replace(/ /g, ' ')} hodnocení</>}
+					</span>
+				</div>
+			)}
+		</div>
+
+		{v.images.length > 0 && (
+			<div x-data={`kakapoGallery(${JSON.stringify(v.galleryCfg)})`} class="mb-8">
+				<div class="relative">
+					<div class={`-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:grid sm:gap-2 sm:overflow-hidden sm:rounded-3xl sm:px-0 ${grid ? 'sm:h-[400px] sm:grid-cols-4 sm:grid-rows-2 lg:h-[480px]' : 'sm:grid-cols-1'}`}>
+						{gal.map((_img, i) => {
+							const big = i === 0;
+							const cls = big ? (grid ? 'sm:col-span-2 sm:row-span-2' : '') : (grid && i <= 4 ? '' : 'sm:hidden');
+							return (
+								<button type="button" class={`relative w-[88%] shrink-0 snap-center overflow-hidden rounded-2xl bg-mist sm:w-auto sm:rounded-none ${cls}`} x-on:click={`idx = ${i}; lightbox = true`} aria-label={`Zvětšit fotografii ${i + 1}`}>
+									<img src={v.galleryCfg.images[i]?.replace('w=1280', big ? 'w=1280' : 'w=640').replace('q=78', big ? 'q=78' : 'q=72')} alt={h.name + (big ? '' : ` — fotografie ${i + 1}`)}
+										width={big ? 1280 : 640} height={big ? 853 : 427} decoding="async" {...(big ? { fetchpriority: 'high' } : { loading: 'lazy' })}
+										onerror="this.closest('button').style.display='none'"
+										class={`aspect-[4/3] h-full w-full object-cover transition duration-300 hover:brightness-90 sm:aspect-auto ${big && !grid ? 'sm:aspect-[21/9]' : ''}`}>
+								</button>
+							);
+						})}
+					</div>
+					{gal.length > 1 && (
+						<button type="button" class="absolute bottom-4 right-4 hidden items-center gap-2 rounded-xl border border-ink bg-white px-4 py-2 text-sm font-bold text-ink shadow-soft transition hover:bg-mist sm:inline-flex" x-on:click="idx = 0; lightbox = true">
+							<Fragment set:html={svg('images', 16)} />
+							Zobrazit všechny fotky ({v.images.length})
+						</button>
+					)}
+				</div>
+				<div x-show="lightbox" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center bg-ink/95 p-4"
+					x-on:click.self="lightbox = false" x-on:keydown.escape.window="lightbox = false" x-on:keydown.arrow-right.window="lightbox && next()" x-on:keydown.arrow-left.window="lightbox && prev()"
+					role="dialog" aria-modal="true" aria-label="Galerie fotografií">
+					<button type="button" class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20" x-on:click="lightbox = false" aria-label="Zavřít galerii">
+						<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+					</button>
+					<button type="button" class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20" x-on:click="prev()" aria-label="Předchozí fotografie">
+						<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+					</button>
+					<img x-bind:src="images[idx]" alt={h.name} class="max-h-[85vh] max-w-full rounded-xl object-contain">
+					<button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition hover:bg-white/20" x-on:click="next()" aria-label="Další fotografie">
+						<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+					</button>
+					<p class="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/70"><span x-text="idx + 1"></span> / <span x-text="images.length"></span></p>
+				</div>
+			</div>
+		)}
+
+		<div class="grid gap-8 lg:grid-cols-[1fr_340px]">
+			<div class="min-w-0">
+				{v.descriptionParas.length > 0 && (
+					<section class="mb-8">
+						<h2 class={`mb-3 ${h2}`}>O hotelu</h2>
+						<div class="max-w-3xl">
+							{v.descriptionParas.map((p, i) => p.trim() !== '' && <p class={i === 0 ? 'text-lg leading-relaxed text-slate-700' : 'mt-4 text-[15px] leading-relaxed text-slate-600'}>{p.trim()}</p>)}
+						</div>
+					</section>
+				)}
+
+				{v.fitPoints.length > 0 && (
+					<section class="mb-8">
+						<h2 class={`mb-4 ${h2}`}>Pro koho se hotel hodí</h2>
+						<div class="grid gap-3 md:grid-cols-2">
+							{v.fitPoints.map((f) => <div class="rounded-xl border border-line bg-mist/60 p-4 text-sm leading-relaxed text-slate-700">{f}</div>)}
+						</div>
+					</section>
+				)}
+
+				{v.relatedLinks.length > 0 && (
+					<section class="mb-8">
+						<h2 class={`mb-3 ${h2}`}>Související výběr</h2>
+						<div class="flex flex-wrap gap-2">
+							{v.relatedLinks.map(([label, href]) => <a class="chip" href={href}>{label}</a>)}
+						</div>
+					</section>
+				)}
+
+				{v.checkPoints.length > 0 && (
+					<section class="mb-8">
+						<h2 class={`mb-4 ${h2}`}>V čem se nabídky liší</h2>
+						<ul class="grid gap-3 sm:grid-cols-2">
+							{v.checkPoints.map((c) => (
+								<li class="flex gap-3 rounded-xl border border-line bg-white p-4 text-sm text-slate-700 shadow-sm">
+									<span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-leaf text-white" aria-hidden="true">
+										<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+									</span>
+									<span>{c}</span>
+								</li>
+							))}
+						</ul>
+					</section>
+				)}
+
+				{v.amenities.length > 0 && (
+					<section class="mb-8">
+						<h2 class={`mb-4 ${h2}`}>Vybavení hotelu</h2>
+						<ul class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+							{v.amenities.map(([k, label]) => (
+								<li class="flex items-center gap-3">
+									<span class="text-ink" set:html={amenityIcon(k)} />
+									<span class="text-[15px] text-slate-700">{label}</span>
+								</li>
+							))}
+						</ul>
+					</section>
+				)}
+
+				{mapLink && (
+					<section class="mb-8">
+						<h2 class={`mb-3 ${h2}`}>Poloha</h2>
+						<a href={mapLink} target="_blank" rel="noopener nofollow"
+							class="group relative flex min-h-[9rem] items-center justify-between gap-4 overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-coral-light to-mist p-5 sm:p-6"
+							aria-label="Zobrazit polohu na mapě"
+							style="background-image: radial-gradient(rgba(2,132,199,0.10) 1.2px, transparent 1.3px); background-size: 18px 18px;">
+							<span class="flex items-center gap-3">
+								<span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-ink shadow-sm">
+									<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+								</span>
+								<span class="leading-tight">
+									<span class="block font-semibold text-ink">{place !== '' ? place : h.name}</span>
+									<span class="block text-sm text-slate-500">Zobrazit polohu na mapě</span>
+								</span>
+							</span>
+							<span class="btn-primary btn-sm shrink-0">Otevřít mapu</span>
+						</a>
+					</section>
+				)}
+
+				{v.rating !== null && (
+					<section class="mb-4">
+						<h2 class={`mb-3 ${h2}`}>Recenze</h2>
+						<div class="flex items-center gap-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-card sm:p-6">
+							<div class="flex flex-col items-center">
+								<span class="rating-badge !h-16 !min-w-[4rem] !text-3xl">{rStr}</span>
+								<span class="mt-1 text-xs font-medium text-slate-400">z 10</span>
+							</div>
+							<div class="flex-1">
+								<p class="text-lg font-bold text-ink">{ratingWord}</p>
+								{Number(h.rating_count) > 0
+									? <p class="text-sm text-slate-500">podle {Number(h.rating_count).toLocaleString('cs-CZ').replace(/ /g, ' ')} hodnocení klientů cestovních kanceláří</p>
+									: <p class="text-sm text-slate-500">hodnocení klientů cestovních kanceláří</p>}
+								<div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-mist" role="img" aria-label={`${rStr} z 10`}>
+									<div class="h-full rounded-full bg-ink" style={`width:${ratingPct}%`}></div>
+								</div>
+							</div>
+						</div>
+					</section>
+				)}
+			</div>
+
+			<aside class="lg:sticky lg:top-24 lg:self-start" aria-label="Souhrn nabídky">
+				<div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-card">
+					{h.min_price !== null ? (
+						<>
+							<p class="text-sm text-slate-500">Cena za osobu</p>
+							<p class="text-3xl font-extrabold text-ink">od {formatPrice(h.min_price)}</p>
+						</>
+					) : v.lastKnown ? (
+						<>
+							<p class="text-sm text-slate-500">Naposledy za osobu</p>
+							<p class="text-3xl font-extrabold text-slate-500">od {formatPrice(v.lastKnown.price)}</p>
+							<p class="mt-1 text-xs text-slate-400">k {formatDate(v.lastKnown.date)}, teď bez volných termínů</p>
+						</>
+					) : null}
+					{h.updated_at && <p class="mt-1 text-xs text-slate-400">Ceny aktualizovány {formatDate(h.updated_at)}</p>}
+					<dl class="mt-4 space-y-2 text-sm">
+						<div class="flex items-center justify-between gap-2">
+							<dt class="text-slate-500">Nabídek celkem</dt>
+							<dd class="font-semibold text-ink">{v.offersLabel}</dd>
+						</div>
+						{Number(h.partners_count) > 0 && (
+							<div class="flex items-center justify-between gap-2">
+								<dt class="text-slate-500">Cestovních kanceláří</dt>
+								<dd class="font-semibold text-ink">{Number(h.partners_count)}</dd>
+							</div>
+						)}
+						{v.nearest !== '' && (
+							<div class="flex items-center justify-between gap-2">
+								<dt class="text-slate-500">Nejbližší odlet</dt>
+								<dd class="font-semibold text-ink">{formatDate(v.nearest)}</dd>
+							</div>
+						)}
+					</dl>
+					{v.sparkline !== '' && (
+						<div class="mt-4 border-t border-line pt-4">
+							<p class="text-sm font-semibold text-ink">Vývoj nejnižší ceny</p>
+							{Number(h.price_drop_pct ?? 0) >= 5 && <p class="mt-0.5 text-sm font-semibold text-leaf">Cena klesla o {Number(h.price_drop_pct)} % za poslední týden</p>}
+							<div class="mt-2 text-coral" set:html={v.sparkline} />
+							<p class="mt-1 text-xs text-slate-400">Sledujeme nejnižší cenu denně napříč cestovkami</p>
+						</div>
+					)}
+					{v.soldOut ? (
+						<>
+							<a href="#nabidky" class="btn-primary mt-5 w-full">Zobrazit náhrady</a>
+							<p class="mt-3 text-center text-xs text-slate-400">Hotely se stejnou destinací, které termíny mají</p>
+						</>
+					) : (
+						<>
+							<a href="#nabidky" class="btn-primary mt-5 w-full">Porovnat nabídky</a>
+							<p class="mt-3 text-center text-xs text-slate-400">Rezervace proběhne u cestovní kanceláře</p>
+						</>
+					)}
+				</div>
+			</aside>
+		</div>
+
+		<section id="nabidky" class="mt-10 scroll-mt-24" x-data={`kakapoOffers(${JSON.stringify(v.partnersCfg)})`}>
+			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+				<h2 class="text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-2xl">Nabídky cestovních kanceláří</h2>
+				<p class="text-sm text-slate-500" x-show="loading" x-cloak>Načítám nabídky…</p>
+			</div>
+
+			{v.offers.length > 0 && v.months.length >= 2 && (
+				<div class="mb-4">
+					<p class="mb-2 text-sm font-semibold text-ink">Kdy je nejlevněji</p>
+					<div class="flex flex-wrap gap-2">
+						<button type="button" class="chip" x-bind:class="month === '' ? 'chip-active' : ''" x-on:click="filterMonth('')">Všechny termíny</button>
+						{v.months.map((m) => (
+							<button type="button" class="chip" x-bind:class={`month === '${m.ym}' ? 'chip-active' : ''`} x-on:click={`filterMonth('${m.ym}')`}>
+								{m.label}
+								<span class={m.cheapest ? 'font-bold text-leaf' : 'text-slate-400'}> od {formatPrice(m.mp)}</span>
+							</button>
+						))}
+					</div>
+				</div>
+			)}
+
+			{v.offers.length > 0 ? (
+				<div class="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-card">
+					<table class="offers-table">
+						<thead>
+							<tr>
+								<th scope="col">CK</th>
+								<th scope="col">
+									<button type="button" class="sort-btn" x-on:click="sortBy('departure')" x-bind:class="sort === 'departure' ? 'sort-active' : ''">Termín <span aria-hidden="true" x-show="sort === 'departure'" x-cloak>↓</span></button>
+									<span class="text-slate-300" aria-hidden="true">/</span>
+									<button type="button" class="sort-btn" x-on:click="sortBy('nights')" x-bind:class="sort === 'nights' ? 'sort-active' : ''">Nocí <span aria-hidden="true" x-show="sort === 'nights'" x-cloak>↓</span></button>
+								</th>
+								<th scope="col">Odlet z</th>
+								<th scope="col">Strava</th>
+								<th scope="col">Pokoj</th>
+								<th scope="col">
+									<button type="button" class="sort-btn" x-on:click="sortBy('discount')" x-bind:class="sort === 'discount' ? 'sort-active' : ''">Sleva <span aria-hidden="true" x-show="sort === 'discount'" x-cloak>↓</span></button>
+								</th>
+								<th scope="col">
+									<button type="button" class="sort-btn" x-on:click="sortBy('price')" x-bind:class="sort === 'price' ? 'sort-active' : ''">Cena/os. <span aria-hidden="true" x-show="sort === 'price'" x-cloak>↓</span></button>
+								</th>
+								<th scope="col"><span class="sr-only">Akce</span></th>
+							</tr>
+						</thead>
+						<tbody x-show="!loaded">
+							{v.offers.map((o) => (
+								<tr>
+									<td data-label="CK" class="font-semibold text-ink">
+										<span class="flex items-center gap-2">
+											{o.partner_logo !== '' ? (
+												<img src={o.partner_logo} alt={o.partner_label} class={o.partner_slug === 'dovolena-cz' ? 'h-8 w-auto max-w-[132px] shrink-0 object-contain' : 'h-6 w-auto max-w-[110px] shrink-0 object-contain'} loading="lazy" decoding="async">
+											) : (
+												<>
+													<span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white" style={`background-color:${o.partner_color}`} aria-hidden="true">{o.partner_label.slice(0, 1).toUpperCase()}</span>
+													<span>{o.partner_label}</span>
+												</>
+											)}
+											{o.is_last_minute && <span class="badge badge-lm align-middle">Last minute</span>}
+										</span>
+									</td>
+									<td data-label="Termín">
+										<span>
+											<span class="block whitespace-nowrap font-medium text-ink">{o.term}</span>
+											<span class="block text-xs text-slate-400">{nightsLabel(o.nights)}</span>
+										</span>
+									</td>
+									<td data-label="Odlet z">{o.airport !== '' ? o.airport : '–'}</td>
+									<td data-label="Strava">{o.meal_label}</td>
+									<td data-label="Pokoj">{o.room_type !== '' ? o.room_type : '–'}</td>
+									<td data-label="Sleva">
+										{o.real_drop > 0 && <span class="badge badge-drop" title="Reálný pokles ceny za posledních 7 dní">↓ {o.real_drop} %</span>}
+										{o.discount > 0 ? <span class="badge badge-sale">−{o.discount} %</span> : o.real_drop === 0 ? <span class="text-slate-300">—</span> : null}
+									</td>
+									<td data-label="Cena/os.">
+										{o.discount > 0 && <span class="block text-xs text-slate-400 line-through">{formatPrice(o.price_original)}</span>}
+										<span class="whitespace-nowrap text-lg font-bold text-coral-dark">{formatPrice(o.price_pp)}</span>
+									</td>
+									<td class="offers-cta">
+										<a class="btn-primary btn-sm whitespace-nowrap" href={o.go_url} data-kakapo-partner={o.partner_slug} data-kakapo-price={o.price_pp} target="_blank" rel="nofollow sponsored noopener">Zobrazit nabídku</a>
+									</td>
+								</tr>
+							))}
+						</tbody>
+						<tbody x-show="loaded" x-cloak>
+							<tr x-show="!offers.length && !loading">
+								<td colspan="8" class="py-6 text-center text-sm text-slate-500">Pro vybraný měsíc teď nejsou volné termíny — zkuste jiný měsíc.</td>
+							</tr>
+							<template x-for="o in offers" x-bind:key="o.id">
+								<tr>
+									<td data-label="CK" class="font-semibold text-ink">
+										<span class="flex items-center gap-2">
+											<img x-show="partnerLogo(o.partner)" x-bind:src="partnerLogo(o.partner)" x-bind:alt="partnerLabel(o.partner)" class="w-auto shrink-0 object-contain" x-bind:class="o.partner === 'dovolena-cz' ? 'h-8 max-w-[132px]' : 'h-6 max-w-[110px]'" loading="lazy" decoding="async">
+											<template x-if="!partnerLogo(o.partner)">
+												<span class="flex items-center gap-2">
+													<span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white" x-bind:style="'background-color:' + partnerColor(o.partner)" aria-hidden="true" x-text="partnerInitial(o.partner)"></span>
+													<span x-text="partnerLabel(o.partner)"></span>
+												</span>
+											</template>
+											<span class="badge badge-lm align-middle" x-show="o.is_last_minute">Last minute</span>
+										</span>
+									</td>
+									<td data-label="Termín">
+										<span>
+											<span class="block whitespace-nowrap font-medium text-ink" x-text="term(o)"></span>
+											<span class="block text-xs text-slate-400" x-text="nightsLabel(o.nights)"></span>
+										</span>
+									</td>
+									<td data-label="Odlet z" x-text="o.airport || '–'"></td>
+									<td data-label="Strava" x-text="o.meal_label"></td>
+									<td data-label="Pokoj" x-text="o.room_type || '–'"></td>
+									<td data-label="Sleva">
+										<span class="badge badge-drop" title="Reálný pokles ceny za posledních 7 dní" x-show="o.real_drop > 0" x-text="'↓ ' + o.real_drop + ' %'"></span>
+										<span class="badge badge-sale" x-show="o.discount > 0" x-text="'−' + o.discount + ' %'"></span>
+										<span class="text-slate-300" x-show="!o.discount && !o.real_drop">—</span>
+									</td>
+									<td data-label="Cena/os.">
+										<span class="block text-xs text-slate-400 line-through" x-show="o.discount > 0" x-text="price(o.price_original)"></span>
+										<span class="whitespace-nowrap text-lg font-bold text-coral-dark" x-text="price(o.price_pp)"></span>
+									</td>
+									<td class="offers-cta">
+										<a class="btn-primary btn-sm whitespace-nowrap" x-bind:href="o.go_url" x-bind:data-kakapo-partner="o.partner_slug || ''" x-bind:data-kakapo-price="o.price_pp || 0" target="_blank" rel="nofollow sponsored noopener">Zobrazit nabídku</a>
+									</td>
+								</tr>
+							</template>
+						</tbody>
+					</table>
+				</div>
+			) : (
+				<div class="rounded-2xl border border-line bg-white p-6 shadow-card">
+					<p class="text-base font-semibold text-ink">Tento hotel teď nemá volné termíny</p>
+					{v.lastKnown ? (
+						<p class="mt-1 text-sm text-slate-600">
+							Naposledy jsme tu viděli cenu
+							<strong class="text-ink"> od {formatPrice(v.lastKnown.price)}</strong>
+							za osobu ({formatDate(v.lastKnown.date)}).
+							Nabídky cestovek se obměňují, termíny se sem můžou vrátit.
+						</p>
+					) : <p class="mt-1 text-sm text-slate-600">Nabídky cestovek se obměňují, termíny se sem můžou vrátit.</p>}
+					{v.sparkline !== '' && (
+						<div class="mt-4 max-w-sm border-t border-line pt-4">
+							<p class="text-sm font-semibold text-ink">Jak se tu cena vyvíjela</p>
+							<div class="mt-2 text-coral" set:html={v.sparkline} />
+						</div>
+					)}
+					{alt.length > 0 && (
+						<div class="mt-5 border-t border-line pt-4">
+							<p class="text-sm font-semibold text-ink">Volné termíny má teď{v.nearbyLabel !== '' ? ` — ${v.nearbyLabel}` : ''}</p>
+							<ul class="mt-2 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+								{alt.map((a) => (
+									<li class="flex items-baseline justify-between gap-3 border-b border-line/60 py-1.5">
+										<a class="text-ink no-underline hover:underline" href={`/hotel/${a.slug}/`}>{a.name}</a>
+										<span class="shrink-0 whitespace-nowrap text-xs font-semibold text-slate-600">od {formatPrice(a.min_price)}</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
+					<div class="mt-5 flex flex-wrap items-center gap-2">
+						{h.country_slug && <a href={`/${h.country_slug}/`} class="btn-primary btn-sm">Dovolená {h.country}</a>}
+						<a href="/zajezdy/" class="btn-ghost btn-sm">Všechny zájezdy</a>
+					</div>
+				</div>
+			)}
+		</section>
+
+		{v.faqs.length > 0 && (
+			<section class="mt-12">
+				<h2 class="mb-5 text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-2xl">Nejčastější otázky k hotelu</h2>
+				<div class="grid gap-3 md:grid-cols-2">
+					{v.faqs.map((f) => (
+						<details class="rounded-2xl bg-paper p-5">
+							<summary class="cursor-pointer text-sm font-semibold text-ink">{f.q}</summary>
+							<div class="mt-2 text-sm leading-relaxed text-slate-600" set:html={autop(f.a)} />
+						</details>
+					))}
+				</div>
+			</section>
+		)}
+
+		{v.similar.length > 0 && (
+			<section class="mt-12">
+				<h2 class="mb-5 text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-2xl">Podobné zájezdy</h2>
+				<div class="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
+					{v.similar.map((s) => <HotelCard hotel={s} />)}
+				</div>
+			</section>
+		)}
+
+		{v.nearby.length >= 3 && v.nearbyLabel !== '' && (
+			<section class="mt-12 border-t border-line pt-8">
+				<h2 class="mb-4 text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-2xl">Další hotely — {v.nearbyLabel}</h2>
+				<ul class="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+					{v.nearby.map((n) => (
+						<li class="flex items-baseline justify-between gap-3 border-b border-line/60 py-1.5">
+							<a class="text-ink no-underline hover:underline" href={`/hotel/${n.slug}/`}>{n.name}</a>
+							{n.min_price ? <span class="shrink-0 whitespace-nowrap text-xs text-slate-500">od {formatPrice(n.min_price)}</span> : null}
+						</li>
+					))}
+				</ul>
+			</section>
+		)}
+
+		<div class="h-20 lg:hidden" aria-hidden="true"></div>
+	</div>
+</main>
+
+<div class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur lg:hidden">
+	<div class="flex items-center justify-between gap-3">
+		{h.min_price !== null ? (
+			<>
+				<div class="leading-tight">
+					<span class="block text-xs text-slate-500">Cena za osobu</span>
+					<span class="block text-lg font-extrabold text-ink">od {formatPrice(h.min_price)}</span>
+				</div>
+				<a href="#nabidky" class="btn-primary shrink-0">Porovnat nabídky</a>
+			</>
+		) : (
+			<>
+				<div class="leading-tight">
+					<span class="block text-xs text-slate-500">Aktuálně bez termínů</span>
+					{v.lastKnown && <span class="block text-sm font-semibold text-slate-600">naposledy od {formatPrice(v.lastKnown.price)}</span>}
+				</div>
+				<a href="#nabidky" class="btn-primary shrink-0">Zobrazit náhrady</a>
+			</>
+		)}
+	</div>
+</div>
+</Base>

@@ -1,0 +1,5 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "include": ["src/**/*", "../../tests/import/**/*", "scripts/**/*"],
+  "compilerOptions": { "noEmit": true, "types": ["node"], "resolveJsonModule": true, "allowImportingTsExtensions": true, "verbatimModuleSyntax": true, "lib": ["ES2023", "DOM"], "noUncheckedIndexedAccess": true, "exactOptionalPropertyTypes": false }
+}

@@ -9,7 +9,7 @@ import { openFeed, rotatingIds, FeedFetchError } from '../adapters';
 import { finalizeProduct, mergeProducts, normalizeHotel, normalizeOffer, normalizeProduct, type NormCtx } from '../adapters/normalize';
 import { XmlError } from '../xml/stream';
 import { feedMapping } from '../adapters';
-import { addDays, pragueToday, sqlTime } from '../util/text';
+import { pragueToday, sqlTime } from '../util/text';
 import { BlockWriter, manifestKey, pruneSnapshots, readBlock, readManifest, type Manifest } from './blocks';
 import { MAX_PARAMS, chunk, qs, runBatches } from './db';
 import { applyOffers, applyProducts, type RunCtx } from './offers';
@@ -221,7 +221,7 @@ async function continueRun(deps: Deps, feed: FeedRow, runId: number, cp: Checkpo
     const present = new Set(manifest.present);
     const missing = active.filter((r) => !present.has(r.external_id));
     const limit = Math.max(50, Math.floor(active.length * 0.35));
-    if (!rotatingIds(feed) && missing.length > limit) hold = `suspicious: ${missing.length} of ${active.length} active ${table} are missing from the feed (limit ${limit}); nothing was deactivated`;
+    if (!rotatingIds(feed) && cp.hold !== 'approved' && missing.length > limit) hold = `suspicious: ${missing.length} of ${active.length} active ${table} are missing from the feed (limit ${limit}); nothing was deactivated`;
     else if (missing.length) {
       const stmts = chunk(missing.map((m) => m.id), MAX_PARAMS).map((ids) => db.prepare(`UPDATE ${table} SET active = 0 WHERE active = 1 AND id IN (${qs(ids.length)})`).bind(...ids));
       cp.counters.deactivated += await runBatches(db, stmts);

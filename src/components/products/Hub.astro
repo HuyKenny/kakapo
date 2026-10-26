@@ -1,0 +1,100 @@
+---
+import Breadcrumbs from '../Breadcrumbs.astro';
+import { categoryIcon, CATEGORIES, categoryPhoto } from '../../lib/products/data';
+import type { HubData } from '../../lib/products/route';
+import { countLabel, formatPrice, imgUrl } from '../../lib/helpers';
+interface Props { data: HubData }
+const { data } = Astro.props;
+const cats = Object.entries(CATEGORIES);
+const total = data.total;
+const nf = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+let i = 0;
+---
+<main class="container-k py-8 sm:py-10">
+	<Breadcrumbs items={data.meta.breadcrumbs} />
+
+	<header class="mb-10 max-w-3xl">
+		<span class="eyebrow">Objevte</span>
+		<h1 class="mt-2 font-display text-4xl font-bold tracking-tightish text-ink sm:text-5xl">Zážitky, které stojí za cestu</h1>
+		<p class="mt-4 text-lg leading-relaxed text-slate-600">Poznávací a vzdělávací zájezdy, romantické pobyty, wellness, plavby i eurovíkendy od prověřených partnerů — na jednom místě. Vyberte si, po čem toužíte, a rezervujte přímo u pořadatele.</p>
+		{total > 0 && (
+			<p class="mt-4 inline-flex items-center gap-2 rounded-full bg-mist px-4 py-1.5 text-sm font-semibold text-ink">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+				{nf(total)} aktuálních nabídek k prozkoumání
+			</p>
+		)}
+	</header>
+
+	<div class="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+		{cats.map(([type, c]) => {
+			const cnt = data.counts[type]?.cnt ?? 0;
+			const min = data.counts[type]?.min_price ?? 0;
+			if (cnt === 0) return null;
+			const feat = i === 0;
+			i++;
+			return (
+				<a href={`/${c.path}/`}
+					class={`group relative flex flex-col justify-end overflow-hidden rounded-3xl shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-card-hover ${feat ? 'min-h-[300px] sm:col-span-2 sm:row-span-2 lg:min-h-[420px]' : 'min-h-[240px]'}`}>
+					<img src={imgUrl(categoryPhoto(type), 900, 74)} alt={c.label} loading="lazy" decoding="async"
+						class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+					<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+					<div class="relative p-6 text-white">
+						<span class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25 backdrop-blur" set:html={categoryIcon(type)} />
+						<h2 class={`font-display font-bold tracking-tightish ${feat ? 'text-3xl' : 'text-2xl'}`}>{c.label}</h2>
+						<p class={`mt-1.5 max-w-md text-sm leading-relaxed text-white/85 ${feat ? '' : 'line-clamp-2'}`}>{c.intro}</p>
+						<p class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white">
+							{nf(cnt)} {countLabel(cnt, 'nabídka', 'nabídky', 'nabídek')}{min > 0 && <> · od {formatPrice(min)}</>}
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+						</p>
+					</div>
+				</a>
+			);
+		})}
+	</div>
+
+	<section class="mx-auto mt-16 max-w-3xl text-center">
+		<h2 class="h-section">Proč vybírat dovolenou přes Kakapo.cz?</h2>
+		<p class="mt-3 leading-relaxed text-slate-600">Srovnáváme nabídky napříč prověřenými cestovními kancelářemi a partnery, takže nemusíte otevírat deset webů. U každé nabídky vidíte cenu i termíny předem a rezervaci dokončíte přímo u pořadatele — bez příplatků navíc. Ať hledáte poznávací zájezd, wellness víkend nebo plavbu, začněte tady.</p>
+	</section>
+
+	<section class="mt-16 border-t border-line pt-10">
+		<div class="prose-kakapo mx-auto max-w-5xl text-slate-600">
+			<h2>Jak si vybrat správný typ zájezdu</h2>
+			<p>Než začnete porovnávat konkrétní nabídky, pomůže si ujasnit účel cesty. Jinak se vybírá odpočinková dovolená u moře, jinak poznávací okruh, krátký eurovíkend nebo wellness pobyt jako dárek. Rozdíl není jen v ceně, ale hlavně v programu, délce, dopravě, stravě a míře volnosti.</p>
+			<table><tbody>
+				<tr><th>Co hledáte</th><th>Kde začít</th></tr>
+				<tr><td>Odpočinek bez starostí</td><td>Zájezdy k moři, all inclusive pobyty, wellness hotely nebo <a href="/dovolena-vlastni-dopravou/">dovolená vlastní dopravou</a>.</td></tr>
+				<tr><td>Krátký útěk na pár dní</td><td>Eurovíkendy, romantické pobyty, zážitky a wellness víkendy.</td></tr>
+				<tr><td>Aktivní program</td><td>Poznávací a vzdělávací zájezdy, plavby, lyžování nebo tematické pobyty.</td></tr>
+				<tr><td>Dárek pro někoho blízkého</td><td>Zážitkové pobyty s flexibilním termínem a jasnými podmínkami voucheru.</td></tr>
+			</tbody></table>
+			<h2>Co porovnat napříč kategoriemi</h2>
+			<ul>
+				<li>celkovou cenu včetně doplatků, ne jen cenu v kartě nabídky,</li>
+				<li>termín, délku pobytu a skutečný čas v destinaci,</li>
+				<li>stravu, dopravu, zavazadla, vstupy a další služby v ceně,</li>
+				<li>storno podmínky a možnost změny termínu,</li>
+				<li>recenze místa, pořadatele nebo hotelu.</li>
+			</ul>
+			<h2>Kdy začít hledat</h2>
+			<p>U prázdnin, svátků, adventu, Silvestra a oblíbených wellness termínů má smysl vybírat s předstihem. Pokud máte flexibilní termín, můžete naopak najít lepší cenu u last minute, všedních dnů nebo méně vytížených měsíců. Nejlepší výběr vzniká tehdy, když neporovnáváte jen cenu, ale i to, jak dobře nabídka odpovídá tomu, proč chcete cestovat.</p>
+		</div>
+	</section>
+
+	<section class="mt-14 border-t border-line pt-10">
+		<div class="mx-auto max-w-4xl">
+			<h2 class="h-section">Časté otázky</h2>
+			<div class="mt-5 divide-y divide-line rounded-2xl border border-line bg-white shadow-soft">
+				{data.faqs.map((f) => (
+					<details class="group p-5" open>
+						<summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">
+							{f.q}
+							<span class="text-xl leading-none text-slate-400 transition group-open:rotate-45">+</span>
+						</summary>
+						<div class="mt-3 text-sm leading-relaxed text-slate-600"><p>{f.a}</p></div>
+					</details>
+				))}
+			</div>
+		</div>
+	</section>
+</main>

@@ -205,12 +205,12 @@ export async function* decodeXmlStream(body: ReadableStream<Uint8Array>, opts: {
     },
     cancel() { reader.cancel().catch(() => {}); },
   });
-  stream = isGzip ? raw.pipeThrough(new DecompressionStream('gzip')) : raw;
+  stream = isGzip ? raw.pipeThrough(new DecompressionStream('gzip') as unknown as ReadableWritablePair<Uint8Array, Uint8Array>) : raw;
 
   let decoder: TextDecoder | null = null;
   let bytes = 0;
   const r2 = stream.getReader();
-  let pending = new Uint8Array(0);
+  let pending: Uint8Array<ArrayBufferLike> = new Uint8Array(0);
   for (;;) {
     const { done, value } = await r2.read();
     if (done) break;
@@ -233,4 +233,4 @@ export async function* decodeXmlStream(body: ReadableStream<Uint8Array>, opts: {
   else if (pending.length) throw new XmlError('truncated', 'body too short');
 }
 
-function concat(a: Uint8Array, b: Uint8Array): Uint8Array { const o = new Uint8Array(a.length + b.length); o.set(a); o.set(b, a.length); return o; }
+function concat(a: Uint8Array, b: Uint8Array): Uint8Array<ArrayBuffer> { const o = new Uint8Array(a.length + b.length); o.set(a); o.set(b, a.length); return o; }

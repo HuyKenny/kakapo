@@ -1,0 +1,60 @@
+---
+import { categoryIcon, categoryLabel } from '../../lib/products/data';
+import type { ProductRow } from '../../lib/products/repo';
+import { cleanProductTitle, countryFlagHtml, formatDate, formatPrice, imgSrcset, imgUrl, nightsLabel, partnerLabel } from '../../lib/helpers';
+interface Props { p: ProductRow }
+const { p } = Astro.props;
+const url = `/zazitek/${p.slug}/`;
+const image = String(p.image_url ?? p.images[0] ?? '');
+const price = Math.trunc(p.price ?? 0);
+const priceOriginal = p.price_original && p.price_original > price ? p.price_original : null;
+const discount = priceOriginal ? Math.round(100 * (1 - price / priceOriginal)) : null;
+const type = p.type || 'zajezdy';
+const cat = categoryLabel(type);
+const place = [p.country, p.destination].filter(Boolean).join(' › ');
+const flag = countryFlagHtml(p.country ?? '', p.country_slug ?? '');
+const partner = p.partner_slug ?? '';
+const plabel = partnerLabel(partner);
+const title = cleanProductTitle(p.title ?? '', partner);
+const datesN = Array.isArray(p.meta?.dates) ? p.meta.dates.length : 0;
+const bits: string[] = [];
+if (p.nights) bits.push(nightsLabel(p.nights));
+if (datesN > 1) bits.push(`${datesN} termínů na výběr`);
+else if (p.date_from) bits.push('od ' + formatDate(p.date_from));
+const srcset = image ? imgSrcset(image, 640) : '';
+---
+<article class="card-k group">
+	<a href={url} class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink" aria-label={title}></a>
+	<div class="card-k-img">
+		{image ? (
+			<img src={imgUrl(image, 640)} srcset={srcset || undefined} sizes="(min-width:1280px) 22vw, (min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"
+				alt={title} width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display='none'" />
+		) : (
+			<div class="flex h-full w-full items-center justify-center text-slate-400" aria-hidden="true">
+				<span class="scale-[2.2]" set:html={categoryIcon(type)} />
+			</div>
+		)}
+		<div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
+			<span class="badge-cat">{cat}</span>
+			{discount !== null && discount > 0 && <span class="badge badge-sale">−{discount} %</span>}
+		</div>
+	</div>
+	<div class="flex flex-1 flex-col pt-3">
+		<h3 class="line-clamp-2 text-[15px] font-bold leading-snug text-ink">{title}</h3>
+		{place !== '' && (
+			<p class="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500">
+				<Fragment set:html={flag} />
+				<span class="truncate">{place.replace(' › ', ' · ')}</span>
+			</p>
+		)}
+		{bits.length > 0 && <p class="text-sm text-slate-500">{bits.join(' · ')}</p>}
+		<div class="mt-auto pt-2">
+			<p class="text-[15px] text-ink">
+				<span class="text-slate-500">od</span>
+				<strong class="whitespace-nowrap font-extrabold">{formatPrice(price)}</strong>
+				{priceOriginal !== null && <span class="ml-1 whitespace-nowrap text-sm text-slate-400 line-through">{formatPrice(priceOriginal)}</span>}
+			</p>
+			{plabel !== '' && <p class="text-sm text-slate-500">{plabel}</p>}
+		</div>
+	</div>
+</article>

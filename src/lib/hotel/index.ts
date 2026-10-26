@@ -92,7 +92,7 @@ export type HotelResult = { kind: 'ok'; view: HotelView } | { kind: 'redirect'; 
 export interface LoadOpts {
   today?: string; now?: string; siteUrl?: string;
   /** Mirrors PHP longtail_link(): the longtail landing (h1+path) when it has enough results, else null. */
-  longtailLink?: (country: string, dest: string, topic: string) => Promise<{ h1: string; path: string } | null>;
+  longtailLink?: ((country: string, dest: string, topic: string) => Promise<{ h1: string; path: string } | null>) | undefined;
 }
 
 const all = async <T>(db: D1Database, sql: string, ...p: unknown[]): Promise<T[]> => (await db.prepare(sql).bind(...p).all<T>()).results;

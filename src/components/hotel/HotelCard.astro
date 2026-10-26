@@ -1,0 +1,70 @@
+---
+// Hotel card (port of templates/parts/card-hotel.php). Markup must stay 1:1 with renderCard() in frontend.js.
+import { countryFlagHtml, formatDate, formatPrice, imgSrcset, imgUrl, jsonArr, MEAL_LABELS, nightsLabel } from '../../lib/helpers';
+interface Props { hotel: Record<string, any> }
+const { hotel } = Astro.props;
+const url = `/hotel/${hotel.slug}/`;
+const images: string[] = Array.isArray(hotel.images) ? hotel.images : jsonArr<string>(hotel.images_json);
+const image = String(images[0] ?? '');
+const stars = Math.max(0, Math.min(5, Number(hotel.stars) || 0));
+const rating = hotel.rating != null && Number(hotel.rating) > 0 ? Number(hotel.rating) : null;
+const partners = Number(hotel.partners_count) || 0;
+const best = hotel.best_offer && typeof hotel.best_offer === 'object' ? hotel.best_offer : null;
+const flag = countryFlagHtml(String(hotel.country ?? ''), String(hotel.country_slug ?? ''));
+let price: number | null = null, original: number | null = null, discount: number | null = null;
+if (best) {
+	price = Number(best.price_pp);
+	if (best.price_original && Number(best.price_original) > price) { original = Number(best.price_original); discount = Math.round(100 * (1 - price / original)); }
+} else if (hotel.min_price != null) price = Number(hotel.min_price);
+const isLm = best ? !!best.is_last_minute : !!hotel.has_last_minute;
+const drop = Number(hotel.price_drop_pct ?? hotel.price_drop ?? 0);
+const bits = best ? [formatDate(best.departure_date), nightsLabel(best.nights), MEAL_LABELS[best.meal_type] ?? best.meal_type, ...(best.airport ? ['odlet ' + best.airport] : [])].filter(Boolean) : [];
+const rStr = rating !== null ? rating.toFixed(1).replace('.', ',') : '';
+const srcset = image ? imgSrcset(image, 640) : '';
+---
+<article class="card-k group">
+	<div class="card-k-img">
+		{image ? (
+			<img src={imgUrl(image, 640)} srcset={srcset || undefined} sizes="(min-width:1280px) 22vw, (min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"
+				alt={hotel.name} width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display='none'">
+		) : (
+			<div class="flex h-full w-full items-center justify-center text-slate-300" aria-hidden="true">
+				<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14M9 9h1m4 0h1M9 13h1m4 0h1M9 17h1m4 0h1"/></svg>
+			</div>
+		)}
+		<div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
+			{isLm && <span class="badge badge-lm">Last minute</span>}
+			{discount !== null && discount > 0 && <span class="badge badge-sale">−{discount} %</span>}
+			{drop >= 5 && <span class="badge badge-drop">Cena klesla o {drop} %</span>}
+		</div>
+	</div>
+	<div class="flex flex-1 flex-col pt-3">
+		<div class="flex items-start justify-between gap-3">
+			<h3 class="text-[15px] font-bold leading-snug text-ink">
+				<a href={url} class="text-ink no-underline after:absolute after:inset-0 after:z-10 after:rounded-2xl focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ink">{hotel.name}</a>
+			</h3>
+			{rating !== null && <span class="rating-badge" aria-label={`Hodnocení ${rStr} z 10`}>{rStr}</span>}
+		</div>
+		<p class="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500">
+			<Fragment set:html={flag} />
+			<span class="truncate">{hotel.country}{hotel.destination ? ` · ${hotel.destination}` : ''}</span>
+			{stars > 0 && (
+				<span class="ml-auto inline-flex shrink-0 items-center gap-px text-amber-400" role="img" aria-label={`${stars} z 5 hvězdiček`}>
+					{Array.from({ length: stars }).map(() => <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.26 6.86.83-5.07 4.7 1.35 6.77L12 17.2l-6.04 3.36 1.35-6.77-5.07-4.7 6.86-.83z"/></svg>)}
+				</span>
+			)}
+		</p>
+		{best && <p class="text-sm text-slate-500">{bits.join(' · ')}</p>}
+		<div class="mt-auto pt-2">
+			{price !== null && (
+				<p class="text-[15px] text-ink">
+					<span class="text-slate-500">od</span>
+					<strong class="whitespace-nowrap font-extrabold">{formatPrice(price)}</strong>
+					<span class="text-slate-500">/ os.</span>
+					{original !== null && <span class="ml-1 whitespace-nowrap text-sm text-slate-400 line-through">{formatPrice(original)}</span>}
+				</p>
+			)}
+			{partners > 1 && <p class="text-sm font-semibold text-coral-dark">Porovnat {partners} {partners >= 5 ? 'nabídek' : 'nabídky'}</p>}
+		</div>
+	</div>
+</article>

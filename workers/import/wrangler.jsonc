@@ -1,0 +1,27 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  // Import Worker. Local = miniflare only. Staging/production blocks are added once the D1 databases and R2 buckets exist
+  // (wrangler d1 create / r2 bucket create; ids are not secrets but are environment specific).
+  // Secrets (wrangler secret put … -c workers/import/wrangler.jsonc --env <env>):
+  //   IMPORT_SHARED_SECRET, CJ_API_TOKEN, CJ_CID, CJ_PID, and one FEED_URL_<feed id> per HTTP feed (URLs carry tokens).
+  "name": "kakapo-import-local",
+  "main": "./src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  // Parsing a 140 MB feed is CPU heavy: raise the CPU limit for cron/HTTP (billed per CPU ms, see docs/COSTS.md).
+  "limits": { "cpu_ms": 300000 },
+  "d1_databases": [{ "binding": "DB", "database_name": "kakapo-local", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "../../migrations" }],
+  "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots-local" }],
+  "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
+  "vars": {
+    // exact hosts or *.suffix; redirects are checked against the same list
+    "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz",
+    "IMPORT_WINDOW": "0-7",
+    "MAX_DROP_PCT": "40",
+    "LAST_MINUTE_DAYS": "14",
+    "FIRST_MINUTE_DAYS": "120"
+  },
+  "observability": { "enabled": true, "head_sampling_rate": 1 }
+}
