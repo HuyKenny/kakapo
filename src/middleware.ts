@@ -102,13 +102,14 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     }
   }
 
-  const cacheable = isGet && !NO_CACHE.some((r) => r.test(url.pathname)) && !url.pathname.startsWith('/api/') && !ctx.request.headers.has('authorization') && env.REQUIRE_ACCESS_EVERYWHERE !== '1';
+  const cacheableApi = /^\/api\/(search|filters)\/?$/.test(url.pathname); // JSON for the filters UI, same params as the listings
+  const cacheable = isGet && !NO_CACHE.some((r) => r.test(url.pathname)) && (!url.pathname.startsWith('/api/') || cacheableApi) && !ctx.request.headers.has('authorization') && env.REQUIRE_ACCESS_EVERYWHERE !== '1';
   const cache = cacheable && typeof caches !== 'undefined' ? (caches as unknown as { default: Cache }).default : null;
   let key: string | null = null;
   if (cache) {
     try {
       key = cacheKey(url, await dataVersion());
-      if (key) { const hit = await cache.match(key); if (hit) return finish(hit, url, { 'X-Kakapo-Page-Cache': 'HIT', 'Cache-Control': 'public, max-age=0, must-revalidate' }); }
+      if (key) { const hit = await cache.match(key); if (hit) return finish(hit, url, cacheableApi ? { 'X-Kakapo-Page-Cache': 'HIT', 'Cache-Control': 'public, max-age=60' } : { 'X-Kakapo-Page-Cache': 'HIT', 'Cache-Control': 'public, max-age=0, must-revalidate' }); }
     } catch { key = null; }
   }
 
@@ -119,12 +120,13 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   const res = await next();
   const cc = res.headers.get('cache-control') ?? '';
   const isHtml = (res.headers.get('content-type') ?? '').includes('text/html');
-  if (cache && key && res.status === 200 && isHtml && !res.headers.has('set-cookie') && !/private|no-store/.test(cc)) {
+  const isApiJson = cacheableApi && (res.headers.get('content-type') ?? '').includes('application/json');
+  if (cache && key && res.status === 200 && (isHtml || isApiJson) && !res.headers.has('set-cookie') && !/private|no-store/.test(cc)) {
     const toStore = new Response(res.clone().body, res);
     toStore.headers.set('Cache-Control', `public, s-maxage=${CACHE_TTL}`);
     const put = cache.put(key, toStore).catch((e: unknown) => console.log('cache.put failed: ' + String(e)));
     if (ctx.locals.cfContext?.waitUntil) ctx.locals.cfContext.waitUntil(put); else await put;
-    return finish(res, url, { 'X-Kakapo-Page-Cache': 'MISS', 'Cache-Control': 'public, max-age=0, must-revalidate' });
+    return finish(res, url, isApiJson ? { 'X-Kakapo-Page-Cache': 'MISS', 'Cache-Control': 'public, max-age=60' } : { 'X-Kakapo-Page-Cache': 'MISS', 'Cache-Control': 'public, max-age=0, must-revalidate' });
   }
   if (isHtml && !res.headers.has('cache-control')) return finish(res, url, { 'Cache-Control': 'public, max-age=0, must-revalidate' });
   return finish(res, url);

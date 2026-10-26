@@ -31,8 +31,8 @@
       // reachable only with the bearer secret IMPORT_SHARED_SECRET (every route checks it); lets Malina/ops call the HTTP API
       "workers_dev": true,
       "preview_urls": false,
-      // Staging cron is for verification runs (HTTP-triggered runs only get ~30 s of waitUntil; slow feeds like Invia need cron invocations).
-      "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
+      // Staging has no cron (saves D1 reads and partner requests); for a verification run add a cron temporarily.
+      "triggers": { "crons": [] },
       "limits": { "cpu_ms": 300000 },
       "d1_databases": [{ "binding": "DB", "database_name": "kakapo-staging", "database_id": "ad3a4546-c879-4fc2-85e2-80670c43ab84", "migrations_dir": "../../migrations" }],
       "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots-staging" }],
@@ -60,7 +60,9 @@
         "IMPORT_WINDOW": "0-24",
         "MAX_DROP_PCT": "40",
         "LAST_MINUTE_DAYS": "14",
-        "FIRST_MINUTE_DAYS": "120"
+        "FIRST_MINUTE_DAYS": "120",
+        // public by design (served as /<key>.txt); IndexNow ping after the daily sitemap rebuild
+        "INDEXNOW_KEY": "fe36085e9198035f67a3f56ddaee9101"
       }
     }
   }

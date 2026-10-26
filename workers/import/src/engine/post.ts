@@ -19,6 +19,7 @@ export async function afterRun(deps: Deps): Promise<{ snapshots: boolean; sitema
     if (age >= SITEMAP_MIN_AGE_MS || Number.isNaN(age)) {
       await (deps.hooks?.rebuildSitemaps ?? ((d, b) => rebuildSitemaps(d, b)))(db, (deps.env.SITE_URL ?? 'https://kakapo.cz').replace(/\/$/, ''));
       out.sitemaps = true;
+      await pingIndexNow(deps).catch((e) => deps.log('post.indexnow_failed', { error: e instanceof Error ? e.message : 'error' }));
     }
   } catch (e) { deps.log('post.sitemaps_failed', { error: e instanceof Error ? e.message : 'error' }); }
   return out;
@@ -48,4 +49,28 @@ export async function afterTick(deps: Deps): Promise<boolean> {
     await db.prepare("UPDATE site_cache SET value = '0' WHERE key = 'snapshots_dirty'").run();
     return true;
   } catch (e) { deps.log('post.after_tick_failed', { error: e instanceof Error ? e.message : 'error' }); return false; }
+}
+
+/** IndexNow (Bing, Seznam, Yandex…): after the sitemap rebuild, submit URLs whose lastmod is today or yesterday (max 10 000). */
+export async function pingIndexNow(deps: Deps): Promise<number> {
+  const key = (deps.env as unknown as { INDEXNOW_KEY?: string }).INDEXNOW_KEY;
+  const site = (deps.env.SITE_URL ?? '').replace(/\/$/, '');
+  if (!key || !/^https:\/\/(www\.)?kakapo\.cz$/.test(site)) return 0; // production only
+  const row = await deps.env.DB.prepare("SELECT value FROM site_cache WHERE key = 'sitemap:all'").first<{ value: string }>();
+  if (!row) return 0;
+  const now = deps.now();
+  const days = new Set([now.toISOString().slice(0, 10), new Date(now.getTime() - 864e5).toISOString().slice(0, 10)]);
+  const urls: string[] = [];
+  for (const m of row.value.matchAll(/<loc>([^<]+)<\/loc><changefreq>[^<]*<\/changefreq><lastmod>([^<]+)<\/lastmod>/g)) {
+    if (days.has(m[2]!)) urls.push(m[1]!);
+    if (urls.length >= 10_000) break;
+  }
+  if (!urls.length) return 0;
+  const host = new URL(site).host;
+  const res = await deps.fetch('https://api.indexnow.org/indexnow', {
+    method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ host, key, keyLocation: `${site}/${key}.txt`, urlList: urls }),
+  });
+  deps.log('post.indexnow', { status: res.status, urls: urls.length });
+  return urls.length;
 }
