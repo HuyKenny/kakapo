@@ -44,7 +44,7 @@ export function makeR2(): R2Like & { store: Map<string, Uint8Array> } {
     store,
     async get(key) {
       const b = store.get(key); if (!b) return null;
-      const o: R2Obj = { key, size: b.length, etag: etagOf(b), uploaded: new Date(), body: new Response(b).body!, text: async () => new TextDecoder().decode(b) };
+      const o: R2Obj = { key, size: b.length, etag: etagOf(b), uploaded: new Date(), body: new Response(b as unknown as BodyInit).body!, text: async () => new TextDecoder().decode(b) };
       return o;
     },
     async put(key, value) { const b = await toBytes(value); store.set(key, b); return { etag: etagOf(b) }; },
@@ -85,10 +85,10 @@ export function addFeed(h: Harness, o: { id: number; partner?: string; adapter: 
   h.raw.prepare('INSERT OR IGNORE INTO partners (slug, name) VALUES (?, ?)').run(o.partner ?? 'testck', o.partner ?? 'testck');
   h.raw.prepare('INSERT INTO feeds (id, name, partner_slug, adapter, content_type, is_full_catalogue, source_ref, mapping_json, source_kind, interval_hours, affiliate_params) VALUES (?,?,?,?,?,?,?,?,?,?,?)')
     .run(o.id, `feed ${o.id}`, o.partner ?? 'testck', o.adapter, o.type ?? 'hotels', o.full ?? 1, `FEED_URL_${o.id}`, JSON.stringify(o.mapping ?? {}), o.kind ?? 'http', o.interval ?? 12, o.affiliate ?? '');
-  (h.env as Record<string, unknown>)[`FEED_URL_${o.id}`] = o.secretUrl ?? `https://${FEED_HOST}/f${o.id}.xml?token=${SECRET_TOKEN}`;
+  (h.env as unknown as Record<string, unknown>)[`FEED_URL_${o.id}`] = o.secretUrl ?? `https://${FEED_HOST}/f${o.id}.xml?token=${SECRET_TOKEN}`;
 }
 export const serve = (h: Harness, feedId: number, body: string | (() => Response) | Uint8Array, init: ResponseInit = {}) =>
-  h.routes.set(`${FEED_HOST}/f${feedId}.xml`, () => (typeof body === 'function' ? body() : new Response(body as BodyInit, { status: 200, ...init })));
+  h.routes.set(`${FEED_HOST}/f${feedId}.xml`, () => (typeof body === 'function' ? body() : new Response(body as unknown as BodyInit, { status: 200, ...init })));
 
 export const rows = <T = Record<string, unknown>>(h: Harness, sql: string, ...p: unknown[]) => h.raw.prepare(sql).all(...(p as never[])) as T[];
 export const one = <T = Record<string, unknown>>(h: Harness, sql: string, ...p: unknown[]) => h.raw.prepare(sql).get(...(p as never[])) as T;

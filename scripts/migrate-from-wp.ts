@@ -111,5 +111,15 @@ if (existsSync(lt)) {
   }
   eSql.flush(); report.counts.editorial_overrides = en;
 }
+// merged hotels: old slug -> winner slug (301 from /hotel/{old}/)
+const hr = join(dir, 'hotel_redirects.json');
+if (existsSync(hr)) {
+  const rSql = new Chunker('08-redirects'); let rn = 0; const nowIso = new Date().toISOString();
+  for (const [from, to] of Object.entries<string>(JSON.parse(readFileSync(hr, 'utf8')))) {
+    if (!from || !to || from === to) { reject('redirect: invalid'); continue; }
+    rn++; rSql.push(`INSERT OR REPLACE INTO redirects (from_path,to_path,status,reason,created_at) VALUES (${q('/hotel/' + from + '/')},${q('/hotel/' + to + '/')},301,'merge',${q(nowIso)});`);
+  }
+  rSql.flush(); report.counts.redirects = rn;
+}
 writeFileSync(join(out, '_report.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));

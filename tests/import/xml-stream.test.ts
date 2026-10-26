@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { decodeXmlStream, parseXmlItems, XmlError, type XmlNode } from '../../workers/import/src/xml/stream';
+import { decodeXmlStream, parseXmlItems, type XmlNode } from '../../workers/import/src/xml/stream';
 import { md5 } from '../../workers/import/src/util/md5';
 import { parseWithFormat, toYmd } from '../../workers/import/src/xml/mapper';
 import { gzipSync } from 'node:zlib';
 
 async function* chunks(s: string, size = 1_000_000): AsyncGenerator<string> { for (let i = 0; i < s.length; i += size) yield s.slice(i, i + size); }
 async function collect(it: AsyncIterable<XmlNode>) { const out: XmlNode[] = []; for await (const n of it) out.push(n); return out; }
-const stream = (b: Uint8Array) => new Response(b).body!;
+const stream = (b: Uint8Array) => new Response(b as unknown as BodyInit).body!;
 
 const DOC = `<?xml version="1.0"?><!-- c --><r:feed xmlns:r="urn:x"><meta><skip>ignored outside</skip></meta><r:item id="1" a='x&amp;y'><name>A &lt; B &amp; &#269;&#x161;</name><d><![CDATA[<b>raw & text</b>]]></d><e/><n><i>1</i><i>2</i></n></r:item><item id="2"><name>Second</name></item></r:feed>`;
 
