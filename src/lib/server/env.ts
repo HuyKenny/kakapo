@@ -54,7 +54,7 @@ function timedDb(db: D1Database): D1Database {
 export function getEnv(): AppEnv {
   const e = cfEnv as unknown as AppEnv;
   (globalThis as any).__D1_TRACE = e.ENVIRONMENT === 'staging';
-  if (e.ENVIRONMENT === 'production') return e;
+  if (e.ENVIRONMENT !== 'staging' && e.ENVIRONMENT !== 'local') return e;
   return (wrapped ??= Object.assign(Object.create(Object.getPrototypeOf(e)), e, { DB: timedDb(e.DB) }));
 }
 
