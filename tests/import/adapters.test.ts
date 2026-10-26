@@ -121,13 +121,18 @@ describe('product feeds', () => {
     h.raw.prepare('UPDATE feeds SET force_run = 1').run(); await tickAll(h);
     expect(one<Record<string, number>>(h, 'SELECT * FROM import_runs ORDER BY id DESC LIMIT 1')).toMatchObject({ items_new: 0, items_changed: 0, items_unchanged: 1 });
   });
-  it('products missing from a complete feed are deactivated, a held feed keeps them', async () => {
+  it('a product that disappears from a complete feed is deactivated; a rejected one keeps its row', async () => {
     const h = makeHarness(); addFeed(h, { id: 5, partner: 'radynacestu', adapter: 'xml-sdovolena_tours', type: 'products' });
-    const t2 = (i: number) => tours().replace(/Okruh Itálií/g, `Okruh ${i}`);
-    for (const n of [1, 2]) { void n; }
-    serve(h, 5, `<tours>${[1, 2, 3, 4].map((i) => t2(i).replace(/<\/?tours>|<\?xml[^>]*>/g, '').split('</tour>')[0] + '</tour>').join('')}</tours>`);
+    const tour = (i: number, price = 12990) => `<tour><tour_id>${i}</tour_id><tour_title>Okruh ${i}</tour_title><tour_detail_url>https://p.test/t/${i}</tour_detail_url><tour_type>200</tour_type><locations><location><country_id>ITA</country_id></location></locations><term_groups><term_group><terms><term><start>2026-12-10</start><end>2026-12-17</end><night_count>7</night_count><prices><price><final_price>${price}</final_price></price></prices><purchase_url>https://p.test/b/${i}</purchase_url></term></terms></term_group></term_groups></tour>`;
+    serve(h, 5, `<tours>${[1, 2, 3, 4].map((i) => tour(i)).join('')}</tours>`);
     await tickAll(h);
     expect(rows(h, 'SELECT * FROM products WHERE active = 1')).toHaveLength(4);
+    h.raw.prepare('UPDATE feeds SET force_run = 1').run();
+    serve(h, 5, `<tours>${tour(1)}${tour(2)}${tour(3, 0)}</tours>`); // tour 4 gone, tour 3 now invalid (price 0)
+    const r = (await tickAll(h)).at(-1)!;
+    expect(r.status).toBe('ok');
+    const active = Object.fromEntries(rows<{ external_id: string; active: number }>(h, 'SELECT external_id, active FROM products').map((x) => [x.external_id, x.active]));
+    expect(active).toEqual({ 'okruh-1-italie': 1, 'okruh-2-italie': 1, 'okruh-3-italie': 1, 'okruh-4-italie': 0 });
   });
   it('categorisation rules', () => {
     expect(categorize(['Plavba lodí po Nilu'], 'zajezdy')).toBe('plavby'); expect(categorize(['víkend ve Vídni'], 'zajezdy')).toBe('eurovikendy');

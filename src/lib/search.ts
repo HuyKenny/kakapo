@@ -166,3 +166,11 @@ export async function similar(db: D1Database, hotel: any, minDesc: number, limit
   if (rows.length > limit) { const o = hotel.id % rows.length; rows = [...rows.slice(o), ...rows.slice(0, o)].slice(0, limit); }
   return rows.map((r) => ({ ...r, images: jsonArr<string>(r.images_json), best_offer: null }));
 }
+
+/** Count only (no card data, no best offers) — used by sitemap/noindex decisions. */
+export async function countHotels(db: D1Database, f: Filters): Promise<number> {
+  const { where, params, oc, op } = buildConditions(f);
+  const exists = oc.length ? ` AND EXISTS (SELECT 1 FROM offers o WHERE o.hotel_id = h.id AND o.active = 1 AND ${oc.join(' AND ')})` : '';
+  const sql = `SELECT COUNT(*) AS n FROM hotels h WHERE h.offers_active > 0 AND h.hidden = 0${where.length ? ' AND ' + where.join(' AND ') : ''}${exists}`;
+  return (await db.prepare(sql).bind(...params, ...op).first<{ n: number }>())?.n ?? 0;
+}
