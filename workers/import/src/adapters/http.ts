@@ -42,6 +42,8 @@ export async function openHttp(deps: Deps, url: string, cond: { etag?: string | 
 async function once(deps: Deps, start: string, cond: { etag?: string | null; lastModified?: string | null }, timeoutMs: number): Promise<OpenResult> {
   let u: URL;
   try { u = new URL(start); } catch { throw new FeedFetchError('feed URL is invalid', false); }
+  // Some partner URLs were configured as http:// in WordPress; always fetch them over TLS (a redirect back to http is still refused).
+  if (u.protocol === 'http:') u.protocol = 'https:';
   const allowed = deps.env.ALLOWED_FEED_HOSTS;
   const headers: Record<string, string> = { 'User-Agent': 'KakapoFeedImporter/1.0 (+https://kakapo.cz)', 'Accept-Encoding': 'gzip' };
   if (cond.etag) headers['If-None-Match'] = cond.etag;

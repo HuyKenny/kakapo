@@ -72,10 +72,17 @@ describe('HTTP download policy', () => {
   it('allow-list matching', () => {
     expect(hostAllowed('a.partner.test', '*.partner.test')).toBe(true); expect(hostAllowed('partner.test', '*.partner.test')).toBe(false); expect(hostAllowed('evil.test', 'a.test')).toBe(false); expect(hostAllowed('x', undefined)).toBe(false);
   });
-  it('rejects plain http, IP literals and hosts outside the list', async () => {
+  it('rejects IP literals and hosts outside the list; a configured http:// URL is fetched over https', async () => {
     const h = mk();
-    for (const url of ['http://feeds.example.test/f', 'https://10.0.0.5/f', 'https://127.0.0.1/f', 'https://evil.example/f']) await expect(openHttp(h.deps, url, {}, { attempts: 1 })).rejects.toMatchObject({ retryable: false });
+    for (const url of ['https://10.0.0.5/f', 'https://127.0.0.1/f', 'https://evil.example/f', 'http://evil.example/f']) await expect(openHttp(h.deps, url, {}, { attempts: 1 })).rejects.toMatchObject({ retryable: false });
     expect(h.fetchLog).toHaveLength(0);
+    h.routes.set(`${FEED_HOST}/plain`, () => new Response('<a/>'));
+    expect((await openHttp(h.deps, `http://${FEED_HOST}/plain`, {}, { attempts: 1 })).status).toBe('ok');
+  });
+  it('refuses a redirect that downgrades to http', async () => {
+    const h = mk();
+    h.routes.set(`${FEED_HOST}/down`, () => new Response(null, { status: 302, headers: { location: `http://${FEED_HOST}/x` } }));
+    await expect(openHttp(h.deps, `https://${FEED_HOST}/down`, {}, { attempts: 1 })).rejects.toThrow(/https/);
   });
   it('follows redirects only to allowed hosts (SSRF through a redirect is blocked)', async () => {
     const h = mk();
