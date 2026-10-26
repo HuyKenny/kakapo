@@ -41,7 +41,7 @@ const h2 = 'text-[1.35rem] font-extrabold tracking-tight text-ink';
 const heroFull = v.galleryCfg.images[0] ?? '';
 const heroSmall = heroFull.replace('w=1280', 'w=640').replace('q=78', 'q=72');
 const heroSrcset = heroFull && heroSmall !== heroFull ? `${heroSmall} 640w, ${heroFull} 1280w` : '';
-const heroSizes = '(min-width:640px) 50vw, 88vw';
+const heroSizes = '(min-width:1024px) 50vw, (min-width:640px) 90vw, 320px'; // phones pick the 640 px file (≈45 KB, already warmed), not 1280
 ---
 <Base title={v.meta.title} description={v.meta.description} canonical={v.meta.canonical} robots={v.meta.robots} {...(v.meta.image ? { ogImage: v.meta.image } : {})} jsonLd={v.meta.jsonLd} pageType="hotel">
 {heroFull && <link slot="head" rel="preload" as="image" fetchpriority="high" href={heroFull} {...(heroSrcset ? { imagesrcset: heroSrcset, imagesizes: heroSizes } : {})} />}
