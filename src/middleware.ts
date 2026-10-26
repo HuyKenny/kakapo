@@ -18,7 +18,7 @@ import { securityHeaders } from './lib/security';
 /** Query params that change the rendered content (everything else, e.g. utm_*, fbclid, does not split the cache). */
 const CONTENT_PARAMS = new Set(['country', 'country_exclude', 'dest', 'city', 'q', 'theme', 'stars', 'meal', 'airport', 'partner', 'price_min', 'price_max', 'nights_min', 'nights_max', 'rating_min', 'date_from', 'date_to', 'transport', 'flag', 'adults', 'sort', 'page', 'strana', 'typ', 'kategorie']);
 const NO_CACHE = [/^\/admin\b/, /^\/api\/admin\//, /^\/go\//, /^\/akce\//, /^\/goproduct\//];
-const CACHE_TTL = 300;
+const CACHE_TTL = 600; // data_version changes the key after imports (at most every 20 min), so a longer TTL never serves stale prices for long
 
 const LEGACY: Array<[RegExp, string]> = [
   [/^\/(wp-)?sitemap\.xml$/, '/sitemap_index.xml'],
@@ -37,9 +37,9 @@ export function cacheKey(url: URL, version: string): string | null {
     if (v.length > 120) return null;
     sp.append(k, k === 'q' ? v.trim().toLowerCase() : v);
   }
-  sp.set('__v', version);
-  sp.set('__b', __BUILD_ID__);
-  return `https://${url.host}${url.pathname}?${sp.toString()}`;
+  // Everything that splits the cache goes into the PATH: the zone's (WordPress-era) cache rule strips query strings from cache keys.
+  const q = sp.toString();
+  return `https://${url.host}/__kc/${encodeURIComponent(version)}/${__BUILD_ID__}${url.pathname}${q ? '__q/' + encodeURIComponent(q) : ''}`;
 }
 
 function finish(res: Response, url: URL, extra: Record<string, string> = {}): Response {
@@ -122,7 +122,8 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   if (cache && key && res.status === 200 && isHtml && !res.headers.has('set-cookie') && !/private|no-store/.test(cc)) {
     const toStore = new Response(res.clone().body, res);
     toStore.headers.set('Cache-Control', `public, s-maxage=${CACHE_TTL}`);
-    ctx.locals.cfContext?.waitUntil?.(cache.put(key, toStore));
+    const put = cache.put(key, toStore).catch((e: unknown) => console.log('cache.put failed: ' + String(e)));
+    if (ctx.locals.cfContext?.waitUntil) ctx.locals.cfContext.waitUntil(put); else await put;
     return finish(res, url, { 'X-Kakapo-Page-Cache': 'MISS', 'Cache-Control': 'public, max-age=0, must-revalidate' });
   }
   if (isHtml && !res.headers.has('cache-control')) return finish(res, url, { 'Cache-Control': 'public, max-age=0, must-revalidate' });

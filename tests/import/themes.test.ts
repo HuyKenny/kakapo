@@ -77,8 +77,8 @@ describe('after a successful run: snapshots and sitemaps', () => {
     };
     serve(h, 34, dovolenaXml(manyHotels(3))); await tickAll(h);
     expect(calls).toEqual([{ kind: 'snap' }, { kind: 'sitemap', arg: 'https://example.test' }]);
-    await reimport(h, dovolenaXml(manyHotels(3)));        // 2nd run the same night: snapshots yes, sitemaps no
-    expect(calls.map((c) => c.kind)).toEqual(['snap', 'sitemap', 'snap']);
+    await reimport(h, dovolenaXml(manyHotels(3)));        // identical 2nd run: nothing written → no rebuild, edge cache stays warm
+    expect(calls.map((c) => c.kind)).toEqual(['snap', 'sitemap']);
     h.setNow(new Date(h.deps.now().getTime() + SITEMAP_MIN_AGE_MS - 60_000));
     await afterRun(h.deps); expect(calls.filter((c) => c.kind === 'sitemap')).toHaveLength(1); // 19 h 59 min: still fresh
     h.setNow(new Date(h.deps.now().getTime() + 120_000));

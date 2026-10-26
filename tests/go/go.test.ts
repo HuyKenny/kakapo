@@ -86,7 +86,12 @@ describe('/go/{offerId}', () => {
     expect(r.status).toBe(404);
     expect(r.headers.get('x-robots-tag')).toBe('noindex, nofollow');
   });
-  it('unknown id -> 404', async () => expect((await go('offer', '9999', '/go/9999/')).status).toBe(404));
+  it('unknown id -> 302 to the listing (old links), never to a partner, no click', async () => {
+    const r = await go('offer', '9999', '/go/9999/');
+    expect(r.status).toBe(302);
+    expect(r.headers.get('location')).toBe('/zajezdy/');
+    expect(clicks()).toHaveLength(0);
+  });
   it('inactive offer falls back to the hotel page, never to a partner', async () => {
     const r = await go('offer', '11', '/go/11/');
     expect(r.status).toBe(302);

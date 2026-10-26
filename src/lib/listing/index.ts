@@ -109,7 +109,8 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
   const active = normalizeFilters(filters as unknown as Record<string, unknown>);
   const sort = SORT_OPTIONS[active.sort] ? active.sort : 'recommended';
   const ctxFilters = normalizeFilters({ ...(ctx.filters ?? {}), page: 1 });
-  const hasQuery = [...query.keys()].length > 0;
+  // tracking parameters (utm_*, fbclid, gclid, msclkid, ref) do not change the content → not a filtered variant
+  const hasQuery = [...query.keys()].some((k) => !/^(utm_[a-z]+|fbclid|gclid|gbraid|wbraid|msclkid|yclid|mc_[a-z]+|ref|_ga)$/i.test(k));
 
   // quick min price: first hotel of the price-sorted search
   let quickMinPrice = 0;

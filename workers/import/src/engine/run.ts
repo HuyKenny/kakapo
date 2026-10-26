@@ -15,7 +15,7 @@ import { MAX_PARAMS, chunk, qs, runBatches } from './db';
 import { applyOffers, applyProducts, type RunCtx } from './offers';
 import { recomputeAggregates, upsertHotels } from './hotels';
 import { nextRunAt, parseWindow } from './schedule';
-import { afterRun } from './post';
+import { markDirty } from './post';
 import type { NormProduct } from '../model';
 
 export type StepStatus = 'ok' | 'not_modified' | 'failed' | 'suspicious' | 'continue' | 'locked' | 'skipped' | 'superseded';
@@ -253,7 +253,7 @@ async function continueRun(deps: Deps, feed: FeedRow, runId: number, cp: Checkpo
     .bind(runId, finished, cp.counters.accepted, cp.etag, cp.lastModified, nextRunAt(deps.now(), feed.interval_hours, win), feed.id).run();
   // retention: keep this run and the previous good one restorable, drop older snapshots
   await pruneSnapshots(deps.env.SNAPSHOTS, feed.id, [runId, feed.last_success_run ?? -1]);
-  await afterRun(deps); // registry/facet snapshots + (at most daily) sitemaps; never fails the run
+  await markDirty(deps, cp.counters.rows); // snapshots/data_version are refreshed once per tick (afterTick), not per feed
   return { feedId: feed.id, runId, status: 'ok' };
 }
 

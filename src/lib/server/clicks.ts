@@ -105,7 +105,8 @@ export async function handleGo(args: {
   }
 
   const row = await lookup(db, kind, id);
-  if (!row) return text(404, 'Nabídka neexistuje nebo již skončila.');
+  // unknown/expired ids (e.g. offers that ended before the migration): send people to the listing instead of a dead end
+  if (!row) return new Response(null, { status: 302, headers: { ...NO_STORE, location: '/zajezdy/', 'x-kakapo-go': 'gone' } });
   const fallback = row.hotel_slug && /^[a-z0-9-]+$/.test(row.hotel_slug) ? `/hotel/${row.hotel_slug}/` : null;
   const redirectToFallback = () => (fallback ? new Response(null, { status: 302, headers: { ...NO_STORE, location: fallback, 'x-kakapo-go': 'fallback' } }) : text(404, 'Nabídka neexistuje nebo již skončila.'));
   if (!row.ok) return redirectToFallback();

@@ -1,0 +1,6 @@
+# Static files (Workers Static Assets). CSS/JS are referenced with ?v=<build>, images/fonts never change in place.
+/wp-content/kakapo-assets/*
+  Cache-Control: public, max-age=31536000, immutable
+  X-Content-Type-Options: nosniff
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

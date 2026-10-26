@@ -24,6 +24,7 @@ const { title, description = '', canonical, robots = ['index', 'follow'], ogImag
 const env = getEnv();
 const robotsContent = env.ENVIRONMENT === 'production' ? robots.join(',') : 'noindex,nofollow';
 const A = '/wp-content/kakapo-assets/';
+const V = '?v=' + __BUILD_ID__; // cache busting: assets are served with a 1-year immutable Cache-Control (public/_headers)
 const ga = env.ENVIRONMENT === 'production' || env.ANALYTICS_ENABLED === '1' ? GA4_ID : '';
 ---
 <!DOCTYPE html>
@@ -47,9 +48,9 @@ const ga = env.ENVIRONMENT === 'production' || env.ANALYTICS_ENABLED === '1' ? G
 	<link rel="icon" type="image/png" sizes="32x32" href={A + 'img/favicon-32.png'}>
 	<link rel="apple-touch-icon" sizes="180x180" href={A + 'img/apple-touch-icon.png'}>
 	<link rel="preload" as="font" type="font/woff2" crossorigin href={A + 'fonts/figtree-latin.woff2'}>
-	<link rel="stylesheet" href={A + 'css/kakapo.css'}>
-	<script defer src={A + 'js/frontend.js'}></script>
-	<script defer src={A + 'js/alpine.min.js'}></script>
+	<link rel="stylesheet" href={A + 'css/kakapo.css' + V}>
+	<script defer src={A + 'js/frontend.js' + V}></script>
+	<script defer src={A + 'js/alpine.min.js' + V}></script>
 	<script is:inline>window.KAKAPO = { rest: '/api', home: '/' };</script>
 	{ga && <Fragment set:html={ga4Head(ga, pageType)} />}
 	<script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': [{ '@type': 'Organization', '@id': 'https://kakapo.cz/#organization', name: 'Kakapo', url: 'https://kakapo.cz' }] })} />

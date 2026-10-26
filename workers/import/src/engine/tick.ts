@@ -1,3 +1,4 @@
+import { afterTick } from './post';
 import type { Deps } from '../deps';
 import { sqlTime } from '../util/text';
 import { stepFeed, type StepResult } from './run';
@@ -23,5 +24,6 @@ export async function runTick(deps: Deps): Promise<StepResult[]> {
     }
     if (Date.now() >= deadline) break;
   }
+  await afterTick(deps);
   return results;
 }
