@@ -181,7 +181,9 @@ async function hotelMonths(db: D1Database, hotelId: number, today: string) {
   return all<{ ym: string; mp: number }>(db, "SELECT substr(departure_date,1,7) AS ym, MIN(price_pp) AS mp FROM offers WHERE hotel_id = ? AND active = 1 AND departure_date >= ? GROUP BY ym ORDER BY ym ASC LIMIT 12", hotelId, today);
 }
 async function partnerSlugsForHotel(db: D1Database, hotelId: number, limit = 3): Promise<string[]> {
-  return (await all<{ partner_slug: string }>(db, 'SELECT partner_slug FROM (SELECT partner_slug, MIN(price_pp) AS mp FROM offers WHERE hotel_id = ? AND active = 1 GROUP BY partner_slug) x ORDER BY mp ASC LIMIT ?', hotelId, limit)).map((r) => r.partner_slug);
+  // Cheapest first; ties resolved by offer id (what MySQL's index-order GROUP BY effectively did, verified against the live site).
+  const rows = await all<{ partner_slug: string }>(db, 'SELECT partner_slug FROM offers WHERE hotel_id = ? AND active = 1 ORDER BY price_pp ASC, id ASC', hotelId);
+  return [...new Set(rows.map((r) => r.partner_slug))].slice(0, limit);
 }
 
 function parseAmenities(raw: string | null): Array<[string, string]> {

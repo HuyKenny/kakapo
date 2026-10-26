@@ -37,7 +37,7 @@ const rows: string[] = [];
 for (const slug of slugs) {
   const url = `https://kakapo.cz/hotel/${slug}/`;
   let html = '';
-  try { html = execFileSync('curl', ['-s', '-m', '60', '-A', `Mozilla/5.0 (X11; Linux x86_64) Chrome/126 kakapo-oracle-${Date.now()}`, url], { maxBuffer: 20_000_000 }).toString('utf8'); } catch (e) { rows.push(`${slug}: FETCH FAILED`); continue; }
+  try { html = execFileSync('curl', ['-s', '-m', '60', '-A', `Mozilla/5.0 (X11; Linux aarch64) KakapoSeoSnapshot/1.0 o${Date.now()}`, url], { maxBuffer: 20_000_000 }).toString('utf8'); } catch (e) { rows.push(`${slug}: FETCH FAILED`); continue; }
   const live = {
     title: strip(/<title>([\s\S]*?)<\/title>/.exec(html)?.[1] ?? ''),
     desc: dec(/<meta name="description" content="([^"]*)"/.exec(html)?.[1] ?? ''),
