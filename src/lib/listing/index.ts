@@ -6,7 +6,7 @@ import topicData from '../../data/topic-landings.json';
 import partnerConsts from '../../data/partner-consts.json';
 import { facets, type Facets } from './facets';
 import { calendarMonths, topDrops } from './calendar';
-import { memoized, storedJson } from './cache';
+import { memoized, storedJson, versionedJson } from './cache';
 import type { Faq, LandingCtx, ListingDeps } from './landing-types';
 import { DEST_PHOTO_SLUGS, SITE, homeFaqs, homeLd, isIndexable, landingDescription, landingTitle, listingLd, normalizeFaqs, topicLd, topicTitle } from './seo';
 
@@ -104,8 +104,14 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
   const today = deps.today ?? todayPrague();
   const registry = await loadRegistry(db);
   const filters = mergeFilters(ctx.filters ?? {}, query);
-  const result = await search(db, filters, today);
-  const fct = await facets(db, filters);
+  // The clean landing (no GET filters, page 1) is the same for every visitor until the next import: cache it in D1
+  // (one row read instead of tens of thousands), keyed by data_version, so a cache-cold colo or a crawler is cheap.
+  const plain = !query.toString() || ![...query.keys()].some((k) => !/^(utm_[a-z]+|fbclid|gclid|gbraid|wbraid|msclkid|yclid|mc_[a-z]+|ref|_ga)$/i.test(k));
+  const slim = (r: SearchResult): SearchResult => ({ ...r, hotels: r.hotels.map(({ description: _d, images_json: _i, amenities_json: _a, ...h }) => ({ ...h, images: (h.images ?? []).slice(0, 3) }) as HotelRow) }); // cards need no texts
+  const heavy = async () => ({ result: slim(await search(db, filters, today)), fct: await facets(db, filters) });
+  const { result, fct } = plain && deps.dataVersion && filters.page === 1
+    ? await versionedJson(db, `lp:${ctx.path}`, `${today}|${deps.dataVersion}`, heavy)
+    : await heavy();
   const active = normalizeFilters(filters as unknown as Record<string, unknown>);
   const sort = SORT_OPTIONS[active.sort] ? active.sort : 'recommended';
   const ctxFilters = normalizeFilters({ ...(ctx.filters ?? {}), page: 1 });

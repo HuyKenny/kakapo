@@ -8,6 +8,7 @@ import { loadListing, loadTopic } from '../lib/listing';
 import { loadCategory } from '../lib/products';
 import { getEnv, siteUrl } from '../lib/server/env';
 import { todayPrague } from '../lib/search';
+import { dataVersion } from '../lib/server/versions';
 
 export const prerender = false;
 
@@ -20,7 +21,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300');
 const today = todayPrague();
 ---
 {d.kind === 'listing' && await (async () => {
-	const data = await loadListing(db, d.ctx as any, url.searchParams, { ...d.deps, today });
+	const data = await loadListing(db, d.ctx as any, url.searchParams, { ...d.deps, today, dataVersion: await dataVersion() });
 	const m = data.meta;
 	return (
 		<Base title={m.title} description={m.description} canonical={m.canonical} robots={m.robots} {...(m.image ? { ogImage: m.image } : {})} jsonLd={m.jsonLd} pageType={String(d.ctx.type ?? 'search')}>

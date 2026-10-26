@@ -36,5 +36,7 @@ export interface ListingDeps {
   canonicalAlias?: (path: string) => string;
   /** YYYY-MM-DD in Europe/Prague; override in tests */
   today?: string;
+  /** site_cache data_version: when set, the clean first page (search + facets) is cached in D1 per version */
+  dataVersion?: string;
 }
 export type { Filters };

@@ -1,10 +1,11 @@
-# Rollback
+# Rollback (od 26. 10. 2026 bez WordPressu)
 
-Spouštěcí podmínky: 5xx > 2 % po dobu 10 min, `/go/` nevrací 302 pro nějakého partnera, import zastavil katalog (prázdné výpisy), pokles impresí v GSC > 20 % po týdnu bez vysvětlení, ztráta měření GA4.
+WordPress byl na Kennyho pokyn odstraněn („k WordPressu se už nikdy nevrátím"). Finální záloha: `backups/kakapo-wp-final-db-2026-10-26.sql.gz` (celá DB `d196468_kakapo`) a `backups/kakapo-wp-final-files-2026-10-26.zip` (soubory z WEDOS). Návrat se proto dělá jen v rámci nové aplikace.
 
-1. **Směrování** (okamžitě, bez změny DNS): také znovu zapnout zónové cache pravidlo „Edge-cache HTML pages…“ (vypnuto 26. 10., záloha `backups/kakapo-cf-cache-rules-2026-10-26.json`), jinak WordPress poběží bez edge cache; odebrat Workers route `kakapo.cz/*` (a znovu zapnout `go-worker` route `kakapo.cz/go/*`). Provoz jde zpět na WEDOS WordPress, který zůstává nedotčený.
-2. **Importy**: vypnout cron nového import Workeru (`wrangler triggers`/odebrat cron) a znovu spustit WP tick na Malině (`kakapo` cron). Nikdy neběžet oba současně.
-3. **Kód**: předchozí verze Workeru `wrangler rollback --env production` (web i import). Návrat kódu NENÍ návrat dat.
-4. **Data**: D1 se obnovuje ze zálohy `backups/d1-production-*.sql` (`wrangler d1 execute --file`) nebo znovu migrací ze zálohy WP exportu. Kompatibilní schéma zajišťují migrace (jen přidávají sloupce/tabulky).
-5. **Změny po přepnutí**: kliky (`clicks`) a audit (`admin_audit`) vznikají jen v D1; před návratem je exportovat (`wrangler d1 export`). Ruční úpravy textů/přesměrování z adminu jsou v `editorial_overrides`/`redirects` – promítnout do WP (`/maintenance/landing-texts`).
-6. Po návratu: purge Cloudflare cache zóny, ověřit `/`, `/zajezdy/`, `/hotel/…`, `/go/…`.
+Spouštěcí podmínky: 5xx > 2 % 10 min, `/api/health` 503 déle než 2 h, `/go/` nevrací 302 na partnera, prázdné výpisy.
+
+1. **Kód webu:** `wrangler rollback -c dist/server/wrangler.json` (předchozí verze Workeru `kakapo`), resp. `wrangler versions list` + `wrangler rollback <id>`.
+2. **Importér:** `wrangler rollback` s `-c workers/import/wrangler.jsonc --env production`; pozastavit konkrétní feed přes `POST /feeds/:id/pause` (bearer `IMPORT_SHARED_SECRET_PRODUCTION`) nebo v `/admin/`.
+3. **Data:** D1 Time Travel (obnova do bodu v čase za posledních 30 dní, zdarma): `wrangler d1 time-travel restore kakapo-production --timestamp <ISO>`; nebo SQL export `wrangler d1 export DB --remote --env production`. Návrat kódu NENÍ návrat dat.
+4. **Feed rozbil katalog:** podezřelé poklesy se samy zastaví (`suspicious`), schválení `POST /feeds/:id/approve`; jinak obnova D1 přes Time Travel (bod 3).
+5. Po zásahu: `scripts/seo-parity.py` proti vzorku URL a kontrola `/api/health`.

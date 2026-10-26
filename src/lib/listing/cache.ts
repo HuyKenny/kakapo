@@ -35,3 +35,14 @@ export async function storedJson<T>(db: D1Database, key: string, ttlSec: number,
   try { const now = new Date().toISOString(); await db.prepare('INSERT INTO site_cache (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at').bind(key, JSON.stringify(v), now).run(); } catch { /* ignore */ }
   return v;
 }
+
+/** One D1 row per key, valid for one data version: a new import version overwrites the row (no growth per version). */
+export async function versionedJson<T>(db: D1Database, key: string, version: string, fn: () => Promise<T>): Promise<T> {
+  try {
+    const row = await db.prepare('SELECT value FROM site_cache WHERE key = ?').bind(key).first<{ value: string }>();
+    if (row) { const p = JSON.parse(row.value) as { v: string; d: T }; if (p.v === version) return p.d; }
+  } catch { /* compute */ }
+  const d = await fn();
+  try { await db.prepare('INSERT INTO site_cache (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at').bind(key, JSON.stringify({ v: version, d }), new Date().toISOString()).run(); } catch { /* ignore */ }
+  return d;
+}

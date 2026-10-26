@@ -24,3 +24,13 @@ Data: `scripts/migrate-from-wp.ts` → SQL (`tmp/kakapo-sql`) → `wrangler d1 e
 7. Kontroly: `scripts/seo-parity.py`, `/go/` per partner, sitemapy, GA4 Realtime, purge Cloudflare cache zóny (WEDOS HTML cache už nebude potřeba).
 8. Monitoring: `bin/kakapo-health.py` (přepsat na D1/`/admin`), 24 h sledování 5xx.
 Před zrušením hostingu ověřit schránky/formuláře/jiné weby na pool 89.221.213.39 (18 webů). WordPress a zálohy se nemažou, dobu uchování schvaluje Kenny.
+
+
+## Provoz od 26. 10. 2026 (bez WordPressu)
+- Importy: Cloudflare Cron Trigger `kakapo-import` (*/10, denní údržba 01:30 UTC). Staging bez cronu.
+- Čedok: Malina crontab 2:30 `cedok-slim-feed.py --target r2` (`bin/kakapo-crontab-update.sh` provede úpravu crontabu).
+- Hlídač: cron-job.org „kakapo.cz health (30 min)" → `https://kakapo.cz/api/health/` (e-mail po 5 selháních).
+- IndexNow: import Worker po přestavbě sitemap (1× za ~20 h), klíč `/<INDEXNOW_KEY>.txt` v `public/`.
+- Sitemapy: import Worker (`rebuildSitemaps`), ručně `npx tsx scripts/build-sitemaps.ts production`.
+- Nasazení webu: `CLOUDFLARE_ENV=production BUILD_ID=$(git rev-parse --short HEAD) SITE_URL=https://kakapo.cz npx astro build && npx tsx scripts/verify-no-secrets.ts && npx wrangler deploy -c dist/server/wrangler.json`.
+- Zóna kakapo.cz: WP cache pravidla smazána, `browser_cache_ttl` = respektovat hlavičky, TLS 1.3, Brotli; A záznamy na WEDOS IP zůstávají jen jako kotva pro Workers routy.
