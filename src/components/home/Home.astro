@@ -62,15 +62,15 @@ const sections = [
 			<div class="grid items-center gap-8 lg:grid-cols-[1.02fr_1fr] lg:gap-14">
 				<div class="order-2 lg:order-1">
 					<p class="eyebrow"><Fragment set:html={svg('sun', 16, '', 2.2)} />Dovolená {Y} · porovnání českých CK</p>
-					<h1 class="mt-3 font-display text-[2.2rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl lg:text-[3.4rem]">Dovolená {Y}: zájezdy u moře na jednom místě</h1>
+					<h1 class="home-h1 mt-3 font-display text-[2.2rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl lg:text-[3.4rem]">Dovolená {Y}: zájezdy u moře na jednom místě</h1>
 					<p class="mt-4 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">Porovnejte {offersLine}zájezdů a pobytů u moře — last minute, all inclusive i dovolenou s dětmi od {d.ckLabel}. Vidíte termín, stravu i cenu a rezervaci dokončíte přímo u pořadatele.</p>
-					<ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-600">
+					<ul class="hero-bullets mt-5 flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-600">
 						<li class="inline-flex items-center gap-1.5"><span class="text-leaf"><Fragment set:html={svg('check', 16, '', 2.6)} /></span>{d.ckCount} prověřených cestovek</li>
 						<li class="inline-flex items-center gap-1.5"><span class="text-leaf"><Fragment set:html={svg('check', 16, '', 2.6)} /></span>{d.offersRound > 0 ? num(d.offersRound) + '+ zájezdů' : 'Tisíce zájezdů'}</li>
 						<li class="inline-flex items-center gap-1.5"><span class="text-leaf"><Fragment set:html={svg('check', 16, '', 2.6)} /></span>Bez příplatků navíc</li>
 					</ul>
 				</div>
-				<div class="relative order-1 lg:order-2">
+				<div class="hero-pic relative order-1 lg:order-2">
 					<img src={heroImg} srcset={`${heroSm} 800w, ${heroImg} 1600w`} sizes="(min-width:1024px) 46vw, 92vw" width="1600" height="1067" alt={`Písečná pláž s tyrkysovým mořem — dovolená u moře ${Y}`} fetchpriority="high" decoding="async" class="aspect-[16/11] w-full rounded-[2rem] object-cover lg:aspect-[5/4]">
 					{d.minPrice > 0 && (
 						<a href="/last-minute/" class="absolute bottom-4 left-4 flex items-center gap-3 rounded-2xl bg-white/95 py-2.5 pl-2.5 pr-4 shadow-pill backdrop-blur transition hover:bg-white sm:bottom-6 sm:left-6">
@@ -205,7 +205,7 @@ const sections = [
 							<article class="card-k group">
 								<a href={`/zazitek/${p.slug}/`} class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink" aria-label={title}></a>
 								<div class="card-k-img">
-									{image ? <img src={imgUrl(image, 640)} srcset={srcset || undefined} sizes="(min-width:1280px) 22vw, (min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw" alt={title} width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display='none'"> : <div class="flex h-full w-full items-center justify-center text-slate-400" aria-hidden="true"></div>}
+									{image ? <img src={imgUrl(image, 640)} srcset={srcset || undefined} sizes="(max-width:639px) 7.6rem, (min-width:1280px) 22vw, (min-width:1024px) 30vw, 45vw" alt={title} width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display='none'"> : <div class="flex h-full w-full items-center justify-center text-slate-400" aria-hidden="true"></div>}
 									<div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
 										<span class="badge-cat">{cats[String(p.type)]?.label ?? ''}</span>
 										{disc !== null && disc > 0 && <span class="badge badge-sale">−{disc} %</span>}

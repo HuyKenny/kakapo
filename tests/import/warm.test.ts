@@ -15,7 +15,7 @@ function seedHotel(h: ReturnType<typeof makeHarness>, id: number, images: string
 describe('image warm URLs match what the templates render', () => {
   it('hotel: card 1x/2x, hero 1280/78 and grid photos 2–5', () => {
     const urls = warmUrlsForHotel(IMG);
-    const card1x = imgUrl(IMG[0], 640); const card2x = srcsetRaw(IMG[0], 640).split(', ')[1]!.replace(/ 2x$/, '');
+    const card1x = imgUrl(IMG[0], 640); const card2x = srcsetRaw(IMG[0], 640).split(', ')[1]!.replace(/ 1280w$/, '');
     expect(urls).toContain(card1x); expect(urls).toContain(card2x);
     expect(urls).toContain(imgUrl(IMG[0], 1280, 78));
     expect(urls).toContain(imgUrl(IMG[1], 640, 72)); expect(urls).toContain(imgUrl(IMG[2], 640, 72));

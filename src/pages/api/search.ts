@@ -7,7 +7,7 @@ import { normalizeFilters, search } from '../../lib/search';
 
 export const prerender = false;
 const MAX_PAGE = 200;
-const rawSrcset = (u: string, w: number) => { const one = imgUrl(u, w); return one === u ? '' : `${one} 1x, ${imgUrl(u, w * 2)} 2x`; };
+const rawSrcset = (u: string, w: number) => { const one = imgUrl(u, w); return one === u ? '' : `${one} ${w}w, ${imgUrl(u, w * 2)} ${w * 2}w`; };
 
 export const GET: APIRoute = async ({ url }) => {
   const params: Record<string, string> = {};

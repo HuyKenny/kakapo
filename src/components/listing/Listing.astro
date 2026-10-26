@@ -46,11 +46,11 @@ const empty = !result.hotels.length;
 		<Breadcrumbs items={ctx.breadcrumbs} />
 
 		<div class="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-			<h1 class="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-[2.6rem] sm:leading-tight">{ctx.h1}</h1>
+			<h1 class="list-h1 font-display text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-[2.6rem] sm:leading-tight">{ctx.h1}</h1>
 			<p class="text-sm text-slate-500" x-ref="count" aria-live="polite">{d.totalLabel}</p>
 		</div>
 
-		{ctx.intro && <div class="mb-4 max-w-3xl text-sm leading-relaxed text-slate-600" set:html={relHtml(wpautop(ctx.intro))}></div>}
+		{ctx.intro && <div class="listing-intro mb-4 max-w-3xl text-sm leading-relaxed text-slate-600 " set:html={relHtml(wpautop(ctx.intro))}></div>}
 
 		{/* SEO/nav blocks are rendered BELOW the results (mobile reaches hotels first) — see "moved" block after the grid */}
 

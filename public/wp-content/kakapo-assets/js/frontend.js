@@ -90,7 +90,7 @@
 
 		html += '<div class="card-k-img">';
 		if (h.image) {
-			var cardSrcset = h.image_srcset ? ' srcset="' + escAttr(h.image_srcset) + '" sizes="(min-width:1280px) 22vw, (min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"' : '';
+			var cardSrcset = h.image_srcset ? ' srcset="' + escAttr(h.image_srcset) + '" sizes="(max-width:639px) 7.6rem, (min-width:1280px) 22vw, (min-width:1024px) 30vw, 45vw"' : '';
 			html += '<img src="' + escAttr(h.image) + '"' + cardSrcset + ' alt="' + escAttr(h.name) + '" width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
 		} else {
 			html += '<div class="flex h-full w-full items-center justify-center text-slate-300" aria-hidden="true">' + PLACEHOLDER_SVG + '</div>';

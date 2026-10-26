@@ -17,7 +17,7 @@ export function wpautop(html: string): string {
 export const ratingStr = (r: number) => r.toFixed(1).replace('.', ',');
 export const srcsetRaw = (url: string, w: number, q = 72): string => {
   const one = imgUrl(url, w, q);
-  return one === url ? '' : `${one} 1x, ${imgUrl(url, w * 2, q)} 2x`;
+  return one === url ? '' : `${one} ${w}w, ${imgUrl(url, w * 2, q)} ${w * 2}w`;
 };
 
 export interface CardModel {

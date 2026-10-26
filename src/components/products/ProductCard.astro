@@ -27,7 +27,7 @@ const srcset = image ? imgSrcset(image, 640) : '';
 	<a href={url} class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink" aria-label={title}></a>
 	<div class="card-k-img">
 		{image ? (
-			<img src={imgUrl(image, 640)} srcset={srcset || undefined} sizes="(min-width:1280px) 22vw, (min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"
+			<img src={imgUrl(image, 640)} srcset={srcset || undefined} sizes="(max-width:639px) 7.6rem, (min-width:1280px) 22vw, (min-width:1024px) 30vw, 45vw"
 				alt={title} width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display='none'" />
 		) : (
 			<div class="flex h-full w-full items-center justify-center text-slate-400" aria-hidden="true">
