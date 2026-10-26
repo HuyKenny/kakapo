@@ -24,3 +24,14 @@ export async function cachedJson<T>(key: string, ttlSec: number, fn: () => Promi
   return v;
 }
 export const clearMemo = () => memo.clear();
+
+/** Durable JSON cache in D1 `site_cache` (shared by all colos/isolates). Heavy per-landing blocks (48 topic counts) are computed once per TTL. */
+export async function storedJson<T>(db: D1Database, key: string, ttlSec: number, fn: () => Promise<T>): Promise<T> {
+  try {
+    const row = await db.prepare('SELECT value, updated_at FROM site_cache WHERE key = ?').bind(key).first<{ value: string; updated_at: string }>();
+    if (row && Date.now() - Date.parse(row.updated_at) < ttlSec * 1000) return JSON.parse(row.value) as T;
+  } catch { /* table missing in tests → compute */ }
+  const v = await fn();
+  try { const now = new Date().toISOString(); await db.prepare('INSERT INTO site_cache (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at').bind(key, JSON.stringify(v), now).run(); } catch { /* ignore */ }
+  return v;
+}

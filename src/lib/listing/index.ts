@@ -1,12 +1,12 @@
 // Loaders for listing / topic / home pages (data + meta + JSON-LD). Astro components in src/components/{listing,home} render them.
 import { jsonArr, MEAL_LABELS, partnerLabel, partnerLogoUrl } from '../helpers';
 import { loadRegistry, type Registry } from '../snapshots';
-import { normalizeFilters, search, todayPrague, type Filters, type HotelRow, type SearchResult } from '../search';
+import { countHotels, normalizeFilters, search, todayPrague, type Filters, type HotelRow, type SearchResult } from '../search';
 import topicData from '../../data/topic-landings.json';
 import partnerConsts from '../../data/partner-consts.json';
 import { facets, type Facets } from './facets';
 import { calendarMonths, topDrops } from './calendar';
-import { memoized } from './cache';
+import { memoized, storedJson } from './cache';
 import type { Faq, LandingCtx, ListingDeps } from './landing-types';
 import { DEST_PHOTO_SLUGS, SITE, homeFaqs, homeLd, isIndexable, landingDescription, landingTitle, listingLd, normalizeFaqs, topicLd, topicTitle } from './seo';
 
@@ -79,16 +79,20 @@ export function mergeFilters(ctxFilters: Record<string, unknown>, query: URLSear
 async function longtailBlocks(db: D1Database, ctx: LandingCtx, country: string, dest: string, deps: ListingDeps, today: string) {
   const lt = deps.longtail;
   if (!lt || !country) return { all: [] as Array<{ path: string; h1: string }>, groups: [] as ListingData['popularGroups'] };
-  return memoized(`lt:${ctx.path}:${today}`, 3600, async () => {
+  return memoized(`lt:${ctx.path}:${today}`, 3600, () => storedJson(db, `lt:${ctx.path}`, 3 * 3600, async () => {
     const enough = async (slug: string) => {
       const c = await lt.context(db, country, dest, slug);
       if (!c || c.path === ctx.path) return null;
-      const n = (await msearch(db, normalizeFilters({ ...c.filters, page: 1 }), today)).total;
+      const n = await countHotels(db, normalizeFilters({ ...c.filters, page: 1 }));
       return n >= Number(c.index_min ?? 12) ? { path: c.path, h1: c.h1 } : null;
     };
     const all: Array<{ path: string; h1: string }> = [];
     const cache = new Map<string, { path: string; h1: string } | null>();
-    for (const slug of lt.topicSlugs()) { const r = await enough(slug); cache.set(slug, r); if (r) all.push(r); }
+    const slugsAll = lt.topicSlugs();
+    for (let i = 0; i < slugsAll.length; i += 8) {
+      const part = await Promise.all(slugsAll.slice(i, i + 8).map((slug) => enough(slug)));
+      part.forEach((r, k) => { cache.set(slugsAll[i + k]!, r); if (r) all.push(r); });
+    }
     const groups: ListingData['popularGroups'] = [];
     for (const [label, slugs] of POPULAR_SETS) {
       const links: Array<{ path: string; h1: string }> = [];
@@ -96,7 +100,7 @@ async function longtailBlocks(db: D1Database, ctx: LandingCtx, country: string, 
       if (links.length) groups.push({ label, links });
     }
     return { all, groups };
-  });
+  }));
 }
 
 export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSearchParams, deps: ListingDeps = {}): Promise<ListingData> {
