@@ -1,0 +1,990 @@
+{
+ "sdovolena_tours": {
+  "mode": "product",
+  "item": "tour",
+  "default_type": "poznavaci",
+  "fields": {
+   "product.external_id": {
+    "path": "tour_id"
+   },
+   "product.title": {
+    "path": "tour_title",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.description": {
+    "path": "tour_desc",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "product.affiliate_url": {
+    "path": "tour_detail_url"
+   },
+   "product._tour_type": {
+    "path": "tour_type"
+   },
+   "product.country": {
+    "path": "locations/location/country_id",
+    "transforms": [
+     "iso3_country"
+    ]
+   },
+   "product.destination": {
+    "path": "locations/location/area_title",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.place": {
+    "path": "locations/location/place_title",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.images": {
+    "paths": [
+     "photos/photo/url",
+     "photos/photo"
+    ],
+    "multiple": true
+   },
+   "product.price": {
+    "path": "//final_price",
+    "transforms": [
+     "int"
+    ],
+    "multiple": true,
+    "aggregate": "min"
+   },
+   "product.date_from": {
+    "path": "//start",
+    "transforms": [
+     "ymd"
+    ],
+    "multiple": true,
+    "aggregate": "min_future"
+   },
+   "product.dates": {
+    "path": "//start",
+    "transforms": [
+     "ymd"
+    ],
+    "multiple": true
+   },
+   "product.nights": {
+    "path": "//night_count",
+    "transforms": [
+     "int"
+    ]
+   }
+  },
+  "terms": {
+   "item": "term",
+   "fields": {
+    "from": {
+     "path": "start",
+     "transforms": [
+      "ymd"
+     ]
+    },
+    "to": {
+     "path": "end",
+     "transforms": [
+      "ymd"
+     ]
+    },
+    "nights": {
+     "path": "night_count",
+     "transforms": [
+      "int"
+     ]
+    },
+    "price": {
+     "path": "//final_price",
+     "transforms": [
+      "int"
+     ],
+     "multiple": true,
+     "aggregate": "min"
+    },
+    "url": {
+     "path": "purchase_url"
+    }
+   }
+  }
+ },
+ "invia_offer": {
+  "mode": "product",
+  "item": "offer",
+  "default_type": "zajezdy",
+  "fields": {
+   "product.external_id": {
+    "path": "url",
+    "transforms": [
+     "hash"
+    ]
+   },
+   "product.title": {
+    "path": "hotel",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.description": {
+    "path": "hotelinfo/description",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "product.affiliate_url": {
+    "path": "url"
+   },
+   "product.price": {
+    "path": "totalprice",
+    "transforms": [
+     "int"
+    ]
+   },
+   "product.country": {
+    "path": "destination/country",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.destination": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.place": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.image_url": {
+    "path": "image"
+   },
+   "product.images": {
+    "path": "photos/photo",
+    "multiple": true
+   },
+   "product.date_from": {
+    "path": "term/from",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "product.dates": {
+    "path": "term/from",
+    "transforms": [
+     "ymd"
+    ],
+    "multiple": true
+   },
+   "product.date_to": {
+    "path": "term/to",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "product.nights": {
+    "path": "term/length",
+    "transforms": [
+     "int"
+    ]
+   },
+   "product.meal": {
+    "path": "food",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.transport": {
+    "path": "transportation",
+    "transforms": [
+     "transport"
+    ]
+   },
+   "product._categories": {
+    "path": "tourtypes/type",
+    "multiple": true
+   }
+  }
+ },
+ "slevomat_deals": {
+  "mode": "product",
+  "item": "DEAL",
+  "default_type": "plavby",
+  "force_type": "plavby",
+  "product_filter": {
+   "field": "_categories",
+   "contains_any": [
+    "Plavba lodí"
+   ]
+  },
+  "fields": {
+   "product.external_id": {
+    "path": "ID"
+   },
+   "product.title": {
+    "paths": [
+     "TITLE_SHORT",
+     "TITLE"
+    ],
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.description": {
+    "paths": [
+     "DESCRIPTION",
+     "HIGHLIGHTS"
+    ],
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "product.affiliate_url": {
+    "path": "URL"
+   },
+   "product.price": {
+    "path": "FINAL_PRICE",
+    "transforms": [
+     "int"
+    ]
+   },
+   "product.price_original": {
+    "path": "ORIGINAL_PRICE",
+    "transforms": [
+     "int"
+    ]
+   },
+   "product.country": {
+    "default": "Česko"
+   },
+   "product.destination": {
+    "path": "CITIES/CITY",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.place": {
+    "path": "PROVIDER/PROVIDER_ADDRESS",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.images": {
+    "path": "IMAGES/IMAGE",
+    "multiple": true,
+    "transforms": [
+     "img_url"
+    ]
+   },
+   "product.date_from": {
+    "path": "VOUCHER_START",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "product.date_to": {
+    "path": "VOUCHER_END",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "product._categories": {
+    "path": "CATEGORIES/CATEGORY",
+    "multiple": true
+   }
+  }
+ },
+ "zbozi_product": {
+  "mode": "product",
+  "item": "SHOPITEM",
+  "default_type": "poznavaci",
+  "fields": {
+   "product.external_id": {
+    "paths": [
+     "ITEM_ID",
+     "ID"
+    ]
+   },
+   "product.title": {
+    "paths": [
+     "PRODUCTNAME",
+     "PRODUCT"
+    ],
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.description": {
+    "path": "DESCRIPTION",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "product.affiliate_url": {
+    "path": "URL"
+   },
+   "product.price": {
+    "path": "//PRICE_VAT",
+    "transforms": [
+     "int"
+    ],
+    "multiple": true,
+    "aggregate": "min"
+   },
+   "product.images": {
+    "paths": [
+     "IMGURL",
+     "IMGURL2",
+     "IMGURL3",
+     "IMGURL4",
+     "IMGURL5"
+    ],
+    "multiple": true,
+    "transforms": [
+     "excursia_img",
+     "img_url"
+    ]
+   },
+   "product._categories": {
+    "path": "CATEGORYTEXT",
+    "multiple": true
+   }
+  }
+ },
+ "invia_hotels": {
+  "mode": "flat",
+  "item": "offer",
+  "fields": {
+   "hotel.name": {
+    "path": "hotel",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.country": {
+    "path": "destination/country",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.destination": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.city": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.stars": {
+    "path": "hotelinfo/stars",
+    "transforms": [
+     "int"
+    ]
+   },
+   "hotel.lat": {
+    "path": "hotelinfo/coords/lat",
+    "transforms": [
+     "float"
+    ]
+   },
+   "hotel.lng": {
+    "path": "hotelinfo/coords/lng",
+    "transforms": [
+     "float"
+    ]
+   },
+   "hotel.description": {
+    "path": "hotelinfo/description",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "hotel.images": {
+    "paths": [
+     "photos/photo",
+     "image"
+    ],
+    "multiple": true
+   },
+   "offer.external_id": {
+    "path": "url",
+    "transforms": [
+     "hash"
+    ]
+   },
+   "offer.title": {
+    "path": "hotel",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "offer.price_pp": {
+    "path": "price",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.price_total": {
+    "path": "totalprice",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.departure_date": {
+    "path": "term/from",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.return_date": {
+    "path": "term/to",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.nights": {
+    "path": "term/length",
+    "transforms": [
+     "nights_from_days"
+    ]
+   },
+   "offer.meal_type": {
+    "path": "food",
+    "transforms": [
+     "meal"
+    ]
+   },
+   "offer.transport": {
+    "path": "transportation",
+    "transforms": [
+     "lower"
+    ]
+   },
+   "offer.airport": {
+    "path": "airports/airport",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "offer.affiliate_url": {
+    "path": "url"
+   },
+   "offer.image_url": {
+    "path": "image"
+   }
+  }
+ },
+ "sdovolena_hotels": {
+  "mode": "nested",
+  "item": "tour",
+  "offer_item": "term_groups/term_group/terms/term",
+  "fields": {
+   "hotel.name": {
+    "path": "accommodation/title",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.country": {
+    "path": "locations/location/country_id",
+    "transforms": [
+     "iso3_country"
+    ]
+   },
+   "hotel.lat": {
+    "path": "accommodation/gps/lat",
+    "transforms": [
+     "float"
+    ]
+   },
+   "hotel.lng": {
+    "path": "accommodation/gps/lon",
+    "transforms": [
+     "float"
+    ]
+   },
+   "hotel.stars": {
+    "path": "tour_title",
+    "transforms": [
+     "stars_from_title"
+    ]
+   },
+   "hotel.description": {
+    "paths": [
+     "tour_desc",
+     "tour_title"
+    ],
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "hotel.images": {
+    "paths": [
+     "photos/photo/url",
+     "photos/photo"
+    ],
+    "multiple": true
+   },
+   "offer.external_id": {
+    "path": "id"
+   },
+   "offer.price_pp": {
+    "path": "prices/price/final_price",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.departure_date": {
+    "path": "start",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.return_date": {
+    "path": "end",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.nights": {
+    "path": "night_count",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.affiliate_url": {
+    "path": "purchase_url"
+   }
+  }
+ },
+ "adrop_pobyty": {
+  "mode": "product",
+  "item": "SHOPITEM",
+  "default_type": "zazitky",
+  "force_type": "zazitky",
+  "product_filter": {
+   "field": "_categories",
+   "contains_any": [
+    "Zážitky | Pobyty |"
+   ]
+  },
+  "fields": {
+   "product.external_id": {
+    "path": "ITEM_ID"
+   },
+   "product.title": {
+    "paths": [
+     "PRODUCT",
+     "PRODUCTNAME"
+    ],
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.description": {
+    "path": "DESCRIPTION",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "product.affiliate_url": {
+    "path": "URL"
+   },
+   "product.price": {
+    "path": "PRICE_VAT",
+    "transforms": [
+     "int"
+    ]
+   },
+   "product.images": {
+    "paths": [
+     "IMGURL",
+     "IMGURL_ALTERNATIVE"
+    ],
+    "multiple": true,
+    "transforms": [
+     "img_url"
+    ]
+   },
+   "product._categories": {
+    "path": "CATEGORYTEXT",
+    "multiple": true
+   }
+  }
+ },
+ "dovolena_hotels": {
+  "mode": "nested",
+  "item": "hotel",
+  "offer_item": "offers/offer",
+  "fields": {
+   "hotel.external_ref": {
+    "path": "@id"
+   },
+   "hotel.name": {
+    "path": "name",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.country": {
+    "path": "destination/country",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.destination": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.city": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.stars": {
+    "path": "category",
+    "transforms": [
+     "stars_decimal"
+    ]
+   },
+   "hotel.lat": {
+    "path": "gps",
+    "transforms": [
+     "gps_lat"
+    ]
+   },
+   "hotel.lng": {
+    "path": "gps",
+    "transforms": [
+     "gps_lng"
+    ]
+   },
+   "hotel.description": {
+    "path": "description",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "hotel.images": {
+    "paths": [
+     "gallery/image",
+     "image"
+    ],
+    "multiple": true,
+    "transforms": [
+     "img_url"
+    ]
+   },
+   "offer.external_id": {
+    "path": "@id"
+   },
+   "offer.price_pp": {
+    "path": "price",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.departure_date": {
+    "path": "date_from",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.return_date": {
+    "path": "date_to",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.nights": {
+    "path": "@days",
+    "transforms": [
+     "int",
+     {
+      "subtract": 1
+     }
+    ]
+   },
+   "offer.meal_type": {
+    "path": "food",
+    "transforms": [
+     "meal"
+    ]
+   },
+   "offer.transport": {
+    "path": "transport",
+    "transforms": [
+     "transport"
+    ]
+   },
+   "offer.airport": {
+    "path": "airport",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "offer.affiliate_url": {
+    "path": "url"
+   }
+  }
+ },
+ "dovolena_products": {
+  "mode": "product",
+  "item": "hotel",
+  "default_type": "poznavaci",
+  "fields": {
+   "product.external_id": {
+    "path": "@id"
+   },
+   "product.title": {
+    "path": "name",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.description": {
+    "path": "description",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "product.affiliate_url": {
+    "path": "url"
+   },
+   "product.price": {
+    "path": "price",
+    "transforms": [
+     "int"
+    ]
+   },
+   "product.country": {
+    "path": "destination/country",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.destination": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.place": {
+    "path": "destination/locality",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "product.images": {
+    "paths": [
+     "gallery/image",
+     "image"
+    ],
+    "multiple": true,
+    "transforms": [
+     "img_url"
+    ]
+   },
+   "product.date_from": {
+    "path": "//date_from",
+    "transforms": [
+     "ymd"
+    ],
+    "multiple": true,
+    "aggregate": "min_future"
+   },
+   "product.dates": {
+    "path": "//date_from",
+    "transforms": [
+     "ymd"
+    ],
+    "multiple": true
+   },
+   "product.nights": {
+    "path": "offers/offer/@days",
+    "transforms": [
+     "int",
+     {
+      "subtract": 1
+     }
+    ]
+   }
+  },
+  "terms": {
+   "item": "offer",
+   "fields": {
+    "from": {
+     "path": "date_from",
+     "transforms": [
+      "ymd"
+     ]
+    },
+    "to": {
+     "path": "date_to",
+     "transforms": [
+      "ymd"
+     ]
+    },
+    "nights": {
+     "path": "@days",
+     "transforms": [
+      "int",
+      {
+       "subtract": 1
+      }
+     ]
+    },
+    "price": {
+     "path": "price",
+     "transforms": [
+      "int"
+     ]
+    },
+    "url": {
+     "path": "url"
+    }
+   }
+  },
+  "force_type": "poznavaci"
+ },
+ "cedok_slim": {
+  "mode": "nested",
+  "item": "tour",
+  "offer_item": "terms/term",
+  "fields": {
+   "hotel.name": {
+    "path": "accommodation/title",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.country": {
+    "path": "locations/location/country_id",
+    "transforms": [
+     "iso3_country"
+    ]
+   },
+   "hotel.destination": {
+    "path": "locations/location/area_title",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.city": {
+    "path": "locations/location/place_title",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "hotel.lat": {
+    "path": "accommodation/gps/lat",
+    "transforms": [
+     "float"
+    ]
+   },
+   "hotel.lng": {
+    "path": "accommodation/gps/lon",
+    "transforms": [
+     "float"
+    ]
+   },
+   "hotel.description": {
+    "path": "accommodation/desc",
+    "transforms": [
+     "strip_tags",
+     "trim"
+    ]
+   },
+   "hotel.images": {
+    "path": "photos/photo/url",
+    "multiple": true
+   },
+   "offer.external_id": {
+    "path": "id"
+   },
+   "offer.price_pp": {
+    "path": "final_price",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.price_original": {
+    "path": "price_orig",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.departure_date": {
+    "path": "start",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.return_date": {
+    "path": "end",
+    "transforms": [
+     "ymd"
+    ]
+   },
+   "offer.nights": {
+    "path": "night_count",
+    "transforms": [
+     "int"
+    ]
+   },
+   "offer.meal_type": {
+    "path": "meal",
+    "transforms": [
+     {
+      "map": {
+       "All inclusive light": "all-inclusive",
+       "All inclusive": "all-inclusive",
+       "Ultra all inclusive": "all-inclusive"
+      }
+     },
+     "meal"
+    ]
+   },
+   "offer.transport": {
+    "path": "transport",
+    "transforms": [
+     "transport"
+    ]
+   },
+   "offer.airport": {
+    "path": "airport",
+    "transforms": [
+     "trim"
+    ]
+   },
+   "offer.affiliate_url": {
+    "path": "purchase_url"
+   }
+  }
+ }
+}

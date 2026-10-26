@@ -1,0 +1,45 @@
+{
+"TTL": 21600,
+"PARTNERS": {
+"cedok": [
+"Čedok",
+"Čedoku",
+true
+],
+"fischer": [
+"Fischer",
+"Fischeru",
+true
+],
+"exim-tours": [
+"Exim Tours",
+"Exim Tours",
+true
+],
+"blue-style": [
+"Blue Style",
+"Blue Style",
+true
+],
+"invia": [
+"Invia",
+"Invia",
+true
+],
+"tui": [
+"TUI",
+"TUI",
+false
+],
+"dovolena-cz": [
+"Dovolena.cz",
+"Dovolena.cz",
+false
+],
+"slevomat": [
+"Slevomat",
+"Slevomatu",
+false
+]
+}
+}

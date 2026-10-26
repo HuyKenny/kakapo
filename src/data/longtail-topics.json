@@ -1,0 +1,762 @@
+{
+"all-inclusive": {
+"slug": "all-inclusive",
+"label": "All inclusive",
+"h1_prefix": "All inclusive dovolená",
+"title_prefix": "All inclusive dovolená",
+"filters": {
+"meal": [
+"all-inclusive"
+]
+},
+"intent": "bez starostí se stravou a nápoji v ceně"
+},
+"last-minute": {
+"slug": "last-minute",
+"label": "Last minute",
+"h1_prefix": "Last minute dovolená",
+"title_prefix": "Last minute dovolená",
+"filters": {
+"flag": "last-minute"
+},
+"intent": "s odletem v nejbližších dnech a důrazem na aktuální cenu"
+},
+"first-minute": {
+"slug": "first-minute",
+"label": "First minute",
+"h1_prefix": "First minute dovolená",
+"title_prefix": "First minute dovolená",
+"filters": {
+"flag": "first-minute"
+},
+"intent": "s větším výběrem hotelů, pokojů a termínů při včasné rezervaci"
+},
+"dovolena-s-detmi": {
+"slug": "dovolena-s-detmi",
+"label": "Dovolená s dětmi",
+"h1_prefix": "Dovolená s dětmi",
+"title_prefix": "Dovolená s dětmi",
+"filters": {
+"theme": "children"
+},
+"intent": "s hotely vhodnými pro rodiny, kratším transferem a praktickými službami"
+},
+"dovolena-u-more": {
+"slug": "dovolena-u-more",
+"label": "Dovolená u moře",
+"h1_prefix": "Dovolená u moře",
+"title_prefix": "Dovolená u moře",
+"filters": {
+"theme": "sea"
+},
+"intent": "u moře s možností porovnat plážové hotely, termíny a stravu"
+},
+"levna-dovolena": {
+"slug": "levna-dovolena",
+"label": "Levná dovolená",
+"h1_prefix": "Levná dovolená",
+"title_prefix": "Levná dovolená",
+"filters": {
+"price_max": 15000,
+"sort": "price"
+},
+"intent": "s důrazem na nejnižší dostupné ceny a rozumný poměr cena/výkon"
+},
+"luxusni-dovolena": {
+"slug": "luxusni-dovolena",
+"label": "Luxusní dovolená",
+"h1_prefix": "Luxusní dovolená",
+"title_prefix": "Luxusní dovolená",
+"filters": {
+"stars": [
+5
+],
+"rating_min": 7,
+"sort": "rating"
+},
+"intent": "v lépe hodnocených 5hvězdičkových hotelech s důrazem na služby",
+"index_min": 8
+},
+"dovolena-letecky": {
+"slug": "dovolena-letecky",
+"label": "Dovolená letecky",
+"h1_prefix": "Dovolená letecky",
+"title_prefix": "Dovolená letecky",
+"filters": {
+"transport": "letecky"
+},
+"intent": "s leteckou dopravou a porovnáním odletových letišť"
+},
+"piscita-plaz": {
+"slug": "piscita-plaz",
+"label": "Dovolená s písečnou pláží",
+"h1_prefix": "Dovolená s písečnou pláží",
+"title_prefix": "Dovolená s písečnou pláží",
+"filters": {
+"theme": "sandy-beach"
+},
+"intent": "u hotelů a nabídek, kde se objevují signály písečné pláže nebo pozvolného vstupu",
+"index_min": 8
+},
+"aquapark": {
+"slug": "aquapark",
+"label": "Dovolená s aquaparkem",
+"h1_prefix": "Dovolená s aquaparkem",
+"title_prefix": "Dovolená s aquaparkem",
+"filters": {
+"theme": "aquapark"
+},
+"intent": "v hotelech a areálech s aquaparkem, tobogány nebo výrazným bazénovým zázemím",
+"index_min": 8
+},
+"dovolena-s-detmi-all-inclusive": {
+"slug": "dovolena-s-detmi-all-inclusive",
+"label": "Dovolená s dětmi all inclusive",
+"h1_prefix": "Dovolená s dětmi all inclusive",
+"title_prefix": "Dovolená s dětmi all inclusive",
+"filters": {
+"theme": "children",
+"meal": [
+"all-inclusive"
+]
+},
+"intent": "pro rodiny, které chtějí jasný rozpočet a stravu v ceně",
+"index_min": 8
+},
+"levna-dovolena-s-detmi": {
+"slug": "levna-dovolena-s-detmi",
+"label": "Levná dovolená s dětmi",
+"h1_prefix": "Levná dovolená s dětmi",
+"title_prefix": "Levná dovolená s dětmi",
+"filters": {
+"theme": "children",
+"price_max": 15000,
+"sort": "price"
+},
+"intent": "pro rodiny, které chtějí držet rozpočet a porovnat dostupné termíny",
+"index_min": 8
+},
+"odlet-z-prahy": {
+"slug": "odlet-z-prahy",
+"label": "Odlet z Prahy",
+"h1_prefix": "Dovolená",
+"title_prefix": "Dovolená",
+"filters": {
+"airport": [
+"praha"
+],
+"transport": "letecky"
+},
+"intent": "s odletem z letiště Praha a porovnáním termínů, cen a hotelů",
+"airport_slug": "praha",
+"airport_name": "Praha",
+"airport_from": "Prahy",
+"index_min": 8
+},
+"odlet-z-brna": {
+"slug": "odlet-z-brna",
+"label": "Odlet z Brna",
+"h1_prefix": "Dovolená",
+"title_prefix": "Dovolená",
+"filters": {
+"airport": [
+"brno"
+],
+"transport": "letecky"
+},
+"intent": "s odletem z letiště Brno a porovnáním termínů, cen a hotelů",
+"airport_slug": "brno",
+"airport_name": "Brno",
+"airport_from": "Brna",
+"index_min": 8
+},
+"odlet-z-ostravy": {
+"slug": "odlet-z-ostravy",
+"label": "Odlet z Ostravy",
+"h1_prefix": "Dovolená",
+"title_prefix": "Dovolená",
+"filters": {
+"airport": [
+"ostrava"
+],
+"transport": "letecky"
+},
+"intent": "s odletem z letiště Ostrava a porovnáním termínů, cen a hotelů",
+"airport_slug": "ostrava",
+"airport_name": "Ostrava",
+"airport_from": "Ostravy",
+"index_min": 8
+},
+"odlet-z-vidne": {
+"slug": "odlet-z-vidne",
+"label": "Odlet z Vídně",
+"h1_prefix": "Dovolená",
+"title_prefix": "Dovolená",
+"filters": {
+"airport": [
+"viden"
+],
+"transport": "letecky"
+},
+"intent": "s odletem z letiště Vídeň a porovnáním termínů, cen a hotelů",
+"airport_slug": "viden",
+"airport_name": "Vídeň",
+"airport_from": "Vídně",
+"index_min": 8
+},
+"odlet-z-pardubic": {
+"slug": "odlet-z-pardubic",
+"label": "Odlet z Pardubic",
+"h1_prefix": "Dovolená",
+"title_prefix": "Dovolená",
+"filters": {
+"airport": [
+"pardubice"
+],
+"transport": "letecky"
+},
+"intent": "s odletem z letiště Pardubice a porovnáním termínů, cen a hotelů",
+"airport_slug": "pardubice",
+"airport_name": "Pardubice",
+"airport_from": "Pardubic",
+"index_min": 8
+},
+"odlet-z-katovic": {
+"slug": "odlet-z-katovic",
+"label": "Odlet z Katovic",
+"h1_prefix": "Dovolená",
+"title_prefix": "Dovolená",
+"filters": {
+"airport": [
+"katovice"
+],
+"transport": "letecky"
+},
+"intent": "s odletem z letiště Katovice a porovnáním termínů, cen a hotelů",
+"airport_slug": "katovice",
+"airport_name": "Katovice",
+"airport_from": "Katovic",
+"index_min": 8
+},
+"odlet-z-bratislavy": {
+"slug": "odlet-z-bratislavy",
+"label": "Odlet z Bratislavy",
+"h1_prefix": "Dovolená",
+"title_prefix": "Dovolená",
+"filters": {
+"airport": [
+"bratislava"
+],
+"transport": "letecky"
+},
+"intent": "s odletem z letiště Bratislava a porovnáním termínů, cen a hotelů",
+"airport_slug": "bratislava",
+"airport_name": "Bratislava",
+"airport_from": "Bratislavy",
+"index_min": 8
+},
+"last-minute-z-prahy": {
+"slug": "last-minute-z-prahy",
+"label": "Last minute z Prahy",
+"h1_prefix": "Last minute dovolená",
+"title_prefix": "Last minute dovolená",
+"filters": {
+"flag": "last-minute",
+"airport": [
+"praha"
+],
+"transport": "letecky"
+},
+"intent": "s odletem v nejbližších dnech z letiště Praha",
+"airport_slug": "praha",
+"airport_name": "Praha",
+"airport_from": "Prahy",
+"last_minute_airport": true,
+"index_min": 6
+},
+"last-minute-z-brna": {
+"slug": "last-minute-z-brna",
+"label": "Last minute z Brna",
+"h1_prefix": "Last minute dovolená",
+"title_prefix": "Last minute dovolená",
+"filters": {
+"flag": "last-minute",
+"airport": [
+"brno"
+],
+"transport": "letecky"
+},
+"intent": "s odletem v nejbližších dnech z letiště Brno",
+"airport_slug": "brno",
+"airport_name": "Brno",
+"airport_from": "Brna",
+"last_minute_airport": true,
+"index_min": 6
+},
+"last-minute-z-ostravy": {
+"slug": "last-minute-z-ostravy",
+"label": "Last minute z Ostravy",
+"h1_prefix": "Last minute dovolená",
+"title_prefix": "Last minute dovolená",
+"filters": {
+"flag": "last-minute",
+"airport": [
+"ostrava"
+],
+"transport": "letecky"
+},
+"intent": "s odletem v nejbližších dnech z letiště Ostrava",
+"airport_slug": "ostrava",
+"airport_name": "Ostrava",
+"airport_from": "Ostravy",
+"last_minute_airport": true,
+"index_min": 6
+},
+"last-minute-z-vidne": {
+"slug": "last-minute-z-vidne",
+"label": "Last minute z Vídně",
+"h1_prefix": "Last minute dovolená",
+"title_prefix": "Last minute dovolená",
+"filters": {
+"flag": "last-minute",
+"airport": [
+"viden"
+],
+"transport": "letecky"
+},
+"intent": "s odletem v nejbližších dnech z letiště Vídeň",
+"airport_slug": "viden",
+"airport_name": "Vídeň",
+"airport_from": "Vídně",
+"last_minute_airport": true,
+"index_min": 6
+},
+"dovolena-kveten": {
+"slug": "dovolena-kveten",
+"label": "Dovolená v květnu",
+"h1_prefix": "Dovolená v květnu",
+"title_prefix": "Dovolená v květnu",
+"place_format": "Dovolená %s v květnu",
+"filters": {
+"date_from": "2027-05-01",
+"date_to": "2027-05-31",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Květen s porovnáním cen, délky pobytu a odletů",
+"month": "Květen",
+"year": 2027
+},
+"dovolena-cerven": {
+"slug": "dovolena-cerven",
+"label": "Dovolená v červnu",
+"h1_prefix": "Dovolená v červnu",
+"title_prefix": "Dovolená v červnu",
+"place_format": "Dovolená %s v červnu",
+"filters": {
+"date_from": "2027-06-01",
+"date_to": "2027-06-30",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Červen s porovnáním cen, délky pobytu a odletů",
+"month": "Červen",
+"year": 2027
+},
+"dovolena-cervenec": {
+"slug": "dovolena-cervenec",
+"label": "Dovolená v červenci",
+"h1_prefix": "Dovolená v červenci",
+"title_prefix": "Dovolená v červenci",
+"place_format": "Dovolená %s v červenci",
+"filters": {
+"date_from": "2027-07-01",
+"date_to": "2027-07-31",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Červenec s porovnáním cen, délky pobytu a odletů",
+"month": "Červenec",
+"year": 2027
+},
+"dovolena-srpen": {
+"slug": "dovolena-srpen",
+"label": "Dovolená v srpnu",
+"h1_prefix": "Dovolená v srpnu",
+"title_prefix": "Dovolená v srpnu",
+"place_format": "Dovolená %s v srpnu",
+"filters": {
+"date_from": "2027-08-01",
+"date_to": "2027-08-31",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Srpen s porovnáním cen, délky pobytu a odletů",
+"month": "Srpen",
+"year": 2027
+},
+"dovolena-zari": {
+"slug": "dovolena-zari",
+"label": "Dovolená v září",
+"h1_prefix": "Dovolená v září",
+"title_prefix": "Dovolená v září",
+"place_format": "Dovolená %s v září",
+"filters": {
+"date_from": "2027-09-01",
+"date_to": "2027-09-30",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Září s porovnáním cen, délky pobytu a odletů",
+"month": "Září",
+"year": 2027
+},
+"dovolena-rijen": {
+"slug": "dovolena-rijen",
+"label": "Dovolená v říjnu",
+"h1_prefix": "Dovolená v říjnu",
+"title_prefix": "Dovolená v říjnu",
+"place_format": "Dovolená %s v říjnu",
+"filters": {
+"date_from": "2026-10-26",
+"date_to": "2026-10-31",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Říjen s porovnáním cen, délky pobytu a odletů",
+"month": "Říjen",
+"year": 2026
+},
+"dovolena-listopad": {
+"slug": "dovolena-listopad",
+"label": "Dovolená v listopadu",
+"h1_prefix": "Dovolená v listopadu",
+"title_prefix": "Dovolená v listopadu",
+"place_format": "Dovolená %s v listopadu",
+"filters": {
+"date_from": "2026-11-01",
+"date_to": "2026-11-30",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Listopad s porovnáním cen, délky pobytu a odletů",
+"month": "Listopad",
+"year": 2026
+},
+"dovolena-prosinec": {
+"slug": "dovolena-prosinec",
+"label": "Dovolená v prosinci",
+"h1_prefix": "Dovolená v prosinci",
+"title_prefix": "Dovolená v prosinci",
+"place_format": "Dovolená %s v prosinci",
+"filters": {
+"date_from": "2026-12-01",
+"date_to": "2026-12-31",
+"sort": "departure"
+},
+"intent": "v termínech pro měsíc Prosinec s porovnáním cen, délky pobytu a odletů",
+"month": "Prosinec",
+"year": 2026
+},
+"kam-v-cervnu-k-mori": {
+"slug": "kam-v-cervnu-k-mori",
+"label": "Kam v červnu k moři",
+"h1_prefix": "Kam v červnu k moři",
+"title_prefix": "Kam v červnu k moři",
+"place_format": "%s v červnu u moře",
+"filters": {
+"theme": "sea",
+"date_from": "2027-06-01",
+"date_to": "2027-06-30",
+"sort": "departure"
+},
+"intent": "u moře v termínech pro měsíc Červen s porovnáním počasí, ceny a dostupnosti hotelů",
+"month": "Červen",
+"sea_month": true,
+"year": 2027,
+"index_min": 8
+},
+"kam-v-cervenci-k-mori": {
+"slug": "kam-v-cervenci-k-mori",
+"label": "Kam v červenci k moři",
+"h1_prefix": "Kam v červenci k moři",
+"title_prefix": "Kam v červenci k moři",
+"place_format": "%s v červenci u moře",
+"filters": {
+"theme": "sea",
+"date_from": "2027-07-01",
+"date_to": "2027-07-31",
+"sort": "departure"
+},
+"intent": "u moře v termínech pro měsíc Červenec s porovnáním počasí, ceny a dostupnosti hotelů",
+"month": "Červenec",
+"sea_month": true,
+"year": 2027,
+"index_min": 8
+},
+"kam-v-srpnu-k-mori": {
+"slug": "kam-v-srpnu-k-mori",
+"label": "Kam v srpnu k moři",
+"h1_prefix": "Kam v srpnu k moři",
+"title_prefix": "Kam v srpnu k moři",
+"place_format": "%s v srpnu u moře",
+"filters": {
+"theme": "sea",
+"date_from": "2027-08-01",
+"date_to": "2027-08-31",
+"sort": "departure"
+},
+"intent": "u moře v termínech pro měsíc Srpen s porovnáním počasí, ceny a dostupnosti hotelů",
+"month": "Srpen",
+"sea_month": true,
+"year": 2027,
+"index_min": 8
+},
+"kam-v-zari-k-mori": {
+"slug": "kam-v-zari-k-mori",
+"label": "Kam v září k moři",
+"h1_prefix": "Kam v září k moři",
+"title_prefix": "Kam v září k moři",
+"place_format": "%s v září u moře",
+"filters": {
+"theme": "sea",
+"date_from": "2027-09-01",
+"date_to": "2027-09-30",
+"sort": "departure"
+},
+"intent": "u moře v termínech pro měsíc Září s porovnáním počasí, ceny a dostupnosti hotelů",
+"month": "Září",
+"sea_month": true,
+"year": 2027,
+"index_min": 8
+},
+"kam-v-rijnu-k-mori": {
+"slug": "kam-v-rijnu-k-mori",
+"label": "Kam v říjnu k moři",
+"h1_prefix": "Kam v říjnu k moři",
+"title_prefix": "Kam v říjnu k moři",
+"place_format": "%s v říjnu u moře",
+"filters": {
+"theme": "sea",
+"date_from": "2026-10-26",
+"date_to": "2026-10-31",
+"sort": "departure"
+},
+"intent": "u moře v termínech pro měsíc Říjen s porovnáním počasí, ceny a dostupnosti hotelů",
+"month": "Říjen",
+"sea_month": true,
+"year": 2026,
+"index_min": 8
+},
+"kam-v-listopadu-k-mori": {
+"slug": "kam-v-listopadu-k-mori",
+"label": "Kam v listopadu k moři",
+"h1_prefix": "Kam v listopadu k moři",
+"title_prefix": "Kam v listopadu k moři",
+"place_format": "%s v listopadu u moře",
+"filters": {
+"theme": "sea",
+"date_from": "2026-11-01",
+"date_to": "2026-11-30",
+"sort": "departure"
+},
+"intent": "u moře v termínech pro měsíc Listopad s porovnáním počasí, ceny a dostupnosti hotelů",
+"month": "Listopad",
+"sea_month": true,
+"year": 2026,
+"index_min": 8
+},
+"kam-v-prosinci-k-mori": {
+"slug": "kam-v-prosinci-k-mori",
+"label": "Kam v prosinci k moři",
+"h1_prefix": "Kam v prosinci k moři",
+"title_prefix": "Kam v prosinci k moři",
+"place_format": "%s v prosinci u moře",
+"filters": {
+"theme": "sea",
+"date_from": "2026-12-01",
+"date_to": "2026-12-31",
+"sort": "departure"
+},
+"intent": "u moře v termínech pro měsíc Prosinec s porovnáním počasí, ceny a dostupnosti hotelů",
+"month": "Prosinec",
+"sea_month": true,
+"year": 2026,
+"index_min": 8
+},
+"kam-v-zime-k-mori": {
+"slug": "kam-v-zime-k-mori",
+"label": "Kam v zimě k moři",
+"h1_prefix": "Kam v zimě k moři",
+"title_prefix": "Kam v zimě k moři",
+"filters": {
+"theme": "sea",
+"date_from": "2026-12-01",
+"date_to": "2027-03-31",
+"sort": "departure"
+},
+"intent": "pro zimní únik za teplem s porovnáním destinací, odletů a aktuálních cen",
+"sea_winter": true,
+"index_min": 8
+},
+"dovolena-s-detmi-u-more": {
+"slug": "dovolena-s-detmi-u-more",
+"label": "Dovolená s dětmi u moře",
+"h1_prefix": "Dovolená s dětmi u moře",
+"title_prefix": "Dovolená s dětmi u moře",
+"filters": {
+"theme": "children",
+"country_exclude": [
+"cesko",
+"slovensko",
+"rakousko"
+]
+},
+"intent": "s rodinnými hotely, vhodnou pláží, kratším transferem a službami pro děti",
+"family_sea": true,
+"index_min": 8
+},
+"dovolena-u-more-all-inclusive": {
+"slug": "dovolena-u-more-all-inclusive",
+"label": "Dovolená u moře all inclusive",
+"h1_prefix": "Dovolená u moře all inclusive",
+"title_prefix": "Dovolená u moře all inclusive",
+"filters": {
+"theme": "sea",
+"meal": [
+"all-inclusive"
+]
+},
+"intent": "u moře se stravou a nápoji v ceně, s důrazem na hotel, pláž a rozsah služeb",
+"cheap_ai_sea": true,
+"index_min": 8
+},
+"levna-dovolena-u-more-all-inclusive": {
+"slug": "levna-dovolena-u-more-all-inclusive",
+"label": "Levná dovolená u moře all inclusive",
+"h1_prefix": "Levná dovolená u moře all inclusive",
+"title_prefix": "Levná dovolená u moře all inclusive",
+"filters": {
+"theme": "sea",
+"meal": [
+"all-inclusive"
+],
+"price_max": 18000,
+"sort": "price"
+},
+"intent": "s all inclusive stravou, mořem a řazením podle nejnižší aktuální ceny",
+"cheap_ai_sea": true,
+"index_min": 8
+},
+"dovolena-s-detmi-u-more-all-inclusive": {
+"slug": "dovolena-s-detmi-u-more-all-inclusive",
+"label": "Dovolená s dětmi u moře all inclusive",
+"h1_prefix": "Dovolená s dětmi u moře all inclusive",
+"title_prefix": "Dovolená s dětmi u moře all inclusive",
+"filters": {
+"theme": "children",
+"meal": [
+"all-inclusive"
+]
+},
+"intent": "pro rodiny, které chtějí moře, jasný rozpočet a praktické hotelové služby",
+"family_sea": true,
+"index_min": 8
+},
+"nejlevnejsi-dovolena-u-more-letecky-all-inclusive": {
+"slug": "nejlevnejsi-dovolena-u-more-letecky-all-inclusive",
+"label": "Nejlevnější dovolená u moře letecky all inclusive",
+"h1_prefix": "Nejlevnější dovolená u moře letecky all inclusive",
+"title_prefix": "Nejlevnější dovolená u moře letecky all inclusive",
+"filters": {
+"theme": "sea",
+"meal": [
+"all-inclusive"
+],
+"transport": "letecky",
+"sort": "price"
+},
+"intent": "s leteckou dopravou, all inclusive stravou a řazením podle nejnižší aktuální ceny",
+"cheap_ai_sea": true,
+"index_min": 8
+},
+"last-minute-all-inclusive-z-prahy": {
+"slug": "last-minute-all-inclusive-z-prahy",
+"label": "Last minute all inclusive z Prahy",
+"h1_prefix": "Last minute all inclusive",
+"title_prefix": "Last minute all inclusive",
+"filters": {
+"flag": "last-minute",
+"meal": [
+"all-inclusive"
+],
+"airport": [
+"praha"
+],
+"transport": "letecky",
+"sort": "departure"
+},
+"intent": "s odletem z letiště Praha, all inclusive stravou a porovnáním aktuálních termínů",
+"airport_slug": "praha",
+"airport_name": "Praha",
+"airport_from": "Prahy",
+"index_min": 8
+},
+"last-minute-all-inclusive-z-brna": {
+"slug": "last-minute-all-inclusive-z-brna",
+"label": "Last minute all inclusive z Brna",
+"h1_prefix": "Last minute all inclusive",
+"title_prefix": "Last minute all inclusive",
+"filters": {
+"flag": "last-minute",
+"meal": [
+"all-inclusive"
+],
+"airport": [
+"brno"
+],
+"transport": "letecky",
+"sort": "departure"
+},
+"intent": "s odletem z letiště Brno, all inclusive stravou a porovnáním aktuálních termínů",
+"airport_slug": "brno",
+"airport_name": "Brno",
+"airport_from": "Brna",
+"index_min": 8
+},
+"dovolena-z-prahy-all-inclusive": {
+"slug": "dovolena-z-prahy-all-inclusive",
+"label": "Dovolená all inclusive z Prahy",
+"h1_prefix": "Dovolená all inclusive",
+"title_prefix": "Dovolená all inclusive",
+"filters": {
+"meal": [
+"all-inclusive"
+],
+"airport": [
+"praha"
+],
+"transport": "letecky",
+"sort": "recommended"
+},
+"intent": "s odletem z letiště Praha, all inclusive stravou a porovnáním aktuálních termínů",
+"airport_slug": "praha",
+"airport_name": "Praha",
+"airport_from": "Prahy",
+"index_min": 8
+},
+"dovolena-z-brna-all-inclusive": {
+"slug": "dovolena-z-brna-all-inclusive",
+"label": "Dovolená all inclusive z Brna",
+"h1_prefix": "Dovolená all inclusive",
+"title_prefix": "Dovolená all inclusive",
+"filters": {
+"meal": [
+"all-inclusive"
+],
+"airport": [
+"brno"
+],
+"transport": "letecky",
+"sort": "recommended"
+},
+"intent": "s odletem z letiště Brno, all inclusive stravou a porovnáním aktuálních termínů",
+"airport_slug": "brno",
+"airport_name": "Brno",
+"airport_from": "Brna",
+"index_min": 8
+}
+}

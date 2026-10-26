@@ -1,0 +1,84 @@
+---
+import { mascot } from '../lib/icons';
+import { partnerLabel } from '../lib/helpers';
+import { PRODUCT_CATEGORIES, registry } from '../lib/server/site';
+import partnerData from '../data/partner-consts.json';
+const reg = await registry();
+const countries = Object.entries(reg.countries).slice(0, 6);
+const partners = Object.keys(reg.partners);
+const cats = Object.values(PRODUCT_CATEGORIES).slice(0, 6);
+const hubs = (partnerData as { PARTNERS: Record<string, unknown> }).PARTNERS;
+const year = new Date().getFullYear();
+const a = 'text-[15px] text-slate-600 transition hover:text-ink hover:underline';
+---
+<footer class="mt-20 border-t border-line bg-paper">
+	<div class="container-k grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1.2fr]">
+		<div class="sm:col-span-2 lg:col-span-1">
+			<a href="/" class="inline-flex items-center gap-2" aria-label="Kakapo.cz — úvodní stránka">
+				<Fragment set:html={mascot(48)} />
+				<span class="text-[28px] font-extrabold leading-none tracking-[-0.04em] text-ink">kakapo<span class="text-base font-bold tracking-normal text-coral">.cz</span></span>
+			</a>
+			<p class="mt-4 max-w-sm text-[15px] leading-relaxed text-slate-600">
+				Porovnáváme zájezdy, pobyty a zážitky od českých cestovních kanceláří na jednom místě.
+				Sami nic neprodáváme — rezervace probíhá vždy přímo u pořádající cestovní kanceláře.
+			</p>
+			<p class="mt-3 max-w-sm text-xs leading-relaxed text-slate-500">
+				Odkazy na nabídky partnerů jsou affiliate odkazy. Pokud přes ně nakoupíte,
+				můžeme získat provizi. Cenu zájezdu to nijak neovlivňuje.
+			</p>
+		</div>
+		<div>
+			<h2 class="mb-4 text-sm font-bold text-ink">Oblíbené destinace</h2>
+			<ul class="space-y-2.5">
+				{countries.length ? countries.map(([slug, c]) => <li><a class={a} href={`/${slug}/`}>Dovolená {c.label}</a></li>) : <li><a class={a} href="/zajezdy/">Všechny zájezdy</a></li>}
+				<li><a class={a} href="/last-minute/">Last minute zájezdy</a></li>
+				<li><a class={a} href="/dovolena-u-more/">Dovolená u moře</a></li>
+				<li><a class={a} href="/dovolena-s-detmi/">Dovolená s dětmi</a></li>
+				<li><a class={a} href="/dovolena-vlastni-dopravou/">Dovolená vlastní dopravou</a></li>
+			</ul>
+		</div>
+		<div>
+			<h2 class="mb-4 text-sm font-bold text-ink">Objevte</h2>
+			<ul class="space-y-2.5">
+				{cats.map((pc) => <li><a class={a} href={`/${pc.path}/`}>{pc.label}</a></li>)}
+				<li><a class={a} href="/esim/">eSIM na dovolenou</a></li>
+				<li><a class={a} href="/kompenzace-za-let/">Kompenzace za let</a></li>
+			</ul>
+		</div>
+		<div>
+			<h2 class="mb-4 text-sm font-bold text-ink">Populární výběry</h2>
+			<ul class="space-y-2.5">
+				<li><a class={a} href="/last-minute-all-inclusive/">Last minute all inclusive</a></li>
+				<li><a class={a} href="/dovolena-u-more-all-inclusive/">Dovolená u moře all inclusive</a></li>
+				<li><a class={a} href="/recko-all-inclusive/">Řecko all inclusive</a></li>
+				<li><a class={a} href="/super-last-minute-odlet-zitra/">Super last minute odlet zítra</a></li>
+				<li><a class={a} href="/kam-v-srpnu-k-mori/">Kam v srpnu k moři</a></li>
+				<li><a class={a} href="/wellness-pobyt-pro-dva/">Wellness pobyt pro dva</a></li>
+				<li><a class={a} href="/kratke-poznavaci-zajezdy/">Krátké poznávací zájezdy</a></li>
+				<li><a class={a} href="/chorvatsko-apartmany-u-more/">Chorvatsko apartmány u moře</a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="container-k">
+		<div class="rounded-3xl border border-line bg-white px-5 py-4 text-sm text-slate-600">
+			<h2 class="inline text-sm font-bold text-ink">Partnerské cestovní kanceláře</h2><span class="font-bold text-ink">:</span>
+			{partners.length ? partners.map((slug, i) => (
+				<>{i > 0 && ' · '}{hubs[slug] ? <a class="font-medium text-ink underline decoration-ink/25 underline-offset-2 hover:decoration-ink" href={`/${slug}-zajezdy/`}>{partnerLabel(slug)}</a> : partnerLabel(slug)}</>
+			)) : ' Fischer · Exim Tours · Blue Style · TUI a další české cestovní kanceláře.'}
+			<span class="mt-1 block text-xs text-slate-500">Ceny a dostupnost nabídek se mohou u partnerů měnit. Rozhodující jsou vždy údaje na webu cestovní kanceláře.</span>
+		</div>
+	</div>
+	<div class="mt-8 border-t border-line py-6">
+		<div class="container-k flex flex-col items-center justify-between gap-3 sm:flex-row">
+			<p class="text-sm text-slate-500">© {year} Kakapo.cz — srovnávač dovolených. Všechna práva vyhrazena.</p>
+			<nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-sm" aria-label="Právní a informační odkazy">
+				<a class="text-slate-600 transition hover:text-ink hover:underline" href="/kontakt/">Kontakt</a>
+				<a class="text-slate-600 transition hover:text-ink hover:underline" href="/ochrana-osobnich-udaju/">Ochrana osobních údajů</a>
+				<a class="text-slate-600 transition hover:text-ink hover:underline" href="/podminky-pouziti/">Podmínky použití</a>
+				<a class="text-slate-600 transition hover:text-ink hover:underline" href="/esim/">eSIM</a>
+				<a class="text-slate-600 transition hover:text-ink hover:underline" href="/kompenzace-za-let/">Kompenzace za let</a>
+				<a class="text-slate-600 transition hover:text-ink hover:underline" href="/zajezdy/">Všechny zájezdy</a>
+			</nav>
+		</div>
+	</div>
+</footer>

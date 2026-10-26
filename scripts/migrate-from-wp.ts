@@ -6,7 +6,7 @@ import { createInterface } from 'node:readline';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 
-const [dir, out] = [process.argv[2], process.argv[3]];
+const dir = process.argv[2] as string, out = process.argv[3] as string;
 if (!dir || !out) throw new Error('usage: migrate-from-wp.ts <export-dir> <out-sql-dir>');
 mkdirSync(out, { recursive: true });
 

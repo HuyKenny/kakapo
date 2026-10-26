@@ -17,8 +17,8 @@
     "verify:secrets": "tsx scripts/verify-no-secrets.ts"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "14.4.2",
-    "astro": "7.4.2",
+    "@astrojs/cloudflare": "14.3.4",
+    "astro": "7.3.8",
     "zod": "4.6.7"
   },
   "devDependencies": {

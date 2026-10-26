@@ -1,0 +1,274 @@
+{
+ "dest/hero-1600": {
+  "id": 462126,
+  "alt": "Písečná pláž s tyrkysovým mořem a stromem na pobřeží",
+  "w": 1600,
+  "h": 1067,
+  "autor": "Pixabay",
+  "url": "https://www.pexels.com/photo/trees-on-shoreline-462126/"
+ },
+ "dest/promo": {
+  "id": 1004524,
+  "alt": "Žena v infinity bazénu při západu slunce nad mořem",
+  "w": 1200,
+  "h": 800,
+  "autor": "Atlantic Ambience",
+  "url": "https://www.pexels.com/photo/woman-at-the-edge-of-the-pool-1004524/"
+ },
+ "dest/bulharsko": {
+  "id": 12499969,
+  "alt": "Letecký pohled na Sozopol a pláž u Černého moře v Bulharsku",
+  "w": 1200,
+  "h": 800,
+  "autor": "Denitsa Kireva",
+  "url": "https://www.pexels.com/photo/aerial-view-of-a-coastal-city-12499969/"
+ },
+ "dest/cesko": {
+  "id": 1269788,
+  "alt": "Český Krumlov se zámkem a meandrem Vltavy",
+  "w": 1200,
+  "h": 800,
+  "autor": "Felix Mittermeier",
+  "url": "https://www.pexels.com/photo/aerial-photo-of-brown-roof-town-1269788/"
+ },
+ "dest/chorvatsko": {
+  "id": 27651504,
+  "alt": "Chorvatské pobřeží s borovicemi a průzračnou zátokou",
+  "w": 1200,
+  "h": 800,
+  "autor": "Vladimir Srajber",
+  "url": "https://www.pexels.com/photo/the-beach-and-coastline-of-croatia-27651504/"
+ },
+ "dest/egypt": {
+  "id": 8158121,
+  "alt": "Resort s palmami a bazénem u Rudého moře v Egyptě",
+  "w": 1200,
+  "h": 800,
+  "autor": "Tarek El Ansary Ansary",
+  "url": "https://www.pexels.com/photo/green-palm-trees-near-swimming-pool-8158121/"
+ },
+ "dest/italie": {
+  "id": 12315130,
+  "alt": "Positano na Amalfském pobřeží v Itálii",
+  "w": 1200,
+  "h": 800,
+  "autor": "Boris Ivas",
+  "url": "https://www.pexels.com/photo/a-coastal-village-12315130/"
+ },
+ "dest/kanarske-ostrovy": {
+  "id": 30366957,
+  "alt": "Pláž Las Teresitas na Tenerife, Kanárské ostrovy",
+  "w": 1200,
+  "h": 800,
+  "autor": "Harald Pippert",
+  "url": "https://www.pexels.com/photo/aerial-view-of-playa-de-las-teresitas-tenerife-30366957/"
+ },
+ "dest/kypr": {
+  "id": 8332863,
+  "alt": "Tyrkysová zátoka a hotely na pobřeží Kypru",
+  "w": 1200,
+  "h": 800,
+  "autor": "Mikhail Nilov",
+  "url": "https://www.pexels.com/photo/adams-beach-hotel-on-cyprus-in-birds-eye-view-8332863/"
+ },
+ "dest/madeira": {
+  "id": 9499007,
+  "alt": "Útesy a modré moře na pobřeží Madeiry",
+  "w": 1200,
+  "h": 800,
+  "autor": "Kateryna Shliakhta",
+  "url": "https://www.pexels.com/photo/praia-da-laje-in-portugal-9499007/"
+ },
+ "dest/maledivy": {
+  "id": 30037393,
+  "alt": "Vily nad vodou v tyrkysové laguně na Maledivách",
+  "w": 1200,
+  "h": 800,
+  "autor": "Asad Photo Maldives",
+  "url": "https://www.pexels.com/photo/luxury-water-villas-in-maldives-at-sunset-30037393/"
+ },
+ "dest/malta": {
+  "id": 17583396,
+  "alt": "Pískovcové domy nad mořem na Maltě",
+  "w": 1200,
+  "h": 800,
+  "autor": "Efrem  Efre",
+  "url": "https://www.pexels.com/photo/waterfront-in-valletta-17583396/"
+ },
+ "dest/portugalsko": {
+  "id": 18166241,
+  "alt": "Pláž se skalním útesem v Algarve, Portugalsko",
+  "w": 1200,
+  "h": 800,
+  "autor": "Mo Eid",
+  "url": "https://www.pexels.com/photo/rocks-and-beach-on-sea-shore-18166241/"
+ },
+ "dest/recko": {
+  "id": 15532995,
+  "alt": "Kostel s modrou kupolí nad mořem na Santorini, Řecko",
+  "w": 1200,
+  "h": 800,
+  "autor": "Diego F. Parra",
+  "url": "https://www.pexels.com/photo/church-on-santorinin-in-greece-15532995/"
+ },
+ "dest/spanelsko": {
+  "id": 20121622,
+  "alt": "Průzračné moře v zátoce na Mallorce, Španělsko",
+  "w": 1200,
+  "h": 800,
+  "autor": "Nadine Ginzel",
+  "url": "https://www.pexels.com/photo/bay-on-sea-shore-20121622/"
+ },
+ "dest/spojene-arabske-emiraty": {
+  "id": 4768984,
+  "alt": "Mrakodrapy Dubai Marina s palmami u pláže",
+  "w": 1200,
+  "h": 800,
+  "autor": "Denys Gromov",
+  "url": "https://www.pexels.com/photo/modern-skyscrapers-and-beach-in-dubai-united-arab-emirates-4768984/"
+ },
+ "dest/tunisko": {
+  "id": 27599624,
+  "alt": "Bílé domy s modrými dveřmi v Sidi Bou Said, Tunisko",
+  "w": 1200,
+  "h": 800,
+  "autor": "Mahmoud Yahyaoui",
+  "url": "https://www.pexels.com/photo/old-street-from-sidi-bou-said-tunisia-27599624/"
+ },
+ "dest/turecko": {
+  "id": 20482491,
+  "alt": "Záliv a pláž Kleopatra v Alanyi, Turecko",
+  "w": 1200,
+  "h": 800,
+  "autor": "Arthur Shuraev",
+  "url": "https://www.pexels.com/photo/sea-coast-of-alanya-city-in-turkey-20482491/"
+ },
+ "dest/zanzibar": {
+  "id": 14408604,
+  "alt": "Bílá pláž s palmami a tyrkysovým mořem na Zanzibaru",
+  "w": 1200,
+  "h": 800,
+  "autor": "MCK",
+  "url": "https://www.pexels.com/photo/a-beautiful-paradise-under-blue-sky-14408604/"
+ },
+ "cat/eurovikendy": {
+  "id": 30173039,
+  "alt": "Pařížská ulice s typickými domy a kavárnou",
+  "w": 1200,
+  "h": 800,
+  "autor": "Daria Agafonova",
+  "url": "https://www.pexels.com/photo/charming-parisian-street-with-classic-architecture-30173039/"
+ },
+ "cat/lyzovani": {
+  "id": 39683302,
+  "alt": "Lyžaři na sjezdovce pod Matterhornem za slunečného dne",
+  "w": 1200,
+  "h": 800,
+  "autor": "Muyu Yao",
+  "url": "https://www.pexels.com/photo/skiers-enjoying-scenic-views-of-the-matterhorn-39683302/"
+ },
+ "cat/plavby": {
+  "id": 5769605,
+  "alt": "Výletní loď na moři za palmou na pláži",
+  "w": 1200,
+  "h": 800,
+  "autor": "Julia Volk",
+  "url": "https://www.pexels.com/photo/white-cruise-ship-sailing-on-the-sea-5769605/"
+ },
+ "cat/poznavaci": {
+  "id": 3830687,
+  "alt": "Turisté u antických sloupů na athénské Akropoli",
+  "w": 1200,
+  "h": 800,
+  "autor": "dirk bijstra",
+  "url": "https://www.pexels.com/photo/ancient-ruins-of-acropolis-town-on-clear-day-3830687/"
+ },
+ "cat/wellness": {
+  "id": 7222181,
+  "alt": "Vnitřní bazén ve wellness hotelu",
+  "w": 1200,
+  "h": 800,
+  "autor": "cottonbro studio",
+  "url": "https://www.pexels.com/photo/woman-in-red-swimwear-swimming-in-the-pool-7222181/"
+ },
+ "cat/zajezdy": {
+  "id": 16925918,
+  "alt": "Slunečníky a lehátka na pláži u moře",
+  "w": 1200,
+  "h": 800,
+  "autor": "Ayşegül  Aytören",
+  "url": "https://www.pexels.com/photo/sunbeds-on-a-beach-in-tropical-resort-16925918/"
+ },
+ "cat/zazitky": {
+  "id": 14814433,
+  "alt": "Horkovzdušné balóny nad Kappadokií",
+  "w": 1200,
+  "h": 800,
+  "autor": "Sami TÜRK",
+  "url": "https://www.pexels.com/photo/photo-of-a-flying-hot-air-balloons-14814433/"
+ },
+ "typ/more": {
+  "id": 2384013,
+  "alt": "Lidé se koupou ve vlnách u písečné pláže",
+  "w": 1200,
+  "h": 800,
+  "autor": "Zak Chapman",
+  "url": "https://www.pexels.com/photo/people-near-ocean-2384013/"
+ },
+ "typ/all-inclusive": {
+  "id": 18971229,
+  "alt": "Drinky na stolku u hotelového bazénu",
+  "w": 1200,
+  "h": 800,
+  "autor": "Ahmet ÇÖTÜR",
+  "url": "https://www.pexels.com/photo/drinks-and-a-snack-on-the-table-by-the-swimming-pool-18971229/"
+ },
+ "typ/last-minute": {
+  "id": 1008155,
+  "alt": "Cestovatelka s kufrem na letišti",
+  "w": 1200,
+  "h": 800,
+  "autor": "Atlantic Ambience",
+  "url": "https://www.pexels.com/photo/woman-walking-on-pathway-while-strolling-luggage-1008155/"
+ },
+ "typ/s-detmi": {
+  "id": 8623319,
+  "alt": "Rodina s dětmi na písečné pláži",
+  "w": 1200,
+  "h": 800,
+  "autor": "Kampus Production",
+  "url": "https://www.pexels.com/photo/a-family-walking-at-the-beach-8623319/"
+ },
+ "typ/levna": {
+  "id": 17190565,
+  "alt": "Žabky, klobouk a mušle na písku",
+  "w": 1200,
+  "h": 800,
+  "autor": "Ylanite Koppens",
+  "url": "https://www.pexels.com/photo/starfish-shell-and-flip-flops-on-beach-17190565/"
+ },
+ "typ/letecky": {
+  "id": 4571790,
+  "alt": "Křídlo letadla nad mraky",
+  "w": 1200,
+  "h": 800,
+  "autor": "ArtHouse Studio",
+  "url": "https://www.pexels.com/photo/wing-of-airplane-flying-over-clouds-4571790/"
+ },
+ "typ/vlastni-doprava": {
+  "id": 36190419,
+  "alt": "Auto zaparkované na pláži u moře",
+  "w": 1200,
+  "h": 800,
+  "autor": "Kadir Akman",
+  "url": "https://www.pexels.com/photo/classic-car-by-the-sea-in-antalya-turkiye-36190419/"
+ },
+ "typ/luxusni": {
+  "id": 6190475,
+  "alt": "Infinity bazén luxusního resortu s palmami",
+  "w": 1200,
+  "h": 800,
+  "autor": "Cesan Escuadro",
+  "url": "https://www.pexels.com/photo/resort-swimming-pool-in-summer-6190475/"
+ }
+}

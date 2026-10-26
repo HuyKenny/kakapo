@@ -1,0 +1,746 @@
+{
+"adventni-zajezdy": {
+"label": "Adventní zájezdy",
+"path": "adventni-zajezdy",
+"type": "eurovikendy",
+"filters": {
+"q": "advent"
+},
+"title": "Adventní zájezdy a vánoční trhy 2026 | Kakapo.cz",
+"description": "Porovnejte adventní zájezdy na vánoční trhy do Vídně, Drážďan, Paříže, Amsterdamu a dalších měst. Termíny, ceny a nabídky českých partnerů.",
+"intro": "Vánoční trhy, světla v ulicích a krátký únik z běžného týdne. Adventní zájezdy porovnávají města, termíny, dopravu a cenu na jednom místě.",
+"seo_text": "<h2>Jak vybrat adventní zájezd</h2><p>U adventního zájezdu rozhoduje hlavně termín, délka programu a reálný čas ve městě. Nejžádanější jsou víkendy od konce listopadu do Vánoc, proto se vyplatí porovnat nejen cenu, ale i časy odjezdu, vzdálenost od centra a rozsah programu.</p><h2>Kam na vánoční trhy</h2><p>Mezi oblíbené cíle patří Vídeň, Drážďany, Salzburg, Norimberk, Amsterdam, Paříž nebo menší města s komornější atmosférou. Pro jednodenní výlet hledejte kratší dojezd, pro víkend vybírejte hotel blízko centra nebo dobrého spojení.</p><h2>Co zkontrolovat před rezervací</h2><ul><li>čas odjezdu a návratu,</li><li>zda je v ceně průvodce, ubytování a snídaně,</li><li>vzdálenost hotelu od centra,</li><li>volný čas na trzích a případný doprovodný program,</li><li>storno podmínky u zimních termínů.</li></ul>",
+"faqs": [
+{
+"q": "Kdy začínají adventní zájezdy?",
+"a": "Nejčastěji od konce listopadu a během prosincových víkendů. Nejžádanější termíny mizí rychleji, hlavně u Vídně, Drážďan a velkých metropolí."
+},
+{
+"q": "Je lepší jednodenní adventní výlet nebo víkend?",
+"a": "Na blízká města stačí jeden den. U Paříže, Amsterdamu nebo Londýna dává větší smysl víkend či delší program."
+},
+{
+"q": "Co je u vánočních trhů nejdůležitější?",
+"a": "Dostatek času ve městě, dobrá poloha, jasný program a doprava, která vás nenechá většinu dne na cestě."
+}
+]
+},
+"termalni-lazne": {
+"label": "Termální lázně",
+"path": "termalni-lazne",
+"type": "wellness",
+"filters": {
+"q": "lázně"
+},
+"title": "Termální lázně a termální pobyty | Kakapo.cz",
+"description": "Termální lázně, wellness hotely a pobyty u termálních pramenů. Porovnejte ceny, lokality, stravu a délku pobytu.",
+"intro": "Termální lázně jsou dobrá volba pro relax, regeneraci i víkendový pobyt mimo běžný ruch. Porovnejte termální hotely, lázeňské pobyty a wellness balíčky podle ceny a lokality.",
+"seo_text": "<h2>Jak vybrat termální lázně</h2><p>U termálních lázní sledujte, zda je vstup do bazénů a wellness v ceně, kolik procedur balíček obsahuje a jestli jde o hotel přímo v areálu. Levnější pobyt mimo areál může být zajímavý, ale často přidává dojíždění a poplatky navíc.</p><h2>Pro koho se termální pobyt hodí</h2><p>Termální pobyty dávají smysl pro páry, seniory, rodiny i krátký odpočinek přes víkend. Rodiny ocení bazény a volnější režim, páry klidnější hotel a dospělou wellness zónu.</p><h2>Co porovnat v ceně</h2><ul><li>vstupy do termálních bazénů,</li><li>sauny, masáže a procedury,</li><li>stravu a parkování,</li><li>vzdálenost od lázeňského areálu,</li><li>termín, víkendové příplatky a storno.</li></ul>",
+"faqs": [
+{
+"q": "Co jsou termální lázně?",
+"a": "Lázně nebo wellness areály využívající teplou minerální vodu. Často kombinují bazény, sauny, procedury a hotelové pobyty."
+},
+{
+"q": "Vyplatí se hotel přímo u termálů?",
+"a": "Často ano, protože šetří čas a některé vstupy mohou být zahrnuté v ceně pobytu."
+},
+{
+"q": "Kdy jet do termálních lázní?",
+"a": "Celoročně. Na lepší cenu se hodí všední dny a mimosezóna, víkendy a svátky bývají dražší."
+}
+]
+},
+"eurovikend-pariz": {
+"label": "Eurovíkend Paříž",
+"path": "eurovikend-pariz",
+"type": "eurovikendy",
+"filters": {
+"q": "Paříž"
+},
+"title": "Eurovíkend Paříž — zájezdy a víkendové pobyty | Kakapo.cz",
+"description": "Eurovíkendy v Paříži, Disneyland, Versailles i klasické poznávání města. Porovnejte termíny, ceny a program.",
+"intro": "Paříž se hodí na romantický víkend, poznávání i rodinný výlet do Disneylandu. Vyberte termín podle programu, dopravy a času přímo ve městě.",
+"seo_text": "<h2>Jak vybrat eurovíkend v Paříži</h2><p>U Paříže je důležité, zda chcete hlavně centrum, památky, Versailles nebo Disneyland. Kratší pobyt vybírejte podle programu den po dni a času příjezdu, protože rozdíl mezi dvěma nabídkami může být v reálném čase ve městě výrazný.</p><h2>Co vidět v Paříži</h2><p>Mezi nejčastější body programu patří Eiffelova věž, Louvre, Montmartre, Notre-Dame, plavba po Seině, Versailles a Disneyland. U rodinných nabídek si hlídejte, zda je vstup zahrnutý v ceně.</p><h2>Na co si dát pozor</h2><ul><li>poloha hotelu a dostupnost metrem,</li><li>zahrnuté vstupy a fakultativní výlety,</li><li>časy odjezdu nebo letu,</li><li>zavazadla a transfery,</li><li>volný čas na vlastní program.</li></ul>",
+"faqs": [
+{
+"q": "Kolik dní stačí na Paříž?",
+"a": "Na první návštěvu dává smysl alespoň prodloužený víkend. Pokud chcete Disneyland nebo Versailles, hodí se delší program."
+},
+{
+"q": "Je Paříž vhodná pro rodiny?",
+"a": "Ano, hlavně nabídky s Disneylandem nebo volnějším programem. U dětí hlídejte délku přejezdů a tempo programu."
+},
+{
+"q": "Kdy je Paříž nejlepší?",
+"a": "Jaro a podzim jsou příjemné na poznávání, advent má atmosféru, ale vyšší poptávku."
+}
+]
+},
+"eurovikend-londyn": {
+"label": "Eurovíkend Londýn",
+"path": "eurovikend-londyn",
+"type": "eurovikendy",
+"filters": {
+"q": "Londýn"
+},
+"title": "Eurovíkend Londýn — zájezdy a poznávací víkendy | Kakapo.cz",
+"description": "Víkendové a poznávací zájezdy do Londýna. Porovnejte programy s Windsorem, Oxfordem, Stonehenge nebo volným časem ve městě.",
+"intro": "Londýn je ideální na prodloužený víkend i poznávací program s výlety do okolí. Porovnejte nabídky podle programu, dopravy a času ve městě.",
+"seo_text": "<h2>Jak vybrat eurovíkend v Londýně</h2><p>Londýn má smysl vybírat podle toho, zda chcete čistě město, nebo i výlety do okolí. Programy často kombinují centrum s Windsorem, Oxfordem, Brightonem nebo Stonehenge. U krátké cesty sledujte hlavně časy dopravy a polohu hotelu.</p><h2>Co bývá v programu</h2><p>Typicky Buckingham Palace, Tower Bridge, Westminster, London Eye, muzea, nákupy a některý z výletů mimo město. Nabídky se liší tempem a množstvím volného času.</p><h2>Co zkontrolovat</h2><ul><li>doklady a aktuální vstupní podmínky,</li><li>zavazadla a transfery,</li><li>hotelovou zónu a spojení do centra,</li><li>zahrnuté vstupy,</li><li>poměr města a výletů mimo Londýn.</li></ul>",
+"faqs": [
+{
+"q": "Stačí na Londýn víkend?",
+"a": "Na první ochutnávku ano, ale počítejte s výběrem priorit. Delší program je lepší, pokud chcete i výlety mimo město."
+},
+{
+"q": "Je lepší Londýn s průvodcem?",
+"a": "Pro první cestu často ano. Ušetří čas s dopravou, orientací a programem."
+},
+{
+"q": "Co porovnat u zájezdu do Londýna?",
+"a": "Časy dopravy, hotelovou lokalitu, zahrnuté vstupy a to, kolik času zůstává přímo v Londýně."
+}
+]
+},
+"eurovikend-amsterdam": {
+"label": "Eurovíkend Amsterdam",
+"path": "eurovikend-amsterdam",
+"type": "eurovikendy",
+"filters": {
+"q": "Amsterdam"
+},
+"title": "Eurovíkend Amsterdam — zájezdy a víkendové pobyty | Kakapo.cz",
+"description": "Eurovíkendy v Amsterdamu, advent, festival světel, Keukenhof i poznávání města. Porovnejte ceny a termíny.",
+"intro": "Amsterdam láká kanály, muzei, světly i výlety do okolí. Vyberte si víkend podle sezóny, programu a délky času přímo ve městě.",
+"seo_text": "<h2>Jak vybrat eurovíkend v Amsterdamu</h2><p>Amsterdam je silný na jaro, advent i klasické městské poznávání. Na jaře se často kombinuje s Keukenhofem, v zimě s festivalem světel nebo adventní atmosférou. U nabídky sledujte, zda program nechává dost času na centrum.</p><h2>Co vidět v Amsterdamu</h2><p>Kanály, muzea, historické centrum, květinové trhy, plavba lodí a okolní města. Pokud jedete kvůli Keukenhofu, hlídejte sezónu a vstupy.</p><h2>Praktické tipy</h2><ul><li>ověřte polohu hotelu vůči centru,</li><li>sledujte termín kvůli Keukenhofu nebo festivalu světel,</li><li>porovnejte délku přejezdů,</li><li>zkontrolujte zahrnuté vstupy,</li><li>nechte si prostor na vlastní program.</li></ul>",
+"faqs": [
+{
+"q": "Kdy jet do Amsterdamu?",
+"a": "Jaro kvůli květinám a Keukenhofu, zima kvůli adventu a festivalu světel, celoročně na klasické poznávání města."
+},
+{
+"q": "Je Amsterdam vhodný na víkend?",
+"a": "Ano. Na kratší pobyt vybírejte nabídku s dobrou polohou a rozumným časem ve městě."
+},
+{
+"q": "Co je Keukenhof?",
+"a": "Známý květinový park u Amsterdamu, který je sezónní a bývá součástí jarních poznávacích zájezdů."
+}
+]
+},
+"eurovikend-letecky": {
+"label": "Eurovíkend letecky",
+"path": "eurovikend-letecky",
+"type": "eurovikendy",
+"filters": {
+"q": "letecky"
+},
+"title": "Eurovíkend letecky — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Letecké eurovíkendy a krátké pobyty v evropských městech. Porovnejte termíny, ceny, dopravu, hotel a čas v destinaci.",
+"intro": "Letecký eurovíkend vybírejte podle letového plánu, polohy hotelu a reálného času ve městě. Krátká cesta se vyplatí hlavně tehdy, když doprava nesežere většinu pobytu.",
+"seo_text": "<h2>Jak vybrat eurovíkend letecky</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Let a čas ve městě</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend letecky?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-u-more": {
+"label": "Eurovíkend u moře",
+"path": "eurovikend-u-more",
+"type": "eurovikendy",
+"filters": {
+"q": "moře"
+},
+"title": "Eurovíkend u moře — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkendy u moře: krátké pobyty ve městech a letoviscích, kde spojíte koupání, procházky a poznávání.",
+"intro": "Eurovíkend u moře dává smysl, když chcete za pár dní spojit město, pláž a dobré spojení z letiště. Sledujte hlavně časy letů, transfer a polohu hotelu.",
+"seo_text": "<h2>Jak vybrat eurovíkend u moře</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Město a pláž</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend u moře?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-s-pruvodcem": {
+"label": "Eurovíkend s průvodcem",
+"path": "eurovikend-s-pruvodcem",
+"type": "eurovikendy",
+"filters": {
+"q": "průvodce"
+},
+"title": "Eurovíkend s průvodcem — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkendy s průvodcem: poznávací programy, organizovaná doprava a krátké pobyty v evropských městech.",
+"intro": "Eurovíkend s průvodcem se hodí pro první návštěvu města, adventní programy i kratší poznávání bez řešení dopravy a vstupů na vlastní pěst.",
+"seo_text": "<h2>Jak vybrat eurovíkend s průvodcem</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Program bez plánování</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend s průvodcem?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"kam-na-eurovikend": {
+"label": "Kam na eurovíkend",
+"path": "kam-na-eurovikend",
+"type": "eurovikendy",
+"filters": {
+"q": "eurovíkend"
+},
+"title": "Kam na eurovíkend — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Kam na eurovíkend: porovnejte evropská města, termíny, dopravu, hotely a ceny krátkých pobytů.",
+"intro": "Nejlepší eurovíkend není jen nejlevnější nabídka. U krátké cesty rozhoduje hlavně doprava, poloha hotelu, délka pobytu a to, kolik času skutečně strávíte v destinaci.",
+"seo_text": "<h2>Jak vybrat kam na eurovíkend</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Výběr města</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na kam na eurovíkend?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-atheny": {
+"label": "Eurovíkend Athény",
+"path": "eurovikend-atheny",
+"type": "eurovikendy",
+"filters": {
+"q": "Athény"
+},
+"title": "Eurovíkend Athény — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkend Athény: památky, Akropole, řecká gastronomie a krátké pobyty s leteckou dopravou.",
+"intro": "Athény se hodí pro cestovatele, kteří chtějí spojit historii, jídlo a příjemné počasí mimo největší letní špičku.",
+"seo_text": "<h2>Jak vybrat eurovíkend athény</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Antika a město</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend athény?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-lisabon": {
+"label": "Eurovíkend Lisabon",
+"path": "eurovikend-lisabon",
+"type": "eurovikendy",
+"filters": {
+"q": "Lisabon"
+},
+"title": "Eurovíkend Lisabon — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkend Lisabon: krátké pobyty v Portugalsku, městské čtvrti, vyhlídky, oceán a gastronomie.",
+"intro": "Lisabon je dobrá volba pro prodloužený víkend s atmosférou, tramvajemi, výhledy a možností výletu k oceánu.",
+"seo_text": "<h2>Jak vybrat eurovíkend lisabon</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Oceán a vyhlídky</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend lisabon?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-rim": {
+"label": "Eurovíkend Řím",
+"path": "eurovikend-rim",
+"type": "eurovikendy",
+"filters": {
+"q": "Řím"
+},
+"title": "Eurovíkend Řím — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkend Řím: památky, Vatikán, gastronomie a krátké poznávací pobyty v Itálii.",
+"intro": "Řím se na eurovíkend hodí, pokud dobře vyberete polohu hotelu a program. U krátkého pobytu rozhoduje dostupnost centra a časy dopravy.",
+"seo_text": "<h2>Jak vybrat eurovíkend řím</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Památky a gastronomie</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend řím?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-barcelona": {
+"label": "Eurovíkend Barcelona",
+"path": "eurovikend-barcelona",
+"type": "eurovikendy",
+"filters": {
+"q": "Barcelona"
+},
+"title": "Eurovíkend Barcelona — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkend Barcelona: město, Gaudí, pláž, gastronomie a krátké pobyty ve Španělsku.",
+"intro": "Barcelona umí spojit město a moře, ale u krátkého pobytu je důležitá lokalita hotelu, termín a čas příletu.",
+"seo_text": "<h2>Jak vybrat eurovíkend barcelona</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Město u moře</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend barcelona?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-malaga": {
+"label": "Eurovíkend Malaga",
+"path": "eurovikend-malaga",
+"type": "eurovikendy",
+"filters": {
+"q": "Malaga"
+},
+"title": "Eurovíkend Malaga — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkend Malaga: Andalusie, moře, město, gastronomie a krátké letecké pobyty.",
+"intro": "Malaga se hodí na kratší útěk za sluncem, tapas a procházkami u moře. Sledujte hlavně spojení z letiště a polohu hotelu.",
+"seo_text": "<h2>Jak vybrat eurovíkend malaga</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Andalusie a slunce</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend malaga?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"eurovikend-benatky": {
+"label": "Eurovíkend Benátky",
+"path": "eurovikend-benatky",
+"type": "eurovikendy",
+"filters": {
+"q": "Benátky"
+},
+"title": "Eurovíkend Benátky — zájezdy, termíny a ceny | Kakapo.cz",
+"description": "Eurovíkend Benátky: romantické pobyty, poznávací programy, laguna a krátké výlety do Itálie.",
+"intro": "Benátky jsou silné na romantický víkend, advent i klasické poznávání. U nabídky si pohlídejte polohu hotelu a dopravu do centra.",
+"seo_text": "<h2>Jak vybrat eurovíkend benátky</h2><p>U eurovíkendu rozhoduje hlavně reálný čas v destinaci, poloha hotelu, doprava, zavazadla a program. Levnější nabídka nemusí být lepší, pokud přiletíte pozdě večer, odlétáte brzy ráno nebo bydlíte daleko od centra.</p><h2>Co porovnat před rezervací</h2><ul><li>časy letu nebo odjezdu a návratu,</li><li>polohu hotelu vůči centru, pláži nebo dopravě,</li><li>zavazadla, transfery a městské poplatky,</li><li>zda je v ceně průvodce nebo vstupy,</li><li>storno podmínky a dostupnost termínu.</li></ul><h2>Laguna a romantika</h2><p>Krátká cesta má fungovat bez složité logistiky. Proto sledujte nejen cenu, ale i to, jak snadno se dostanete z letiště nebo nádraží do hotelu a kolik času vám zůstane na vlastní program.</p>",
+"faqs": [
+{
+"q": "Kolik dní stačí na eurovíkend benátky?",
+"a": "Na většinu eurovíkendů stačí dva až čtyři dny, pokud má nabídka dobré časy dopravy a hotel v rozumné poloze."
+},
+{
+"q": "Je lepší eurovíkend s průvodcem, nebo bez?",
+"a": "S průvodcem dává smysl první návštěva, advent nebo nabitější poznávací program. Bez průvodce máte více volnosti, ale víc plánování zůstává na vás."
+},
+{
+"q": "Prodává Kakapo.cz eurovíkendy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a rezervaci dokončíte přímo u partnera nebo cestovní kanceláře."
+}
+]
+},
+"wellness-pobyt-pro-dva": {
+"label": "Wellness pobyt pro dva",
+"path": "wellness-pobyt-pro-dva",
+"type": "wellness",
+"filters": {
+"q": "wellness"
+},
+"title": "Wellness pobyt pro dva — romantické a relaxační pobyty | Kakapo.cz",
+"description": "Wellness pobyty pro dva: porovnejte relaxační pobyty, lázně, masáže, vířivky, lokality a aktuální ceny.",
+"intro": "Wellness pobyt pro dva vybírejte podle rozsahu wellness služeb, délky pobytu, stravy, lokality a podmínek rezervace. U krátkého odpočinku rozhoduje hlavně to, co je opravdu v ceně.",
+"index_min": 8,
+"seo_text": "<h2>Jak vybrat wellness pobyt pro dva</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Wellness pro páry</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz wellness pobyt pro dva přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"romanticky-wellness-pobyt-pro-dva": {
+"label": "Romantický wellness pobyt pro dva",
+"path": "romanticky-wellness-pobyt-pro-dva",
+"type": "wellness",
+"filters": {
+"q": "romantick"
+},
+"title": "Romantický wellness pobyt pro dva — pobyty a ceny | Kakapo.cz",
+"description": "Romantické wellness pobyty pro dva: vířivky, masáže, večeře, privátní wellness a pobyty vhodné jako dárek.",
+"intro": "Romantický wellness pobyt má fungovat jako krátký únik bez složitého plánování. Porovnejte soukromí, stravu, wellness vstupy, masáže a možné víkendové doplatky.",
+"index_min": 2,
+"seo_text": "<h2>Jak vybrat romantický wellness pobyt pro dva</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Romantika a soukromí</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz romantický wellness pobyt pro dva přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"wellness-pobyt-pro-dva-s-virivkou-na-pokoji": {
+"label": "Wellness pobyt pro dva s vířivkou na pokoji",
+"path": "wellness-pobyt-pro-dva-s-virivkou-na-pokoji",
+"type": "wellness",
+"filters": {
+"q": "vířiv"
+},
+"title": "Wellness pobyt pro dva s vířivkou na pokoji | Kakapo.cz",
+"description": "Wellness pobyty s vířivkou na pokoji: porovnejte romantické balíčky, soukromí, stravu, termíny a ceny.",
+"intro": "U vířivky na pokoji je potřeba ověřit, zda jde opravdu o soukromou vířivku v pokoji nebo apartmánu, jak dlouho ji lze využívat a zda jsou v ceně i další wellness služby.",
+"index_min": 2,
+"seo_text": "<h2>Jak vybrat wellness pobyt pro dva s vířivkou na pokoji</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Vířivka a soukromí</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz wellness pobyt pro dva s vířivkou na pokoji přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"romanticky-pobyt-pro-dva-s-virivkou-na-pokoji": {
+"label": "Romantický pobyt pro dva s vířivkou na pokoji",
+"path": "romanticky-pobyt-pro-dva-s-virivkou-na-pokoji",
+"type": "zazitky",
+"filters": {
+"q": "vířiv"
+},
+"title": "Romantický pobyt pro dva s vířivkou na pokoji | Kakapo.cz",
+"description": "Romantické pobyty s vířivkou na pokoji: porovnejte dárkové pobyty, lokality, termíny, služby a ceny.",
+"intro": "Romantický pobyt s vířivkou vybírejte podle soukromí, kvality ubytování, stravy a doplatků za víkend nebo lepší pokoj. Nejdůležitější je jasně popsaný rozsah služeb.",
+"index_min": 2,
+"seo_text": "<h2>Jak vybrat romantický pobyt pro dva s vířivkou na pokoji</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Pobyt jako dárek</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz romantický pobyt pro dva s vířivkou na pokoji přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"privatni-wellness-na-pokoji": {
+"label": "Privátní wellness na pokoji",
+"path": "privatni-wellness-na-pokoji",
+"type": "wellness",
+"filters": {
+"q": "privátní"
+},
+"title": "Privátní wellness na pokoji — pobyty a ceny | Kakapo.cz",
+"description": "Privátní wellness na pokoji: porovnejte pobyty se soukromou saunou, vířivkou, masáží a relaxačními balíčky.",
+"intro": "Privátní wellness je o soukromí a přesném rozsahu služeb. Před rezervací porovnejte délku vstupu, vybavení pokoje, stravu, termíny a pravidla rezervace wellness zóny.",
+"index_min": 2,
+"seo_text": "<h2>Jak vybrat privátní wellness na pokoji</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Soukromý relax</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz privátní wellness na pokoji přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"termalni-lazne-slovensko": {
+"label": "Termální lázně Slovensko",
+"path": "termalni-lazne-slovensko",
+"type": "wellness",
+"filters": {
+"q": "Slovensko"
+},
+"title": "Termální lázně Slovensko — pobyty a ceny | Kakapo.cz",
+"description": "Termální lázně na Slovensku: porovnejte wellness hotely, termální bazény, stravu, lokality a aktuální ceny pobytů.",
+"intro": "Slovenské termální lázně jsou vhodné pro víkend, delší relax i pobyt vlastní dopravou. Sledujte hlavně vstupy do termálů, polohu hotelu a doplatky na místě.",
+"index_min": 3,
+"seo_text": "<h2>Jak vybrat termální lázně slovensko</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Termály na Slovensku</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz termální lázně slovensko přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"termalni-lazne-madarsko": {
+"label": "Termální lázně Maďarsko",
+"path": "termalni-lazne-madarsko",
+"type": "wellness",
+"filters": {
+"q": "Maďarsko"
+},
+"title": "Termální lázně Maďarsko — pobyty a ceny | Kakapo.cz",
+"description": "Termální lázně v Maďarsku: porovnejte pobyty u termálů, hotely, stravu, vlastní dopravu a aktuální ceny.",
+"intro": "Maďarské termály dávají smysl pro cestu autem i delší relax. U nabídky porovnejte vzdálenost od areálu, vstupy v ceně, parkování a pravidla pobytu.",
+"index_min": 3,
+"seo_text": "<h2>Jak vybrat termální lázně maďarsko</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Termály v Maďarsku</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz termální lázně maďarsko přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"kratke-poznavaci-zajezdy": {
+"label": "Krátké poznávací zájezdy",
+"path": "kratke-poznavaci-zajezdy",
+"type": "poznavaci",
+"filters": {
+"q": "víkend"
+},
+"title": "Krátké poznávací zájezdy — víkendové programy a ceny | Kakapo.cz",
+"description": "Krátké poznávací zájezdy na víkend i prodloužený víkend. Porovnejte program, dopravu, průvodce, termíny a ceny.",
+"intro": "Krátký poznávací zájezd musí dobře pracovat s časem. Sledujte reálný čas v destinaci, časy odjezdu, polohu ubytování, průvodce a vstupy v ceně.",
+"index_min": 8,
+"seo_text": "<h2>Jak vybrat krátké poznávací zájezdy</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Program na pár dní</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz krátké poznávací zájezdy přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"poznavaci-zajezdy-last-minute": {
+"label": "Poznávací zájezdy last minute",
+"path": "poznavaci-zajezdy-last-minute",
+"type": "poznavaci",
+"filters": {
+"q": "last minute"
+},
+"title": "Poznávací zájezdy last minute — aktuální termíny | Kakapo.cz",
+"description": "Last minute poznávací zájezdy: porovnejte blízké termíny, programy, dopravu, průvodce a aktuální ceny.",
+"intro": "U poznávacího last minute rozhoduje rychlé ověření termínu, programu, dopravy a doplatků za vstupy. Nízká cena dává smysl jen tehdy, když sedí i tempo cesty.",
+"index_min": 2,
+"seo_text": "<h2>Jak vybrat poznávací zájezdy last minute</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Blízké poznávání</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz poznávací zájezdy last minute přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"poznavaci-zajezdy-autobusem": {
+"label": "Poznávací zájezdy autobusem",
+"path": "poznavaci-zajezdy-autobusem",
+"type": "poznavaci",
+"filters": {
+"q": "autobus"
+},
+"title": "Poznávací zájezdy autobusem — programy a ceny | Kakapo.cz",
+"description": "Autobusové poznávací zájezdy: porovnejte evropská města, okruhy, programy, odjezdy, průvodce a ceny.",
+"intro": "U autobusového poznávacího zájezdu si hlídejte délku přejezdů, místo odjezdu, noční přejezdy, pohodlí autobusu a množství času v jednotlivých zastávkách.",
+"index_min": 2,
+"seo_text": "<h2>Jak vybrat poznávací zájezdy autobusem</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Autobusová doprava</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz poznávací zájezdy autobusem přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"poznavaci-zajezdy-z-brna": {
+"label": "Poznávací zájezdy z Brna",
+"path": "poznavaci-zajezdy-z-brna",
+"type": "poznavaci",
+"filters": {
+"q": "Brno"
+},
+"title": "Poznávací zájezdy z Brna — odjezdy, programy a ceny | Kakapo.cz",
+"description": "Poznávací zájezdy z Brna: porovnejte odjezdy, programy, dopravu, průvodce, termíny a aktuální ceny.",
+"intro": "Odjezd z Brna šetří cestu na nástupní místo, ale pořád je potřeba porovnat program, délku přejezdů, ubytování a to, co je zahrnuté v ceně.",
+"index_min": 1,
+"seo_text": "<h2>Jak vybrat poznávací zájezdy z brna</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Odjezdy z Moravy</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz poznávací zájezdy z brna přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"chorvatsko-apartmany-u-more": {
+"label": "Chorvatsko apartmány u moře",
+"path": "chorvatsko-apartmany-u-more",
+"type": "zajezdy",
+"filters": {
+"country": "chorvatsko",
+"q": "apartm"
+},
+"title": "Chorvatsko apartmány u moře — pobyty a ceny | Kakapo.cz",
+"description": "Apartmány u moře v Chorvatsku: porovnejte lokality, vlastní dopravu, termíny, vzdálenost od pláže a ceny.",
+"intro": "Apartmány v Chorvatsku vybírejte podle vzdálenosti od moře, parkování, vybavení kuchyně, stravy, pobytových poplatků a možnosti vlastní dopravy.",
+"index_min": 8,
+"seo_text": "<h2>Jak vybrat chorvatsko apartmány u moře</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Apartmány u Jadranu</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz chorvatsko apartmány u moře přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+},
+"chorvatsko-apartmany-u-more-levne": {
+"label": "Levné apartmány u moře Chorvatsko",
+"path": "chorvatsko-apartmany-u-more-levne",
+"type": "zajezdy",
+"filters": {
+"country": "chorvatsko",
+"q": "apartm",
+"sort": "price"
+},
+"title": "Levné apartmány u moře Chorvatsko — aktuální ceny | Kakapo.cz",
+"description": "Levné apartmány v Chorvatsku u moře: porovnejte ceny, termíny, dopravu, lokality a vzdálenost od pláže.",
+"intro": "U levnějších apartmánů sledujte nejen cenu, ale i doplatky na místě, vzdálenost od pláže, parkování, klimatizaci a storno podmínky.",
+"index_min": 8,
+"seo_text": "<h2>Jak vybrat levné apartmány u moře chorvatsko</h2><p>Nejdřív porovnejte cenu společně s termínem, lokalitou, dopravou a tím, co je skutečně zahrnuté v nabídce. U pobytů a zájezdů se podobné názvy mohou lišit rozsahem služeb, doplatky, storno podmínkami i dostupností konkrétního termínu.</p><h2>Co porovnat před rezervací</h2><ul><li>aktuální cenu a případné doplatky na místě,</li><li>délku pobytu, termín a možnosti změny rezervace,</li><li>lokalitu, dopravu, parkování a dostupnost,</li><li>stravu, wellness, vstupy nebo program v ceně,</li><li>fotky, popis služeb a podmínky partnera.</li></ul><h2>Levně k Jadranu</h2><p>U tohoto typu nabídky se vyplatí číst detail a porovnat více variant vedle sebe. Kakapo.cz nabídky pouze porovnává; rezervaci dokončíte přímo u partnera nebo cestovní kanceláře.</p><h2>Související výběr</h2><p>Pokračovat můžete přes <a href=\"https://kakapo.cz/wellness-pobyty/\">wellness pobyty</a>, <a href=\"https://kakapo.cz/poznavaci-zajezdy/\">poznávací zájezdy</a>, <a href=\"https://kakapo.cz/zajezdy-k-mori/\">zájezdy k moři</a> nebo rozcestník <a href=\"https://kakapo.cz/objevte/\">Objevte</a>.</p>",
+"faqs": [
+{
+"q": "Prodává Kakapo.cz levné apartmány u moře chorvatsko přímo?",
+"a": "Ne. Kakapo.cz nabídky porovnává a po kliknutí pokračujete přímo k partnerovi nebo cestovní kanceláři."
+},
+{
+"q": "Co je při výběru nejdůležitější?",
+"a": "Vedle ceny sledujte termín, lokalitu, dopravu, služby v ceně, doplatky a podmínky rezervace."
+},
+{
+"q": "Proč se počet nabídek mění?",
+"a": "Nabídky se aktualizují z partnerských feedů. Dostupnost termínů a ceny se proto mohou měnit podle obsazenosti a sezóny."
+}
+]
+}
+}

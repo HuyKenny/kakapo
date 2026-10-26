@@ -1,0 +1,467 @@
+{
+"cedok-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "cedok",
+"last_minute": false,
+"filters": {
+"partner": [
+"cedok"
+]
+},
+"path": "/cedok-zajezdy/",
+"label": "Zájezdy Čedoku",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy Čedoku",
+"title": "Zájezdy Čedok 2026 — nabídky a ceny | Kakapo.cz",
+"description": "Čedok: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/cedok-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Čedok"
+},
+"cedok-last-minute": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "cedok",
+"last_minute": true,
+"filters": {
+"partner": [
+"cedok"
+],
+"flag": "last-minute",
+"sort": "departure"
+},
+"path": "/cedok-last-minute/",
+"label": "Čedok last minute",
+"eyebrow": "Srovnání nabídek",
+"h1": "Čedok last minute",
+"title": "Čedok last minute 2026 — aktuální zájezdy | Kakapo.cz",
+"description": "Čedok last minute: zájezdy s blízkým odletem, ceny a termíny. Porovnání s nabídkami ostatních cestovních kanceláří.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/cedok-last-minute/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Čedok"
+},
+"fischer-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "fischer",
+"last_minute": false,
+"filters": {
+"partner": [
+"fischer"
+]
+},
+"path": "/fischer-zajezdy/",
+"label": "Zájezdy Fischeru",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy Fischeru",
+"title": "Zájezdy Fischer 2026 — nabídky a ceny | Kakapo.cz",
+"description": "Fischer: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/fischer-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Fischer"
+},
+"fischer-last-minute": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "fischer",
+"last_minute": true,
+"filters": {
+"partner": [
+"fischer"
+],
+"flag": "last-minute",
+"sort": "departure"
+},
+"path": "/fischer-last-minute/",
+"label": "Fischer last minute",
+"eyebrow": "Srovnání nabídek",
+"h1": "Fischer last minute",
+"title": "Fischer last minute 2026 — aktuální zájezdy | Kakapo.cz",
+"description": "Fischer last minute: zájezdy s blízkým odletem, ceny a termíny. Porovnání s nabídkami ostatních cestovních kanceláří.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/fischer-last-minute/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Fischer"
+},
+"exim-tours-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "exim-tours",
+"last_minute": false,
+"filters": {
+"partner": [
+"exim-tours"
+]
+},
+"path": "/exim-tours-zajezdy/",
+"label": "Zájezdy Exim Tours",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy Exim Tours",
+"title": "Zájezdy Exim Tours 2026 — nabídky a ceny | Kakapo.cz",
+"description": "Exim Tours: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/exim-tours-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Exim Tours"
+},
+"exim-tours-last-minute": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "exim-tours",
+"last_minute": true,
+"filters": {
+"partner": [
+"exim-tours"
+],
+"flag": "last-minute",
+"sort": "departure"
+},
+"path": "/exim-tours-last-minute/",
+"label": "Exim Tours last minute",
+"eyebrow": "Srovnání nabídek",
+"h1": "Exim Tours last minute",
+"title": "Exim Tours last minute 2026 — aktuální zájezdy | Kakapo.cz",
+"description": "Exim Tours last minute: zájezdy s blízkým odletem, ceny a termíny. Porovnání s nabídkami ostatních cestovních kanceláří.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/exim-tours-last-minute/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Exim Tours"
+},
+"blue-style-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "blue-style",
+"last_minute": false,
+"filters": {
+"partner": [
+"blue-style"
+]
+},
+"path": "/blue-style-zajezdy/",
+"label": "Zájezdy Blue Style",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy Blue Style",
+"title": "Zájezdy Blue Style 2026 — nabídky a ceny | Kakapo.cz",
+"description": "Blue Style: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/blue-style-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Blue Style"
+},
+"blue-style-last-minute": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "blue-style",
+"last_minute": true,
+"filters": {
+"partner": [
+"blue-style"
+],
+"flag": "last-minute",
+"sort": "departure"
+},
+"path": "/blue-style-last-minute/",
+"label": "Blue Style last minute",
+"eyebrow": "Srovnání nabídek",
+"h1": "Blue Style last minute",
+"title": "Blue Style last minute 2026 — aktuální zájezdy | Kakapo.cz",
+"description": "Blue Style last minute: zájezdy s blízkým odletem, ceny a termíny. Porovnání s nabídkami ostatních cestovních kanceláří.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/blue-style-last-minute/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Blue Style"
+},
+"invia-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "invia",
+"last_minute": false,
+"filters": {
+"partner": [
+"invia"
+]
+},
+"path": "/invia-zajezdy/",
+"label": "Zájezdy Invia",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy Invia",
+"title": "Zájezdy Invia 2026 — nabídky a ceny | Kakapo.cz",
+"description": "Invia: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/invia-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Invia"
+},
+"invia-last-minute": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "invia",
+"last_minute": true,
+"filters": {
+"partner": [
+"invia"
+],
+"flag": "last-minute",
+"sort": "departure"
+},
+"path": "/invia-last-minute/",
+"label": "Invia last minute",
+"eyebrow": "Srovnání nabídek",
+"h1": "Invia last minute",
+"title": "Invia last minute 2026 — aktuální zájezdy | Kakapo.cz",
+"description": "Invia last minute: zájezdy s blízkým odletem, ceny a termíny. Porovnání s nabídkami ostatních cestovních kanceláří.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/invia-last-minute/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Invia"
+},
+"tui-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "tui",
+"last_minute": false,
+"filters": {
+"partner": [
+"tui"
+]
+},
+"path": "/tui-zajezdy/",
+"label": "Zájezdy TUI",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy TUI",
+"title": "Zájezdy TUI 2026 — nabídky a ceny | Kakapo.cz",
+"description": "TUI: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/tui-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "TUI"
+},
+"dovolena-cz-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "dovolena-cz",
+"last_minute": false,
+"filters": {
+"partner": [
+"dovolena-cz"
+]
+},
+"path": "/dovolena-cz-zajezdy/",
+"label": "Zájezdy Dovolena.cz",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy Dovolena.cz",
+"title": "Zájezdy Dovolena.cz 2026 — nabídky a ceny | Kakapo.cz",
+"description": "Dovolena.cz: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/dovolena-cz-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Dovolena.cz"
+},
+"slevomat-zajezdy": {
+"type": "travel",
+"listing": true,
+"partner_page": true,
+"partner": "slevomat",
+"last_minute": false,
+"filters": {
+"partner": [
+"slevomat"
+]
+},
+"path": "/slevomat-zajezdy/",
+"label": "Zájezdy Slevomatu",
+"eyebrow": "Srovnání nabídek",
+"h1": "Zájezdy Slevomatu",
+"title": "Zájezdy Slevomat 2026 — nabídky a ceny | Kakapo.cz",
+"description": "Slevomat: aktuální zájezdy a pobyty ve srovnání s ostatními cestovkami. Ceny, termíny a letiště na jednom místě.",
+"intro": "",
+"hero_image": "/wp-content/kakapo-assets/img/dest/hero-1600.webp",
+"primary_cta": {
+"label": "Porovnat nabídky",
+"url": "https://kakapo.cz/slevomat-zajezdy/",
+"external": false
+},
+"secondary_cta": {
+"label": "Všechny zájezdy",
+"url": "https://kakapo.cz/zajezdy/",
+"external": false
+},
+"cards": [],
+"sections": [],
+"faqs": [],
+"index_min": 8,
+"name": "Slevomat"
+}
+}

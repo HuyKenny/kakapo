@@ -1,0 +1,65 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { ga4Head, ga4Footer } from '../lib/analytics';
+import { GA4_ID } from '../lib/server/site';
+import { getEnv } from '../lib/server/env';
+
+interface Props {
+	title: string;
+	description?: string;
+	/** Absolute canonical URL; omit for pages that must not carry one (404). */
+	canonical?: string;
+	/** e.g. ['index','follow'] or ['noindex','follow'] */
+	robots?: string[];
+	ogImage?: string;
+	/** Already-serialised JSON-LD objects. */
+	jsonLd?: unknown[];
+	/** home | hotel | search | flag | meal | country | longtail | airport | phub | products | product | topic | legal | 404 */
+	pageType?: string;
+	isHome?: boolean;
+	ogType?: string;
+}
+const { title, description = '', canonical, robots = ['index', 'follow'], ogImage, jsonLd = [], pageType = 'wp', isHome = false, ogType = 'website' } = Astro.props;
+const env = getEnv();
+const robotsContent = env.ENVIRONMENT === 'production' ? robots.join(',') : 'noindex,nofollow';
+const A = '/wp-content/kakapo-assets/';
+const ga = env.ENVIRONMENT === 'production' || env.ANALYTICS_ENABLED === '1' ? GA4_ID : '';
+---
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#ffffff">
+	<title>{title}</title>
+	{description && <meta name="description" content={description}>}
+	{canonical && <link rel="canonical" href={canonical}>}
+	<meta name="robots" content={robotsContent}>
+	<meta property="og:title" content={title}>
+	{description && <meta property="og:description" content={description}>}
+	{canonical && <meta property="og:url" content={canonical}>}
+	<meta property="og:type" content={ogType}>
+	<meta property="og:site_name" content="Kakapo.cz">
+	{ogImage && <meta property="og:image" content={ogImage}>}
+	<meta name="twitter:card" content="summary_large_image">
+	<link rel="icon" type="image/svg+xml" href={A + 'img/favicon.svg'}>
+	<link rel="icon" type="image/png" sizes="32x32" href={A + 'img/favicon-32.png'}>
+	<link rel="apple-touch-icon" sizes="180x180" href={A + 'img/apple-touch-icon.png'}>
+	<link rel="preload" as="font" type="font/woff2" crossorigin href={A + 'fonts/figtree-latin.woff2'}>
+	<link rel="stylesheet" href={A + 'css/kakapo.css'}>
+	<script defer src={A + 'js/frontend.js'}></script>
+	<script defer src={A + 'js/alpine.min.js'}></script>
+	<script is:inline>window.KAKAPO = { rest: '/api', home: '/' };</script>
+	{ga && <Fragment set:html={ga4Head(ga, pageType)} />}
+	{jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d).replace(/</g, '\\u003c')} />)}
+	<slot name="head" />
+</head>
+<body class="kakapo-body antialiased">
+<a href="#obsah" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white">Přeskočit na obsah</a>
+<Header isHome={isHome} />
+<slot />
+<Footer />
+{ga && <Fragment set:html={ga4Footer(ga, pageType)} />}
+</body>
+</html>

@@ -1,0 +1,134 @@
+---
+import { svg, mascot } from '../lib/icons';
+import { countLabel } from '../lib/helpers';
+import { PRODUCT_CATEGORIES, productCounts, registry } from '../lib/server/site';
+interface Props { isHome?: boolean }
+const { isHome = false } = Astro.props;
+const reg = await registry();
+const counts = await productCounts();
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
+const countries = Object.entries(reg.countries);
+const cats = Object.entries(PRODUCT_CATEGORIES);
+const thumb = (p?: string) => String(p ?? '').replace('.webp', '-640.webp');
+---
+<header class="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur"
+	x-data={`{ menuOpen: false, searchOpen: false, scrolled: ${isHome ? 'false' : 'true'} }`}
+	{...(isHome ? { '@scroll.window.passive': 'scrolled = window.scrollY > 520' } : {})}
+	@keydown.escape.window="menuOpen = false; searchOpen = false">
+	<div class="container-k flex h-[72px] items-center justify-between gap-4">
+
+		<a href="/" class="flex shrink-0 items-center gap-2" aria-label="Kakapo.cz — úvodní stránka">
+			<Fragment set:html={mascot(40)} />
+			<span class="text-[26px] font-extrabold leading-none tracking-[-0.04em] text-ink">kakapo<span class="text-[15px] font-bold tracking-normal text-coral">.cz</span></span>
+		</a>
+
+		<form action="/zajezdy/" method="get" role="search" aria-label="Rychlé vyhledání dovolené"
+			class="hidden items-center rounded-full border border-line bg-white py-1.5 pl-2 pr-1.5 shadow-soft transition hover:shadow-pill xl:flex"
+			{...(isHome ? { 'x-show': 'scrolled', 'x-transition.opacity': '', 'x-cloak': '' } : {})}>
+			<label class="flex items-center gap-2 rounded-full px-3 py-1 hover:bg-mist">
+				<span class="sr-only">Kam</span>
+				<Fragment set:html={svg('map-pin', 16, 'text-slate-500')} />
+				<select name="country" class="w-36 cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ink focus:ring-0">
+					<option value="">Kamkoliv</option>
+					{countries.map(([slug, c]) => <option value={slug}>{c.label}</option>)}
+				</select>
+			</label>
+			<span class="h-6 w-px bg-line" aria-hidden="true"></span>
+			<label class="flex items-center gap-2 rounded-full px-3 py-1 hover:bg-mist">
+				<span class="sr-only">Odlet od</span>
+				<Fragment set:html={svg('calendar', 16, 'text-slate-500')} />
+				<input type="date" name="date_from" min={today} class="w-[8.5rem] border-0 bg-transparent p-0 text-sm font-semibold text-ink focus:ring-0">
+			</label>
+			<button type="submit" class="ml-1 inline-flex h-9 w-9 items-center justify-center rounded-full bg-coral text-white transition hover:bg-coral-dark" aria-label="Hledat dovolenou">
+				<Fragment set:html={svg('search', 17, '', 2.4)} />
+			</button>
+		</form>
+
+		<nav class="hidden items-center gap-0.5 lg:flex" aria-label="Hlavní navigace">
+			<a class="nav-link" href="/last-minute/">Last minute</a>
+			<a class="nav-link" href="/first-minute/">First minute</a>
+			<a class="nav-link" href="/zajezdy/">Zájezdy</a>
+			<div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @focusin="open = true" @focusout="$el.contains($event.relatedTarget) || (open = false)">
+				<a class="nav-link inline-flex items-center gap-1" href="/objevte/" x-bind:aria-expanded="open ? 'true' : 'false'">
+					Objevte
+					<Fragment set:html={svg('chevron-down', 15, 'transition-transform', 2.2)} />
+				</a>
+				<div x-show="open" x-cloak x-transition.opacity.duration.150ms class="absolute right-0 top-full z-50 w-[22rem] pt-2">
+					<div class="overflow-hidden rounded-3xl border border-line bg-white p-2 shadow-pill">
+						{cats.map(([type, pc]) => {
+							const cnt = counts[type] ?? 0;
+							return (
+								<a class="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition hover:bg-mist" href={`/${pc.path}/`}>
+									<img src={thumb(pc.photo)} alt="" width="44" height="44" loading="lazy" decoding="async" class="h-11 w-11 shrink-0 rounded-xl object-cover">
+									<span class="min-w-0">
+										<span class="block text-sm font-semibold text-ink">{pc.label}</span>
+										{cnt > 0 && <span class="block text-xs text-slate-500">{cnt.toLocaleString('cs-CZ').replace(/ /g, ' ')} {countLabel(cnt, 'nabídka', 'nabídky', 'nabídek')}</span>}
+									</span>
+								</a>
+							);
+						})}
+						<a class="mt-1 flex items-center gap-3 rounded-2xl border-t border-line px-3 py-2.5 pt-3 transition hover:bg-mist" href="/dovolena-vlastni-dopravou/">
+							<img src="/wp-content/kakapo-assets/img/typ/vlastni-doprava-640.webp" alt="" width="44" height="44" loading="lazy" decoding="async" class="h-11 w-11 shrink-0 rounded-xl object-cover">
+							<span class="min-w-0">
+								<span class="block text-sm font-semibold text-ink">Dovolená vlastní dopravou</span>
+								<span class="block text-xs text-slate-500">Hotely a pobyty autem</span>
+							</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<div class="flex items-center gap-1 lg:hidden">
+			<button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-ink transition hover:shadow-soft"
+				@click="searchOpen = !searchOpen; menuOpen = false" x-bind:aria-expanded="searchOpen ? 'true' : 'false'" aria-controls="kakapo-mobile-search" aria-label="Hledat dovolenou">
+				<Fragment set:html={svg('search', 19)} />
+			</button>
+			<button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink transition hover:bg-mist"
+				@click="menuOpen = !menuOpen; searchOpen = false" x-bind:aria-expanded="menuOpen ? 'true' : 'false'" aria-controls="kakapo-mobile-nav" aria-label="Menu">
+				<span x-show="!menuOpen"><Fragment set:html={svg('menu', 22)} /></span>
+				<span x-show="menuOpen" x-cloak><Fragment set:html={svg('x', 22)} /></span>
+			</button>
+		</div>
+	</div>
+
+	<div id="kakapo-mobile-search" x-show="searchOpen" x-cloak x-transition.opacity class="border-t border-line bg-white px-4 pb-5 pt-4 lg:hidden">
+		<form action="/zajezdy/" method="get" role="search" aria-label="Vyhledání dovolené" class="space-y-3">
+			<label class="block rounded-2xl border border-slate-300 px-4 py-2.5">
+				<span class="block text-xs font-bold text-ink">Kam</span>
+				<select name="country" class="w-full border-0 bg-transparent p-0 text-[15px] text-ink focus:ring-0">
+					<option value="">Kamkoliv</option>
+					{countries.map(([slug, c]) => <option value={slug}>{c.label}</option>)}
+				</select>
+			</label>
+			<label class="block rounded-2xl border border-slate-300 px-4 py-2.5">
+				<span class="block text-xs font-bold text-ink">Odlet od</span>
+				<input type="date" name="date_from" min={today} class="w-full border-0 bg-transparent p-0 text-[15px] text-ink focus:ring-0">
+			</label>
+			<button type="submit" class="btn-primary w-full py-3.5 text-base"><Fragment set:html={svg('search', 18, '', 2.4)} />Hledat dovolenou</button>
+		</form>
+	</div>
+
+	<nav id="kakapo-mobile-nav" x-show="menuOpen" x-cloak x-transition.opacity class="max-h-[calc(100dvh-72px)] overflow-y-auto border-t border-line bg-white px-4 pb-6 pt-3 lg:hidden" aria-label="Mobilní navigace">
+		<div class="flex flex-col">
+			{[['/last-minute/', 'Last minute'], ['/first-minute/', 'First minute'], ['/zajezdy/', 'Zájezdy']].map(([href, label]) => (
+				<a class="flex items-center justify-between border-b border-line py-4 text-base font-semibold text-ink" href={href}>{label} <Fragment set:html={svg('chevron-right', 18, 'text-slate-400')} /></a>
+			))}
+			<p class="mb-2 mt-6 text-sm font-bold text-ink"><a href="/objevte/">Objevte</a></p>
+			<div class="grid grid-cols-2 gap-2">
+				{cats.map(([, pc]) => (
+					<a class="flex items-center gap-2.5 rounded-2xl border border-line p-2 text-sm font-semibold text-ink transition hover:bg-mist" href={`/${pc.path}/`}>
+						<img src={thumb(pc.photo)} alt="" width="40" height="40" loading="lazy" decoding="async" class="h-10 w-10 shrink-0 rounded-xl object-cover">
+						<span class="min-w-0 leading-tight">{pc.label}</span>
+					</a>
+				))}
+				<a class="flex items-center gap-2.5 rounded-2xl border border-line p-2 text-sm font-semibold text-ink transition hover:bg-mist" href="/dovolena-vlastni-dopravou/">
+					<img src="/wp-content/kakapo-assets/img/typ/vlastni-doprava-640.webp" alt="" width="40" height="40" loading="lazy" decoding="async" class="h-10 w-10 shrink-0 rounded-xl object-cover">
+					<span class="min-w-0 leading-tight">Dovolená vlastní dopravou</span>
+				</a>
+			</div>
+			<a class="btn-primary mt-6 w-full py-3.5 text-base" href="/zajezdy/">Najít dovolenou</a>
+		</div>
+	</nav>
+</header>
+<div id="obsah"></div>
