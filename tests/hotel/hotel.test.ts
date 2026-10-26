@@ -1,3 +1,4 @@
+import { seasonYear } from '../../src/lib/year';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { loadHotel, hotelIsIndexable, hotelTitle, realDropPct, sparklineSvg, offerTerm, monthLabel, withinGrace, offersForHotel } from '../../src/lib/hotel';
 import { autop } from '../../src/lib/hotel/text';
@@ -65,7 +66,7 @@ describe('loadHotel: offers and texts', () => {
   });
   it('meta: title budget, description, robots and canonical', async () => {
     const v = await ok('lino-mare');
-    expect(v.meta.title).toBe('Lino Mare ceny 2026 — Kréta, Řecko | Kakapo.cz');
+    expect(v.meta.title).toBe(`Lino Mare ceny ${seasonYear()} — Kréta, Řecko | Kakapo.cz`);
     expect(v.meta.title.length).toBeLessThanOrEqual(60);
     expect(v.meta.description).toMatch(/^Hotel Lino Mare \(Kréta, Řecko\) od 18 000 Kč — 3 nabídky\. Porovnejte ceny, termíny a stravu od CK Fischer, Čedok a Invia\. Hodnocení 8,4\/10\./);
     expect(v.meta.description.length).toBeLessThanOrEqual(158);
@@ -136,7 +137,7 @@ describe('sold out + grace + indexability', () => {
 
 describe('pure helpers', () => {
   it('hotelTitle respects the 60 char budget', () => {
-    expect(hotelTitle('Lino Mare', 'Kréta, Řecko', 2026)).toBe('Lino Mare ceny 2026 — Kréta, Řecko | Kakapo.cz');
+    expect(hotelTitle('Lino Mare', 'Kréta, Řecko', 2026)).toBe(`Lino Mare ceny 2026 — Kréta, Řecko | Kakapo.cz`);
     expect(hotelTitle('A'.repeat(70), 'x', 2026).length).toBeLessThanOrEqual(60);
     expect(hotelTitle('Velmi dlouhý název hotelu s mnoha slovy v názvu pro test', 'Kréta, Řecko', 2026).length).toBeLessThanOrEqual(60);
   });

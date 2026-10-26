@@ -1,3 +1,4 @@
+import { seasonYear } from '../../src/lib/year';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { memoryDb } from './d1';
 import { rebuildSnapshots } from '../../src/lib/snapshots';
@@ -99,7 +100,7 @@ describe('landing context', () => {
   });
   it('uses the priority-country copy for Egypt', async () => {
     const ctx = (await landingContext(db, 'country', { country: 'egypt' }))!;
-    expect(ctx.title).toBe('Egypt dovolená 2026 — Hurghada, Marsa Alam, all inclusive | Kakapo.cz');
+    expect(ctx.title).toBe(`Egypt dovolená ${seasonYear()} — Hurghada, Marsa Alam, all inclusive | Kakapo.cz`);
     expect(ctx.seo_text).toContain('<h2>Jak vybrat dovolenou Egypt</h2>');
   });
   it('builds longtail contexts with the title budget and place format', async () => {
@@ -125,7 +126,7 @@ describe('editorial overrides', () => {
     raw.exec("INSERT INTO editorial_overrides (kind,key,field,value,updated_at) VALUES ('landing','/recko/','h1','Řecko pro vás',''),('landing','/recko/','title','Řecko 2026 — vlastní titulek | Kakapo.cz',''),('landing','/recko/','seo_text','<h2>Ruční text</h2><p>x</p>',''),('landing','/recko/','faqs_json','[{\"q\":\"A?\",\"a\":\"B\"},{\"q\":\"\",\"a\":\"nic\"}]',''),('landing','/recko/','description','Ruční popis','')");
     const ctx = (await landingContext(db, 'country', { country: 'recko' }))!;
     expect(ctx.h1).toBe('Řecko pro vás');
-    expect(landingTitle(ctx)).toBe('Řecko 2026 — vlastní titulek | Kakapo.cz');
+    expect(landingTitle(ctx)).toBe(`Řecko ${seasonYear()} — vlastní titulek | Kakapo.cz`);
     expect(ctx.faqs).toEqual([{ q: 'A?', a: 'B' }]);
     expect(ctx.seo_text.startsWith('<h2>Ruční text</h2>')).toBe(true);
     expect(ctx.seo_text).toContain('v číslech');

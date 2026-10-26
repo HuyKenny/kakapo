@@ -1,3 +1,4 @@
+import { seasonYear } from '../../src/lib/year';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { memoryDb } from '../landing/d1';
 import { apiHotel, loadHome, loadListing, loadTopic, mergeFilters, totalLabel, type LandingCtx } from '../../src/lib/listing';
@@ -134,7 +135,7 @@ describe('home + topic', () => {
     expect(d.deals.length).toBeLessThanOrEqual(10);
     const types = ((d.meta.jsonLd[0] as any)['@graph'] as any[]).map((g) => g['@type']);
     expect(types).toEqual(['WebSite', 'FAQPage']);
-    expect(d.faqs).toHaveLength(6); expect(d.meta.title).toContain('Dovolená 2026');
+    expect(d.faqs).toHaveLength(6); expect(d.meta.title).toContain(`Dovolená ${seasonYear()}`);
   });
   it('loadTopic: index only without query, FAQ + cards ItemList', () => {
     const slug = Object.entries(topics as Record<string, any>).find(([, v]) => !v.listing && v.faqs?.length && v.cards?.length)?.[0];

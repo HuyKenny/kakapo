@@ -1,4 +1,6 @@
 ---
+import { seasonYear } from '../../lib/year';
+const Y = seasonYear();
 // Homepage. Port of templates/home.php (hero + searchbar, type tiles, destinations, promo collage, deals, card sections, products, partners, FAQ, SEO guide).
 import CardHotel from '../listing/CardHotel.astro';
 import SearchBar from '../listing/SearchBar.astro';
@@ -59,8 +61,8 @@ const sections = [
 		<div class="container-k pb-10 pt-6 sm:pt-10 lg:pb-14">
 			<div class="grid items-center gap-8 lg:grid-cols-[1.02fr_1fr] lg:gap-14">
 				<div class="order-2 lg:order-1">
-					<p class="eyebrow"><Fragment set:html={svg('sun', 16, '', 2.2)} />Dovolená 2026 · porovnání českých CK</p>
-					<h1 class="mt-3 font-display text-[2.2rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl lg:text-[3.4rem]">Dovolená 2026: zájezdy u moře na jednom místě</h1>
+					<p class="eyebrow"><Fragment set:html={svg('sun', 16, '', 2.2)} />Dovolená {Y} · porovnání českých CK</p>
+					<h1 class="mt-3 font-display text-[2.2rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl lg:text-[3.4rem]">Dovolená {Y}: zájezdy u moře na jednom místě</h1>
 					<p class="mt-4 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">Porovnejte {offersLine}zájezdů a pobytů u moře — last minute, all inclusive i dovolenou s dětmi od {d.ckLabel}. Vidíte termín, stravu i cenu a rezervaci dokončíte přímo u pořadatele.</p>
 					<ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-600">
 						<li class="inline-flex items-center gap-1.5"><span class="text-leaf"><Fragment set:html={svg('check', 16, '', 2.6)} /></span>{d.ckCount} prověřených cestovek</li>
@@ -69,7 +71,7 @@ const sections = [
 					</ul>
 				</div>
 				<div class="relative order-1 lg:order-2">
-					<img src={heroImg} srcset={`${heroSm} 800w, ${heroImg} 1600w`} sizes="(min-width:1024px) 46vw, 92vw" width="1600" height="1067" alt="Písečná pláž s tyrkysovým mořem — dovolená u moře 2026" fetchpriority="high" decoding="async" class="aspect-[16/11] w-full rounded-[2rem] object-cover lg:aspect-[5/4]">
+					<img src={heroImg} srcset={`${heroSm} 800w, ${heroImg} 1600w`} sizes="(min-width:1024px) 46vw, 92vw" width="1600" height="1067" alt={`Písečná pláž s tyrkysovým mořem — dovolená u moře ${Y}`} fetchpriority="high" decoding="async" class="aspect-[16/11] w-full rounded-[2rem] object-cover lg:aspect-[5/4]">
 					{d.minPrice > 0 && (
 						<a href="/last-minute/" class="absolute bottom-4 left-4 flex items-center gap-3 rounded-2xl bg-white/95 py-2.5 pl-2.5 pr-4 shadow-pill backdrop-blur transition hover:bg-white sm:bottom-6 sm:left-6">
 							<Fragment set:html={mascot(40)} />
@@ -277,9 +279,9 @@ const sections = [
 	<section class="bg-white cv-auto">
 		<div class="container-k pb-6 pt-4">
 			<div class="mx-auto max-w-3xl">
-				<h2 class="h-section">Dovolená 2026: kam, kdy a za kolik</h2>
+				<h2 class="h-section">Dovolená {Y}: kam, kdy a za kolik</h2>
 				<div class="prose-kakapo mt-4 space-y-4">
-					<p set:html={`Plánujete <strong>dovolenou 2026</strong> a nechcete procházet weby všech cestovek zvlášť? Kakapo.cz porovná zájezdy od prověřených českých cestovních kanceláří na jednom místě — od ${L('/dovolena-u-more/', 'dovolené u moře')} přes ${L('/last-minute/', 'last minute')} a ${L('/first-minute/', 'first minute')} až po poznávací zájezdy, wellness pobyty a plavby. U každé nabídky vidíte cenu, termín i stravu předem a rezervaci dokončíte přímo u pořadatele, bez jakýchkoli příplatků navíc.`}></p>
+					<p set:html={`Plánujete <strong>dovolenou ${Y}</strong> a nechcete procházet weby všech cestovek zvlášť? Kakapo.cz porovná zájezdy od prověřených českých cestovních kanceláří na jednom místě — od ${L('/dovolena-u-more/', 'dovolené u moře')} přes ${L('/last-minute/', 'last minute')} a ${L('/first-minute/', 'first minute')} až po poznávací zájezdy, wellness pobyty a plavby. U každé nabídky vidíte cenu, termín i stravu předem a rezervaci dokončíte přímo u pořadatele, bez jakýchkoli příplatků navíc.`}></p>
 					<h3 class="font-display text-lg font-bold text-ink">Kam na dovolenou k moři</h3>
 					<p set:html={`Nejoblíbenější destinace pro dovolenou u moře jsou ${L('/recko/', 'Řecko')}, ${L('/turecko/', 'Turecko')}, ${L('/egypt/', 'Egypt')}, ${L('/spanelsko/', 'Španělsko')}, ${L('/bulharsko/', 'Bulharsko')} a ${L('/kapverdy/', 'Kapverdy')}. Řecko a Turecko sázejí na jistotu teplého moře a all inclusive hotelů, Egypt láká na celoroční teplo a korálové útesy, Bulharsko na levnou rodinnou dovolenou.`}></p>
 					<h3 class="font-display text-lg font-bold text-ink">Kdy je dovolená nejlevnější</h3>

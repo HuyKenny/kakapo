@@ -1,3 +1,4 @@
+import { seasonYear } from '../year';
 // Meta / JSON-LD for listing, topic and home pages. Port of Kakapo_Seo (title budget, landing description, noindex rules).
 import { jsonArr } from '../helpers';
 import type { HotelRow } from '../search';
@@ -63,14 +64,15 @@ export function topicLd(opts: { crumbs: Array<{ label: string; url?: string | un
 }
 
 export function homeFaqs(): Faq[] {
+  const Y = seasonYear();
   const l = (p: string, t: string) => `<a href="${p}">${t}</a>`;
   return [
     { q: 'Kdy je dovolená nejlevnější?', a: `Nejlevnější je dovolená mimo hlavní letní prázdniny — v květnu, červnu a září, kdy je moře teplé, ale ceny i počet turistů nižší. Ušetříte také s ${l('/last-minute/', 'last minute')} nabídkami s blízkým odletem, nebo naopak rezervací ${l('/first-minute/', 'first minute')} s velkým předstihem.` },
-    { q: 'Kam na dovolenou k moři v roce 2026?', a: `Nejoblíbenější destinace na dovolenou u moře jsou ${l('/recko/', 'Řecko')}, ${l('/turecko/', 'Turecko')}, ${l('/egypt/', 'Egypt')}, ${l('/spanelsko/', 'Španělsko')} a ${l('/bulharsko/', 'Bulharsko')}. Řecko a Turecko nabízejí jistotu teplého moře a all inclusive hotelů, Egypt celoroční teplo, Bulharsko levnou rodinnou dovolenou.` },
+    { q: `Kam na dovolenou k moři v roce ${Y}?`, a: `Nejoblíbenější destinace na dovolenou u moře jsou ${l('/recko/', 'Řecko')}, ${l('/turecko/', 'Turecko')}, ${l('/egypt/', 'Egypt')}, ${l('/spanelsko/', 'Španělsko')} a ${l('/bulharsko/', 'Bulharsko')}. Řecko a Turecko nabízejí jistotu teplého moře a all inclusive hotelů, Egypt celoroční teplo, Bulharsko levnou rodinnou dovolenou.` },
     { q: 'Co znamená all inclusive?', a: `All inclusive znamená, že v ceně zájezdu máte ubytování, stravu i nápoje (často i alkoholické) po celý pobyt, obvykle formou bufetu. Je ideální pro rodiny s dětmi a všechny, kdo nechtějí na dovolené řešit útratu. Prohlédněte si ${l('/all-inclusive/', 'all inclusive dovolenou')}.` },
     { q: 'Která cestovní kancelář je nejlepší?', a: 'Neexistuje jedna nejlepší cestovní kancelář — záleží na destinaci, termínu a ceně. Kakapo.cz proto porovnává nabídky prověřených českých cestovek (Fischer, Exim Tours, Blue Style, TUI a dalších) na jednom místě, abyste pro konkrétní dovolenou našli tu nejvýhodnější.' },
     { q: 'Jak funguje porovnání dovolených na Kakapo.cz?', a: 'Kakapo.cz agreguje zájezdy a pobyty od českých cestovních kanceláří. U každé nabídky vidíte cenu, termín i stravu předem a můžete filtrovat podle destinace, ceny, délky i letiště. Rezervaci dokončíte přímo u pořádající cestovní kanceláře — cenu nijak nenavyšujeme.' },
-    { q: 'Kolik stojí dovolená 2026?', a: `Cena dovolené 2026 závisí na destinaci, termínu, délce a stravě. Levnější pobyty u moře začínají už na pár tisících korun za osobu, all inclusive a exotika stojí více. Nejvýhodnější termíny najdete porovnáním nabídek a sledováním ${l('/last-minute/', 'last minute')} slev.` },
+    { q: `Kolik stojí dovolená ${Y}?`, a: `Cena dovolené ${Y} závisí na destinaci, termínu, délce a stravě. Levnější pobyty u moře začínají už na pár tisících korun za osobu, all inclusive a exotika stojí více. Nejvýhodnější termíny najdete porovnáním nabídek a sledováním ${l('/last-minute/', 'last minute')} slev.` },
   ];
 }
 

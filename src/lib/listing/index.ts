@@ -6,6 +6,7 @@ import topicData from '../../data/topic-landings.json';
 import partnerConsts from '../../data/partner-consts.json';
 import { facets, type Facets } from './facets';
 import { calendarMonths, topDrops } from './calendar';
+import { seasonYear } from '../year';
 import { memoized, storedJson, versionedJson } from './cache';
 import type { Faq, LandingCtx, ListingDeps } from './landing-types';
 import { DEST_PHOTO_SLUGS, SITE, homeFaqs, homeLd, isIndexable, landingDescription, landingTitle, listingLd, normalizeFaqs, topicLd, topicTitle } from './seo';
@@ -250,8 +251,8 @@ export async function loadHome(db: D1Database, today = todayPrague()): Promise<H
   return {
     countries, partners: badges, offersRound, ckCount: ck, ckLabel, minPrice, sections, deals, picked, drops: dropsAll, products, faqs,
     meta: {
-      title: 'Dovolená 2026: zájezdy u moře, last minute i all inclusive | Kakapo.cz',
-      description: 'Porovnejte dovolenou 2026 od českých cestovek. Zájezdy u moře, last minute, all inclusive i dovolená s dětmi na jednom místě — bez příplatků.',
+      title: `Dovolená ${seasonYear()}: zájezdy u moře, last minute i all inclusive | Kakapo.cz`,
+      description: `Porovnejte dovolenou ${seasonYear()} od českých cestovek. Zájezdy u moře, last minute, all inclusive i dovolená s dětmi na jednom místě — bez příplatků.`,
       canonical: SITE + '/', robots: ['index', 'follow'], image: '/wp-content/kakapo-assets/img/dest/hero-1600.webp', jsonLd: [homeLd(faqs)],
     },
   };

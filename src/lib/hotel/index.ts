@@ -1,3 +1,4 @@
+import { seasonYear } from '../year';
 // Port of the hotel detail logic: Kakapo_Hotel_Repository (read side), Kakapo_Offer_Repository::for_hotel/real_drop_pct,
 // Kakapo_Price_History (series, last_known, sparkline, hotel_months), template text blocks from templates/hotel.php and
 // the hotel parts of Kakapo_Seo (title, description, robots, JSON-LD). Pure data -> view-model; markup lives in the page.
@@ -326,7 +327,7 @@ export async function loadHotel(db: D1Database, slug: string, opts: LoadOpts = {
   }
   const canonical = `${site}/hotel/${h.slug}/`;
   const meta = {
-    title: hotelTitle(h.name, place, year), description: desc.slice(0, DESC_MAX), canonical,
+    title: hotelTitle(h.name, place, seasonYear()), description: desc.slice(0, DESC_MAX), canonical,
     robots: hotelIsIndexable(h.offers_active, h.description, h.images_json, h.offers_last_seen, now) ? ['index', 'follow'] : ['noindex', 'follow'],
     image: images[0] ?? '', jsonLd: [] as Record<string, unknown>[],
   };

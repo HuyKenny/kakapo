@@ -1,4 +1,5 @@
 // Port of Kakapo_Landing_Pages::context() — landing context (filters, texts, breadcrumbs, FAQs) for every listing page type.
+import { swapYear, swapYearDeep, yearForPath } from '../year';
 import priority from './priority-countries.json';
 import { MEAL_LABELS, slugify } from '../helpers';
 import { loadRegistry, countryLabel, destinationLabel, airportLabel, type Registry } from '../snapshots';
@@ -296,5 +297,12 @@ export async function landingContext(db: D1Database, page: string, vars: Landing
   ctx.seo_text += partnerLinksBlock(ctx.path);
   ctx.seo_text += climateSection(ctx.path);
   ctx.canonical = ctx.path;
+  // marketing year: dated windows (month topics) already carry their own year; everything else follows yearForPath()
+  if (!ctx.filters.date_from) {
+    const y = yearForPath(ctx.path);
+    for (const k of ['h1', 'title', 'description', 'intro', 'seo_text'] as const) ctx[k] = swapYear(String(ctx[k] ?? ''), y);
+    ctx.faqs = (ctx.faqs ?? []).map((f) => ({ q: swapYear(f.q, y), a: swapYear(f.a, y) }));
+    if ((ctx as any).topic) (ctx as any).topic = swapYearDeep((ctx as any).topic, y);
+  }
   return ctx;
 }
