@@ -1,55 +1,17 @@
 // Meta / JSON-LD for listing, topic and home pages. Port of Kakapo_Seo (title budget, landing description, noindex rules).
-import { formatPrice, jsonArr } from '../helpers';
-import type { HotelRow, SearchResult } from '../search';
+import { jsonArr } from '../helpers';
+import type { HotelRow } from '../search';
 import type { Faq } from './landing-types';
 
 /** wp_strip_all_tags equivalent (plus entity decode for plain text use) */
 export const stripTags = (h: string): string => String(h ?? '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/\s+/g, ' ').trim();
 
-export const TITLE_MAX = 60;
-export const DESC_MAX = 158;
 export const SITE = 'https://kakapo.cz';
 
-const decode = (s: string) => s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-export const nfi = (n: number) => Math.trunc(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-
-export function titleBudget(core: string): string {
-  core = decode(core.trim());
-  const brand = ' | Kakapo.cz';
-  for (const extra of [' — ceny a termíny', ' — ceny', '']) if ([...(core + extra + brand)].length <= TITLE_MAX) return core + extra + brand;
-  for (const extra of [' — ceny a termíny', ' — ceny']) if ([...(core + extra)].length <= TITLE_MAX) return core + extra;
-  return core;
-}
-export function landingTitle(ctx: { title?: string | undefined; h1?: string | undefined }): string {
-  const title = decode(String(ctx.title ?? '').trim());
-  if (title !== '' && [...title].length <= TITLE_MAX) return title;
-  const core = String(ctx.h1 ?? '').trim();
-  return core !== '' ? titleBudget(core) : title;
-}
-export const topicTitle = (t: { title?: string | undefined; h1?: string | undefined; label?: string | undefined }) => landingTitle({ title: t.title, h1: t.h1 ?? t.label });
-
-/** "5. 10." — PHP date_i18n('j. n.') */
-const dayMonth = (ymd: string) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(ymd); return m ? `${Number(m[3])}. ${Number(m[2])}.` : ''; };
-
-export interface ProbeInfo { min: number }
-/** Description with real numbers instead of template filler (landing_description). */
-export function landingDescription(ctx: { h1?: string | undefined; description?: string | undefined; filters?: Record<string, unknown> | undefined }, total: number, result: SearchResult, probeMin: number, today: string): string {
-  const base = String(ctx.description ?? '');
-  const label = String(ctx.h1 ?? '').trim();
-  if (total <= 0 || label === '') return base;
-  const word = total === 1 ? 'hotel' : total >= 2 && total <= 4 ? 'hotely' : 'hotelů';
-  let head = `${label}: ${nfi(total)} ${word}`;
-  if (probeMin > 0) head += ' od ' + formatPrice(probeMin);
-  if (ctx.filters?.sort === 'departure') {
-    const dep = String(result.hotels[0]?.best_offer?.departure_date ?? '');
-    if (dep && dep >= today) head += ', odlety od ' + dayMonth(dep);
-  }
-  head = head.replace(/[. ]+$/, '');
-  let desc = head + '. Porovnejte a rezervujte přímo u pořadatele bez příplatku.';
-  if ([...desc].length > DESC_MAX) desc = head + '. Rezervace přímo u pořadatele.';
-  const chars = [...desc];
-  return chars.length > DESC_MAX ? chars.slice(0, DESC_MAX - 1).join('').trimEnd() + '…' : desc;
-}
+export { titleBudget, landingTitle, landingDescription, isIndexable } from '../landing/meta';
+import { landingTitle } from '../landing/meta';
+export const nfi = (n: number) => Math.trunc(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+export const topicTitle = (t: { title?: string | undefined; h1?: string | undefined; label?: string | undefined }) => landingTitle({ ...(t.title !== undefined ? { title: t.title } : {}), h1: t.h1 ?? t.label ?? '' });
 
 export const DEST_PHOTO_SLUGS = ['cesko', 'recko', 'turecko', 'spanelsko', 'bulharsko', 'egypt', 'tunisko', 'italie', 'kypr', 'kanarske-ostrovy', 'portugalsko', 'chorvatsko', 'madeira', 'malta', 'spojene-arabske-emiraty', 'maledivy', 'zanzibar'];
 

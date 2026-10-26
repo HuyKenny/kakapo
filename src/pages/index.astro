@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import Home from '../components/home/Home.astro';
+import { loadHome } from '../lib/listing';
+import { db, registry } from '../lib/server/site';
+import { todayPrague } from '../lib/search';
+
+const today = todayPrague();
+const data = await loadHome(db(), today);
+const reg = await registry();
+const m = data.meta;
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300');
+---
+<Base title={m.title} description={m.description} canonical={m.canonical} robots={m.robots} ogImage={'https://kakapo.cz' + m.image} jsonLd={m.jsonLd} pageType="home" isHome={true}>
+	<link slot="head" rel="preload" as="image" fetchpriority="high" imagesrcset="/wp-content/kakapo-assets/img/dest/hero-800.webp 800w, /wp-content/kakapo-assets/img/dest/hero-1600.webp 1600w" imagesizes="(min-width:1024px) 46vw, 92vw">
+	<Home data={data} registry={reg} today={today} />
+</Base>

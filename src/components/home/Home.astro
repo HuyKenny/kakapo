@@ -3,7 +3,7 @@
 import CardHotel from '../listing/CardHotel.astro';
 import SearchBar from '../listing/SearchBar.astro';
 import { svg, mascot } from '../../lib/icons';
-import { formatPrice, nightsLabel, imgUrl, partnerLabel, cleanProductTitle, countryFlagHtml, formatDate, partnerLabel as pl, jsonArr } from '../../lib/helpers';
+import { formatPrice, nightsLabel, imgUrl, partnerLabel, cleanProductTitle, countryFlagHtml, formatDate, jsonArr } from '../../lib/helpers';
 import { srcsetRaw } from '../../lib/listing/html';
 import { relHtml } from '../../lib/url';
 import type { HomeData } from '../../lib/listing';
@@ -46,7 +46,6 @@ const types = [
 	['Letecky', 'Odlety z ČR', '/dovolena-letecky/', 'letecky', 'Křídlo letadla nad mraky'],
 ];
 const seoLinks: Array<[string, string]> = [['Last minute all inclusive', '/last-minute-all-inclusive/'], ['Dovolená u moře all inclusive', '/dovolena-u-more-all-inclusive/'], ['Řecko all inclusive', '/recko-all-inclusive/'], ['Odlet zítra', '/super-last-minute-odlet-zitra/'], ['Egypt last minute all inclusive', '/egypt-last-minute-all-inclusive/'], ['Turecko all inclusive', '/turecko-all-inclusive/'], ['Kam v srpnu k moři', '/kam-v-srpnu-k-mori/'], ['Last minute all inclusive z Prahy', '/last-minute-all-inclusive-z-prahy/'], ['Wellness pobyt pro dva', '/wellness-pobyt-pro-dva/'], ['Krátké poznávací zájezdy', '/kratke-poznavaci-zajezdy/'], ['Chorvatsko apartmány u moře', '/chorvatsko-apartmany-u-more/']];
-const heading = (title: string, url = '', link = 'Zobrazit vše', sub = '') => ({ title, url, link, sub });
 const offersLine = d.offersRound > 0 ? num(d.offersRound) + '+ ' : '';
 const L = (p: string, t: string) => `<a href="${p}">${t}</a>`;
 const sections = [

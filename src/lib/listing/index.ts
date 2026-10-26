@@ -8,7 +8,7 @@ import { facets, type Facets } from './facets';
 import { calendarMonths, topDrops } from './calendar';
 import { memoized } from './cache';
 import type { Faq, LandingCtx, ListingDeps } from './landing-types';
-import { DEST_PHOTO_SLUGS, SITE, homeFaqs, homeLd, landingDescription, landingTitle, listingLd, normalizeFaqs, topicLd, topicTitle } from './seo';
+import { DEST_PHOTO_SLUGS, SITE, homeFaqs, homeLd, isIndexable, landingDescription, landingTitle, listingLd, normalizeFaqs, topicLd, topicTitle } from './seo';
 
 export type { LandingCtx, ListingDeps } from './landing-types';
 export { facets } from './facets';
@@ -18,6 +18,7 @@ export const GET_KEYS = ['country', 'dest', 'q', 'meal', 'stars', 'airport', 'pa
 export const SORT_OPTIONS: Record<string, string> = { recommended: 'Doporučené', price: 'Nejlevnější', 'price-desc': 'Nejdražší', departure: 'Nejbližší odlet', discount: 'Největší sleva', drop: 'Největší zlevnění', rating: 'Nejlépe hodnocené' };
 
 const TOPICS = topicData as unknown as Record<string, any>;
+/** Static (undated) topic definition; pages normally pass the hydrated topic via ctx.topic. */
 export const getTopic = (slug: string): any | null => TOPICS[slug] ?? null;
 
 /** Search with a short isolate memo — the same filter set is asked for by the page, the meta and the JSON-LD. */
@@ -134,16 +135,16 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
   // --- meta (computed from landing filters only, like Kakapo_Seo::meta) ---
   const baseResult = await msearch(db, ctxFilters, today);
   const baseProbe = await msearch(db, { ...ctxFilters, sort: 'price', page: 1 }, today);
-  const topic = deps.topicSlug ? getTopic(deps.topicSlug) : null;
+  const topic = (ctx.topic as any) ?? (deps.topicSlug ? getTopic(deps.topicSlug) : null);
   const isCkPage = !!topic?.partner_page;
   const alias = deps.canonicalAlias ? deps.canonicalAlias(ctx.path) : '';
   const indexMin = Math.max(1, Number(ctx.index_min ?? (topic ? topic.index_min ?? 1 : 1)));
-  const robots = baseResult.total >= indexMin && !hasQuery && alias === '' ? ['index', 'follow'] : ['noindex', 'follow'];
+  const robots = isIndexable({ index_min: indexMin }, baseResult.total, { hasQuery, aliasTarget: alias }) ? ['index', 'follow'] : ['noindex', 'follow'];
   let canonical = alias !== '' ? SITE + alias : SITE + ctx.path;
   const pageNo = Math.max(1, parseInt(query.get('strana') ?? '1', 10) || 1);
   if (pageNo > 1 && alias === '') canonical += `?strana=${pageNo}`;
   const title = topic ? topicTitle({ title: ctx.title || topic.title, h1: ctx.h1, label: topic.label }) : landingTitle(ctx);
-  const description = isCkPage ? String(ctx.description ?? '') : landingDescription({ h1: ctx.h1, description: ctx.description, filters: ctx.filters }, baseResult.total, baseResult, Number(baseProbe.hotels[0]?.min_price ?? 0), today);
+  const description = isCkPage ? String(ctx.description ?? '') : landingDescription({ h1: ctx.h1, description: ctx.description, filters: ctx.filters as { sort?: string } }, baseResult.total, { minPrice: Number(baseProbe.hotels[0]?.min_price ?? 0), firstDeparture: String(baseResult.hotels[0]?.best_offer?.departure_date ?? ''), today });
   const faqs = normalizeFaqs(ctx.faqs);
   const image = topic ? String(topic.hero_image ?? '') : DEST_PHOTO_SLUGS.includes(countrySlug) ? `/wp-content/kakapo-assets/img/dest/${countrySlug}.webp` : '';
   const crumbsAbs = ctx.breadcrumbs.map((c) => ({ label: c.label, url: c.url || undefined }));
@@ -165,8 +166,8 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
 
 // ----------------------------------------------------------------------------- topic (non-listing)
 export interface TopicData { topic: any; meta: { title: string; description: string; canonical: string; robots: string[]; image: string; jsonLd: unknown[] } }
-export function loadTopic(slug: string, query: URLSearchParams): TopicData | null {
-  const topic = getTopic(slug);
+export function loadTopic(topicOrSlug: any, query: URLSearchParams): TopicData | null {
+  const topic = typeof topicOrSlug === 'string' ? getTopic(topicOrSlug) : topicOrSlug;
   if (!topic) return null;
   const canonical = SITE + topic.path;
   const robots = [...query.keys()].length === 0 ? ['index', 'follow'] : ['noindex', 'follow'];

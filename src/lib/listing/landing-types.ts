@@ -17,6 +17,9 @@ export interface LandingCtx {
   seo_text?: string;
   faqs?: Faq[];
   index_min?: number;
+  canonical?: string;
+  /** Hydrated topic definition (topic / partner pages) */
+  topic?: any;
   [k: string]: unknown;
 }
 

@@ -2,8 +2,7 @@
 // Curated SEO/affiliate topic page without a hotel listing. Port of templates/topic-landing.php.
 import Breadcrumbs from '../Breadcrumbs.astro';
 import { rel, relHtml } from '../../lib/url';
-import { esc } from '../../lib/helpers';
-import { wpautop } from '../listing/../../lib/listing/html';
+import { wpautop } from '../../lib/listing/html';
 interface Props { topic: any }
 const { topic } = Astro.props;
 const external = (l: any) => !!l?.external;
@@ -15,7 +14,7 @@ const isAff = topic.type === 'affiliate';
 const crumbs = [{ label: 'Domů', url: '/' }, { label: topic.label }];
 const sections: any[] = Array.isArray(topic.sections) ? topic.sections : [];
 const faqs: any[] = Array.isArray(topic.faqs) ? topic.faqs : [];
-const href = (u: string) => (external({ external: true }) && /^https?:\/\/(?!(www\.)?kakapo\.cz)/.test(u) ? u : rel(u));
+const href = (u: string) => (/^https?:\/\/(?!(www\.)?kakapo\.cz)/i.test(u) ? u : rel(u));
 ---
 <main class="container-k py-8 sm:py-10">
 	<Breadcrumbs items={crumbs} />
