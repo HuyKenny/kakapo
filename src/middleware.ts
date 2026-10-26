@@ -108,7 +108,7 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   if (cache) {
     try {
       key = cacheKey(url, await dataVersion());
-      if (key) { const hit = await cache.match(key); if (hit) return finish(hit, url, { 'X-Kakapo-Page-Cache': 'HIT' }); }
+      if (key) { const hit = await cache.match(key); if (hit) return finish(hit, url, { 'X-Kakapo-Page-Cache': 'HIT', 'Cache-Control': 'public, max-age=0, must-revalidate' }); }
     } catch { key = null; }
   }
 
