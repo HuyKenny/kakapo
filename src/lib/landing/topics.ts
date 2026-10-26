@@ -73,7 +73,7 @@ export function sectionsToHtml(topic: Pick<Topic, 'sections'>): string {
 
 // ---------------------------------------------------------------- partner pages
 type PartnerDef = [string, string, boolean];
-export const PARTNERS = (partnerConsts as { PARTNERS: Record<string, PartnerDef> }).PARTNERS;
+export const PARTNERS = (partnerConsts as unknown as { PARTNERS: Record<string, PartnerDef> }).PARTNERS;
 export const hubUrl = (slug: string): string => (PARTNERS[slug] ? `/${slug}-zajezdy/` : '');
 
 export function partnerLinksBlock(path: string): string {
