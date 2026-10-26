@@ -1,4 +1,5 @@
 import { afterTick } from './post';
+import { warmImages } from './warm';
 import type { Deps } from '../deps';
 import { sqlTime } from '../util/text';
 import { stepFeed, type StepResult } from './run';
@@ -25,5 +26,7 @@ export async function runTick(deps: Deps): Promise<StepResult[]> {
     if (Date.now() >= deadline) break;
   }
   await afterTick(deps);
+  // image cache warming only when no import is busy with this invocation's budget
+  if (Date.now() < deadline - 120_000) await warmImages(deps).catch((e) => deps.log('warm.failed', { error: e instanceof Error ? e.message : 'error' }));
   return results;
 }
