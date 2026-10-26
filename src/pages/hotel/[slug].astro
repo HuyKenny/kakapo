@@ -33,8 +33,14 @@ const ratingWord = v.rating !== null ? (v.rating >= 9 ? 'Vynikající' : v.ratin
 const mapLink = h.lat !== null && h.lng !== null ? `https://www.openstreetmap.org/?mlat=${Number(h.lat)}&mlon=${Number(h.lng)}#map=14/${Number(h.lat)}/${Number(h.lng)}` : '';
 const place = [h.destination, h.country].filter(Boolean).join(', ');
 const h2 = 'text-[1.35rem] font-extrabold tracking-tight text-ink';
+// hero = LCP: responsive srcset (phones download 640 px instead of 1280 px) and a preload so the browser starts it before CSS/JS
+const heroFull = v.galleryCfg.images[0] ?? '';
+const heroSmall = heroFull.replace('w=1280', 'w=640').replace('q=78', 'q=72');
+const heroSrcset = heroFull && heroSmall !== heroFull ? `${heroSmall} 640w, ${heroFull} 1280w` : '';
+const heroSizes = '(min-width:640px) 50vw, 88vw';
 ---
 <Base title={v.meta.title} description={v.meta.description} canonical={v.meta.canonical} robots={v.meta.robots} {...(v.meta.image ? { ogImage: v.meta.image } : {})} jsonLd={v.meta.jsonLd} pageType="hotel">
+{heroFull && <link slot="head" rel="preload" as="image" fetchpriority="high" href={heroFull} {...(heroSrcset ? { imagesrcset: heroSrcset, imagesizes: heroSizes } : {})} />}
 <main class="bg-white">
 	<div class="container-k py-6 sm:py-8">
 		<Breadcrumbs items={v.breadcrumbs} />
@@ -75,7 +81,7 @@ const h2 = 'text-[1.35rem] font-extrabold tracking-tight text-ink';
 							return (
 								<button type="button" class={`relative w-[88%] shrink-0 snap-center overflow-hidden rounded-2xl bg-mist sm:w-auto sm:rounded-none ${cls}`} x-on:click={`idx = ${i}; lightbox = true`} aria-label={`Zvětšit fotografii ${i + 1}`}>
 									<img src={v.galleryCfg.images[i]?.replace('w=1280', big ? 'w=1280' : 'w=640').replace('q=78', big ? 'q=78' : 'q=72')} alt={h.name + (big ? '' : ` — fotografie ${i + 1}`)}
-										width={big ? 1280 : 640} height={big ? 853 : 427} decoding="async" {...(big ? { fetchpriority: 'high' } : { loading: 'lazy' })}
+										width={big ? 1280 : 640} height={big ? 853 : 427} decoding="async" {...(big ? { fetchpriority: 'high', ...(heroSrcset ? { srcset: heroSrcset, sizes: heroSizes } : {}) } : { loading: 'lazy' })}
 										onerror="this.closest('button').style.display='none'"
 										class={`aspect-[4/3] h-full w-full object-cover transition duration-300 hover:brightness-90 sm:aspect-auto ${big && !grid ? 'sm:aspect-[21/9]' : ''}`}>
 								</button>

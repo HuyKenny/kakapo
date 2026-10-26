@@ -73,7 +73,7 @@ const empty = !result.hotels.length;
 				</div>
 
 				<div class="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 xl:grid-cols-3" x-ref="grid">
-					{!empty ? result.hotels.map((h) => <CardHotel hotel={h} />) : (
+					{!empty ? result.hotels.map((h, i) => <CardHotel hotel={h} eager={i < 2} />) : (
 						<div class="col-span-full rounded-3xl bg-paper p-8 text-center sm:p-12">
 							<Fragment set:html={mascot(72, 'mx-auto mb-3')} />
 							<p class="text-lg font-semibold text-ink">Této kombinaci nic neodpovídá</p>
