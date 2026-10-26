@@ -57,7 +57,7 @@
       "vars": {
         "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz,export.ceskekormidlo.cz,feeds.mergado.com,www.atis.cz",
         "SITE_URL": "https://kakapo.cz",
-        "IMPORT_WINDOW": "0-24",
+        "IMPORT_WINDOW": "0-7",
         "MAX_DROP_PCT": "40",
         "LAST_MINUTE_DAYS": "14",
         "FIRST_MINUTE_DAYS": "120",
