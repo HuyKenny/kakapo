@@ -5,7 +5,7 @@ import { warmUrlsForHotel, warmUrlsForProduct } from '../../src/lib/images';
 import { imgUrl } from '../../src/lib/helpers';
 import { srcsetRaw } from '../../src/lib/listing/html';
 
-const IMG = ['https://img.partner.test/a.jpg', 'https://img.partner.test/b.jpg', 'https://img.partner.test/c.jpg'];
+const IMG: [string, string, string] = ['https://img.partner.test/a.jpg', 'https://img.partner.test/b.jpg', 'https://img.partner.test/c.jpg'];
 
 function seedHotel(h: ReturnType<typeof makeHarness>, id: number, images: string[], active = 3) {
   h.raw.prepare(`INSERT INTO hotels (id, slug, dedup_key, name, images_json, offers_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, '2026-10-26', '2026-10-26')`)

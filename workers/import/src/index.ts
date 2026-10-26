@@ -4,6 +4,7 @@ import type { Deps, ImportEnv } from './deps';
 import { runTick } from './engine/tick';
 import { approveRun, stepFeed } from './engine/run';
 import { runDaily } from './engine/daily';
+import { warmImages } from './engine/warm';
 import { sqlTime } from './util/text';
 
 const DAILY_CRON = '30 1 * * *';
@@ -41,6 +42,7 @@ export async function handle(request: Request, env: ImportEnv, ctx: { waitUntil(
     return json({ feeds, runs });
   }
   if (parts[0] === 'daily' && request.method === 'POST') return json(await runDaily(makeDeps(env)));
+  if (parts[0] === 'warm' && request.method === 'POST') return json(await warmImages(makeDeps(env), Math.min(700, Math.max(1, Number(new URL(request.url).searchParams.get('budget') ?? 50)))));
 
   if (parts[0] === 'feeds' && /^\d+$/.test(parts[1] ?? '')) {
     const id = Number(parts[1]);
@@ -79,7 +81,10 @@ export default {
   async fetch(request: Request, env: ImportEnv, ctx: ExecutionContext): Promise<Response> { return handle(request, env, ctx); },
   async scheduled(event: ScheduledController, env: ImportEnv, ctx: ExecutionContext): Promise<void> {
     const deps = makeDeps(env);
-    ctx.waitUntil((event.cron === DAILY_CRON ? runDaily(deps) : runTick(deps)).then((r) => deps.log('cron.done', { cron: event.cron, n: Array.isArray(r) ? r.length : 1 })));
+    // awaited (not waitUntil): a cron invocation may run for minutes, background waitUntil work is cut after ~30 s
+    const r = await (event.cron === DAILY_CRON ? runDaily(deps) : runTick(deps));
+    deps.log('cron.done', { cron: event.cron, n: Array.isArray(r) ? r.length : 1 });
+    void ctx;
   },
 };
 
