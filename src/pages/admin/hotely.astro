@@ -1,0 +1,62 @@
+---
+import Layout from './_Layout.astro';
+import { requireAdmin } from '../../lib/admin/guard';
+import { csrfToken } from '../../lib/server/csrf';
+import { getEnv } from '../../lib/server/env';
+import { d1 } from '../../lib/admin/sql';
+export const prerender = false;
+const g = await requireAdmin(Astro.request);
+if (!g.ok) return g.response;
+const db = d1(getEnv().DB);
+const csrf = await csrfToken(g.email);
+const sp = Astro.url.searchParams;
+const q = (sp.get('q') ?? '').trim().slice(0, 80);
+const like = '%' + q.replace(/[\\%_]/g, (c) => '\\' + c) + '%';
+const hotels = q.length >= 2
+  ? await db.all<{ id: number; slug: string; name: string; country: string; hidden: number; offers_active: number }>(`SELECT id, slug, name, country, hidden, offers_active FROM hotels WHERE (name LIKE ? ESCAPE '\\' OR slug LIKE ? ESCAPE '\\') ORDER BY offers_active DESC, name LIMIT 25`, [like, like])
+  : [];
+const offerId = /^\d{1,12}$/.test(sp.get('offer') ?? '') ? Number(sp.get('offer')) : 0;
+const offer = offerId ? await db.first<{ id: number; hotel_id: number; partner_slug: string; external_id: string; price_pp: number; departure_date: string; active: number; blocked: number | null }>(
+  `SELECT o.id, o.hotel_id, o.partner_slug, o.external_id, o.price_pp, o.departure_date, o.active, (SELECT 1 FROM offer_blocklist b WHERE b.feed_id = o.feed_id AND b.external_id = o.external_id) AS blocked FROM offers o WHERE o.id = ?`, [offerId]) : null;
+const hotelOffers = Number(sp.get('hotel')) > 0
+  ? await db.all<{ id: number; partner_slug: string; price_pp: number; departure_date: string; nights: number; active: number }>('SELECT id, partner_slug, price_pp, departure_date, nights, active FROM offers WHERE hotel_id = ? ORDER BY active DESC, price_pp LIMIT 40', [Number(sp.get('hotel'))])
+  : [];
+---
+<Layout title="Hotely a nabídky" msgOk={sp.get('ok')} msgErr={sp.get('err')}>
+  <form method="get"><label for="q">Hledat hotel (název nebo slug, min. 2 znaky)</label><input id="q" name="q" value={q} /> <button>Hledat</button></form>
+  {hotels.length > 0 && (
+    <table><thead><tr><th>Hotel</th><th>Země</th><th>Nabídek</th><th>Stav</th><th>Akce</th></tr></thead><tbody>
+      {hotels.map((h) => (
+        <tr>
+          <td><a href={`/hotel/${h.slug}/`}>{h.name}</a> <small>#{h.id}</small></td><td>{h.country}</td><td><a href={`/admin/hotely/?hotel=${h.id}`}>{h.offers_active}</a></td><td>{h.hidden ? 'skrytý' : 'veřejný'}</td>
+          <td>
+            <form method="post" action="/api/admin/hide" class="inline">
+              <input type="hidden" name="_csrf" value={csrf} /><input type="hidden" name="type" value="hotel" /><input type="hidden" name="id" value={h.id} />
+              <input type="hidden" name="hide" value={h.hidden ? '0' : '1'} />
+              {!h.hidden && <><label for={`n${h.id}`} class="inline">Důvod</label> <input id={`n${h.id}`} name="note" required style="width:12rem" /></>}
+              <button>{h.hidden ? 'Zveřejnit' : 'Skrýt'}</button>
+            </form>
+          </td>
+        </tr>
+      ))}
+    </tbody></table>
+  )}
+  {hotelOffers.length > 0 && (
+    <><h2>Nabídky hotelu #{sp.get('hotel')}</h2>
+    <table><thead><tr><th>ID</th><th>Partner</th><th>Cena/os.</th><th>Odjezd</th><th>Nocí</th><th>Aktivní</th><th></th></tr></thead><tbody>
+      {hotelOffers.map((o) => <tr><td><a href={`/admin/hotely/?offer=${o.id}`}>{o.id}</a></td><td>{o.partner_slug}</td><td>{o.price_pp}</td><td>{o.departure_date}</td><td>{o.nights}</td><td>{o.active ? 'ano' : 'ne'}</td><td><a href={`/admin/hotely/?offer=${o.id}`}>skrýt/detail</a></td></tr>)}
+    </tbody></table></>
+  )}
+  <h2>Nabídka podle ID</h2>
+  <form method="get"><label for="offer">ID nabídky</label><input id="offer" name="offer" inputmode="numeric" value={offerId || ''} /> <button>Najít</button></form>
+  {offerId > 0 && !offer && <p class="err">Nabídka neexistuje.</p>}
+  {offer && (
+    <form method="post" action="/api/admin/hide">
+      <p>Nabídka #{offer.id} · {offer.partner_slug} · externí ID {offer.external_id} · {offer.price_pp} Kč · odjezd {offer.departure_date} · {offer.active ? 'aktivní' : offer.blocked ? 'skrytá (blokovaná)' : 'neaktivní'}</p>
+      <input type="hidden" name="_csrf" value={csrf} /><input type="hidden" name="type" value="offer" /><input type="hidden" name="id" value={offer.id} />
+      <input type="hidden" name="hide" value={offer.blocked ? '0' : '1'} />
+      {!offer.blocked && <><label for="note">Důvod skrytí</label><input id="note" name="note" required /></>}
+      <button>{offer.blocked ? 'Zrušit blokaci' : 'Skrýt nabídku'}</button>
+    </form>
+  )}
+</Layout>

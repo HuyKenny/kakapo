@@ -1,0 +1,15 @@
+---
+import Layout from './_Layout.astro';
+import { requireAdmin } from '../../lib/admin/guard';
+import { getEnv } from '../../lib/server/env';
+import { d1 } from '../../lib/admin/sql';
+export const prerender = false;
+const g = await requireAdmin(Astro.request);
+if (!g.ok) return g.response;
+const rows = await d1(getEnv().DB).all<{ id: number; at: string; actor: string; action: string; target: string; detail: string }>('SELECT id, at, actor, action, target, detail FROM admin_audit ORDER BY id DESC LIMIT 200');
+---
+<Layout title="Audit změn">
+  <table><thead><tr><th>Kdy</th><th>Kdo</th><th>Akce</th><th>Cíl</th><th>Detail</th></tr></thead><tbody>
+    {rows.map((r) => <tr><td>{r.at}</td><td>{r.actor}</td><td>{r.action}</td><td>{r.target}</td><td><small>{r.detail}</small></td></tr>)}
+  </tbody></table>
+</Layout>

@@ -1,0 +1,32 @@
+---
+import Layout from './_Layout.astro';
+import { requireAdmin } from '../../lib/admin/guard';
+import { csrfToken } from '../../lib/server/csrf';
+import { getEnv } from '../../lib/server/env';
+import { d1 } from '../../lib/admin/sql';
+export const prerender = false;
+const g = await requireAdmin(Astro.request);
+if (!g.ok) return g.response;
+const db = d1(getEnv().DB);
+const csrf = await csrfToken(g.email);
+const sp = Astro.url.searchParams;
+const rows = await db.all<{ from_path: string; to_path: string; status: number; reason: string }>('SELECT from_path, to_path, status, reason FROM redirects ORDER BY created_at DESC, from_path LIMIT 200');
+const total = (await db.first<{ n: number }>('SELECT COUNT(*) AS n FROM redirects'))?.n ?? 0;
+---
+<Layout title="Přesměrování" msgOk={sp.get('ok')} msgErr={sp.get('err')}>
+  <form method="post" action="/api/admin/redirect">
+    <input type="hidden" name="_csrf" value={csrf} />
+    <label for="from">Zdrojová cesta (např. /stara-stranka/)</label><input id="from" name="from" required />
+    <label for="to">Cílová cesta (u 410 nechte prázdné)</label><input id="to" name="to" />
+    <label for="status">Status</label><select id="status" name="status"><option>301</option><option>302</option><option>308</option><option>410</option></select>
+    <p><button name="action" value="save">Uložit</button></p>
+    <p><small>Smyčky a řetězce jsou odmítnuty. Cesty se ukládají malými písmeny s lomítkem na konci, bez parametrů.</small></p>
+  </form>
+  <p>Celkem {total} pravidel (zobrazeno posledních {rows.length}).</p>
+  <table><thead><tr><th>Zdroj</th><th>Cíl</th><th>Status</th><th>Důvod</th><th></th></tr></thead><tbody>
+    {rows.map((r) => (
+      <tr><td>{r.from_path}</td><td>{r.to_path}</td><td>{r.status}</td><td>{r.reason}</td>
+        <td><form method="post" action="/api/admin/redirect" class="inline"><input type="hidden" name="_csrf" value={csrf} /><input type="hidden" name="from" value={r.from_path} /><button name="action" value="delete">Smazat</button></form></td></tr>
+    ))}
+  </tbody></table>
+</Layout>

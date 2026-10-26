@@ -1,0 +1,40 @@
+---
+import Layout from './_Layout.astro';
+import { requireAdmin } from '../../lib/admin/guard';
+import { csrfToken } from '../../lib/server/csrf';
+import { getEnv } from '../../lib/server/env';
+import { d1 } from '../../lib/admin/sql';
+import { OVERRIDE_FIELDS, OVERRIDE_KINDS, TITLE_MAX } from '../../lib/admin/validate';
+export const prerender = false;
+const g = await requireAdmin(Astro.request);
+if (!g.ok) return g.response;
+const db = d1(getEnv().DB);
+const csrf = await csrfToken(g.email);
+const sp = Astro.url.searchParams;
+const kind = (OVERRIDE_KINDS as readonly string[]).includes(sp.get('kind') ?? '') ? (sp.get('kind') as string) : 'landing';
+const key = (sp.get('key') ?? '').trim().slice(0, 200);
+const q = (sp.get('q') ?? '').trim().slice(0, 80);
+const list = await db.all<{ kind: string; key: string; fields: number; updated_at: string }>(
+  `SELECT kind, key, COUNT(*) AS fields, MAX(updated_at) AS updated_at FROM editorial_overrides WHERE kind = ? AND key LIKE ? ESCAPE '\\' GROUP BY kind, key ORDER BY key LIMIT 60`,
+  [kind, '%' + q.replace(/[\\%_]/g, (c) => '\\' + c) + '%']);
+const current = key ? await db.all<{ field: string; value: string }>('SELECT field, value FROM editorial_overrides WHERE kind = ? AND key = ?', [kind, key]) : [];
+const val = (f: string) => current.find((c) => c.field === f)?.value ?? '';
+---
+<Layout title="Texty a SEO pole" msgOk={sp.get('ok')} msgErr={sp.get('err')}>
+  <form method="get"><label for="q">Filtr klíčů</label><input id="q" name="q" value={q} />
+    <label for="kind">Typ</label><select id="kind" name="kind">{OVERRIDE_KINDS.map((k) => <option value={k} selected={k === kind}>{k}</option>)}</select> <button>Zobrazit</button></form>
+  <table><thead><tr><th>Klíč</th><th>Polí</th><th>Změněno</th></tr></thead><tbody>
+    {list.map((r) => <tr><td><a href={`/admin/texty/?kind=${r.kind}&key=${encodeURIComponent(r.key)}`}>{r.key}</a></td><td>{r.fields}</td><td>{r.updated_at}</td></tr>)}
+  </tbody></table>
+  <h2>{key ? `Úprava: ${kind} ${key}` : 'Úprava'}</h2>
+  <p><small>Title max. {TITLE_MAX} znaků (delší by plugin i nový web zahodil). Description se na landinzích skládá ze živých dat; uložená hodnota slouží jako záloha.</small></p>
+  {OVERRIDE_FIELDS.map((f) => (
+    <form method="post" action="/api/admin/override">
+      <input type="hidden" name="_csrf" value={csrf} /><input type="hidden" name="kind" value={kind} /><input type="hidden" name="field" value={f} />
+      <label for={`k-${f}`}>Klíč ({kind === 'landing' || kind === 'page' ? 'cesta, např. /recko/kos/' : 'slug'})</label><input id={`k-${f}`} name="key" value={key} required />
+      <label for={`v-${f}`}>{f}{f === 'faqs_json' ? ' (JSON: [{"q":"…","a":"…"}])' : ''}</label>
+      {['intro', 'seo_text', 'faqs_json'].includes(f) ? <textarea id={`v-${f}`} name="value">{val(f)}</textarea> : <input id={`v-${f}`} name="value" value={val(f)} maxlength={f === 'title' ? TITLE_MAX : undefined} />}
+      <p><button name="action" value="save">Uložit {f}</button> <button name="action" value="delete">Smazat {f}</button></p>
+    </form>
+  ))}
+</Layout>

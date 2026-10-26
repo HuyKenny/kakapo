@@ -1,0 +1,48 @@
+---
+import Layout from './_Layout.astro';
+import { requireAdmin } from '../../lib/admin/guard';
+import { csrfToken } from '../../lib/server/csrf';
+import { getEnv } from '../../lib/server/env';
+import { d1 } from '../../lib/admin/sql';
+export const prerender = false;
+const g = await requireAdmin(Astro.request);
+if (!g.ok) return g.response;
+const db = d1(getEnv().DB);
+const csrf = await csrfToken(g.email);
+interface FeedRow { id: number; name: string; partner_slug: string; adapter: string; enabled: number; interval_hours: number; last_success_at: string | null; last_success_count: number | null; run_status: string | null; run_at: string | null; items_read: number | null; items_new: number | null; items_changed: number | null; items_rejected: number | null; items_deactivated: number | null; errors: number | null; message: string | null }
+const feeds = await db.all<FeedRow>(
+  `SELECT f.id, f.name, f.partner_slug, f.adapter, f.enabled, f.interval_hours, f.last_success_at, f.last_success_count,
+          r.status AS run_status, r.started_at AS run_at, r.items_read, r.items_new, r.items_changed, r.items_rejected, r.items_deactivated, r.message,
+          (SELECT COUNT(*) FROM import_errors e WHERE e.run_id = r.id) AS errors
+   FROM feeds f LEFT JOIN import_runs r ON r.id = (SELECT MAX(id) FROM import_runs WHERE feed_id = f.id)
+   ORDER BY f.id`);
+const counts = await db.first<{ offers: number; hotels: number; products: number }>(
+  `SELECT (SELECT COUNT(*) FROM offers WHERE active = 1) AS offers, (SELECT COUNT(*) FROM hotels WHERE offers_active > 0 AND hidden = 0) AS hotels, (SELECT COUNT(*) FROM products WHERE active = 1 AND hidden = 0) AS products`);
+const sp = Astro.url.searchParams;
+const hasImporter = Boolean(getEnv().IMPORTER && getEnv().IMPORT_SHARED_SECRET);
+---
+<Layout title="Feedy a importy" msgOk={sp.get('ok')} msgErr={sp.get('err')}>
+  <p>Aktivní nabídky: <strong>{counts?.offers ?? 0}</strong> · hotely s nabídkou: <strong>{counts?.hotels ?? 0}</strong> · aktivní produkty: <strong>{counts?.products ?? 0}</strong>.
+    {!hasImporter && <><br /><small>Importní Worker (IMPORTER) není v tomto prostředí připojen, tlačítko „Spustit“ vrátí chybu.</small></>}</p>
+  <table>
+    <thead><tr><th>Feed</th><th>Stav</th><th>Poslední úspěšný běh</th><th>Poslední běh</th><th>Chyby</th><th>Akce</th></tr></thead>
+    <tbody>
+      {feeds.map((f) => (
+        <tr>
+          <td>#{f.id} {f.name}<br /><small>{f.partner_slug} · {f.adapter} · každých {f.interval_hours} h</small></td>
+          <td>{f.enabled ? 'zapnutý' : 'pozastavený'}</td>
+          <td>{f.last_success_at ?? '–'}{f.last_success_count != null && <><br /><small>{f.last_success_count} položek</small></>}</td>
+          <td>{f.run_status ? <>{f.run_status}<br /><small>{f.run_at} · načteno {f.items_read}, nové {f.items_new}, změněné {f.items_changed}, odmítnuté {f.items_rejected}, vyřazené {f.items_deactivated}</small></> : '–'}{f.message && <><br /><small>{f.message}</small></>}</td>
+          <td>{f.errors ?? 0}</td>
+          <td>
+            <form method="post" action="/api/admin/feed" class="inline">
+              <input type="hidden" name="_csrf" value={csrf} /><input type="hidden" name="feed_id" value={f.id} />
+              <button name="action" value="run" disabled={!f.enabled}>Spustit</button>
+              {f.enabled ? <button name="action" value="pause">Pozastavit</button> : <button name="action" value="resume">Zapnout</button>}
+            </form>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</Layout>
