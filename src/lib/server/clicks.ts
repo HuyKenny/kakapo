@@ -16,6 +16,8 @@ export type GoKind = 'offer' | 'product';
 export const DEFAULT_ALLOWED_HOSTS = [
   'anrdoezrs.net', 'jdoqocy.com', 'tkqlhce.com', 'dpbolvw.net', 'kqzyfj.com', // CJ
   'invia.cz', 'dovolena.cz', 'slevomat.cz', 'ehub.cz', 'radynacestu.cz', 'cedok.cz', 'fischer.cz', 'exim.cz', 'blue-style.cz', 'tui.cz',
+  // direct partner hosts (feeds without a working network wrapper, e.g. Excursia since its eHUB campaign ended)
+  'excursia.cz', 'zazitky.cz', 'adrop.cz', 'ceskekormidlo.cz', 'atis.cz', 'eximtours.cz', 'spa.cz',
 ];
 
 export function allowedHosts(env: { GO_ALLOWED_HOSTS?: string }): string[] {
