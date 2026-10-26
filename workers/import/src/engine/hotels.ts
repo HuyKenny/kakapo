@@ -4,6 +4,7 @@ import type { Db, D1Stmt } from '../deps';
 import type { NormHotel } from '../model';
 import { hotelDedupKey, slugify, MEAL_BITS } from '../util/text';
 import { chunk, parseJson, selectIn, runBatches, MAX_PARAMS, qs } from './db';
+import { computeThemeFlags } from '../../../../src/lib/themes';
 
 const sanitizeKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9_\-]/g, '');
 
@@ -146,23 +147,25 @@ export async function upsertHotels(db: Db, items: NormHotel[], partner: string, 
 }
 
 export interface AggregateOpts { today: string; nowSql: string }
-interface OfferAgg { hotel_id: number; price_pp: number; partner_slug: string; is_last_minute: number; is_first_minute: number; meal_type: string; airport_slug: string }
+interface OfferAgg { hotel_id: number; price_pp: number; partner_slug: string; is_last_minute: number; is_first_minute: number; meal_type: string; airport_slug: string; title: string; room_type: string }
+const MAX_OFFER_TEXTS = 40;
 
 /** Recompute the denormalised columns of the given hotels from active offers; writes only hotels whose values changed. */
 export async function recomputeAggregates(db: Db, hotelIds: number[], o: AggregateOpts): Promise<{ checked: number; written: number }> {
   let written = 0;
   for (const ids of chunk([...new Set(hotelIds)], MAX_PARAMS)) {
-    const offers = (await db.prepare(`SELECT hotel_id, price_pp, partner_slug, is_last_minute, is_first_minute, meal_type, airport_slug FROM offers WHERE active = 1 AND hotel_id IN (${qs(ids.length)})`).bind(...ids).all<OfferAgg>()).results;
-    const agg = new Map<number, { min: number; cnt: number; partners: Set<string>; lm: number; fm: number; ai: number; meals: Set<string>; airports: Set<string> }>();
+    const offers = (await db.prepare(`SELECT hotel_id, price_pp, partner_slug, is_last_minute, is_first_minute, meal_type, airport_slug, title, room_type FROM offers WHERE active = 1 AND hotel_id IN (${qs(ids.length)})`).bind(...ids).all<OfferAgg>()).results;
+    const agg = new Map<number, { min: number; cnt: number; partners: Set<string>; lm: number; fm: number; ai: number; meals: Set<string>; airports: Set<string>; texts: Set<string> }>();
     for (const r of offers) {
       let a = agg.get(r.hotel_id);
-      if (!a) agg.set(r.hotel_id, (a = { min: Infinity, cnt: 0, partners: new Set(), lm: 0, fm: 0, ai: 0, meals: new Set(), airports: new Set() }));
+      if (!a) agg.set(r.hotel_id, (a = { min: Infinity, cnt: 0, partners: new Set(), lm: 0, fm: 0, ai: 0, meals: new Set(), airports: new Set(), texts: new Set() }));
       a.min = Math.min(a.min, r.price_pp); a.cnt++; a.partners.add(r.partner_slug);
       a.lm = Math.max(a.lm, r.is_last_minute); a.fm = Math.max(a.fm, r.is_first_minute);
       if (r.meal_type === 'all-inclusive') a.ai = 1;
       a.meals.add(r.meal_type); if (r.airport_slug) a.airports.add(r.airport_slug);
+      for (const t of [r.title, r.room_type]) if (t && a.texts.size < MAX_OFFER_TEXTS) a.texts.add(t);
     }
-    const cur = (await db.prepare(`SELECT id, min_price, offers_active, partners_count, has_last_minute, has_first_minute, has_all_inclusive, meal_flags, airports_csv, offers_last_seen FROM hotels WHERE id IN (${qs(ids.length)})`).bind(...ids).all<Record<string, unknown>>()).results;
+    const cur = (await db.prepare(`SELECT id, min_price, offers_active, partners_count, has_last_minute, has_first_minute, has_all_inclusive, meal_flags, airports_csv, offers_last_seen, name, description, amenities_json, theme_flags FROM hotels WHERE id IN (${qs(ids.length)})`).bind(...ids).all<Record<string, unknown>>()).results;
     const stmts: D1Stmt[] = [];
     for (const h of cur) {
       const a = agg.get(h.id as number);
@@ -170,12 +173,14 @@ export async function recomputeAggregates(db: Db, hotelIds: number[], o: Aggrega
         ? { min_price: a.min, offers_active: a.cnt, partners_count: a.partners.size, has_last_minute: a.lm, has_first_minute: a.fm, has_all_inclusive: a.ai,
             meal_flags: [...a.meals].reduce((s, m) => s | (MEAL_BITS[m] ?? 0), 0), airports_csv: [...a.airports].sort().join(',').slice(0, 255) }
         : { min_price: null, offers_active: 0, partners_count: 0, has_last_minute: 0, has_first_minute: 0, has_all_inclusive: 0, meal_flags: 0, airports_csv: '' };
-      const changed = (Object.keys(want) as Array<keyof typeof want>).some((k) => (h[k] ?? null) !== want[k]);
+      // keyword themes (children / aquapark / sandy beach) are precomputed so listing queries compare an integer instead of scanning texts
+      const theme_flags = computeThemeFlags({ name: h.name as string, description: h.description as string, amenities: h.amenities_json as string, offerTexts: a ? [...a.texts] : [] });
+      const changed = theme_flags !== (h.theme_flags ?? 0) || (Object.keys(want) as Array<keyof typeof want>).some((k) => (h[k] ?? null) !== want[k]);
       // "last time we saw a live offer" feeds the indexing grace period; refresh it at most once per day, not on every import
       const stale = a && (!h.offers_last_seen || String(h.offers_last_seen).slice(0, 10) < o.today);
       if (!changed && !stale) continue;
-      stmts.push(db.prepare(`UPDATE hotels SET min_price=?, offers_active=?, partners_count=?, has_last_minute=?, has_first_minute=?, has_all_inclusive=?, meal_flags=?, airports_csv=?,
-        offers_last_seen = CASE WHEN ? > 0 THEN ? ELSE offers_last_seen END WHERE id = ?`).bind(want.min_price, want.offers_active, want.partners_count, want.has_last_minute, want.has_first_minute, want.has_all_inclusive, want.meal_flags, want.airports_csv, want.offers_active, o.nowSql, h.id));
+      stmts.push(db.prepare(`UPDATE hotels SET min_price=?, offers_active=?, partners_count=?, has_last_minute=?, has_first_minute=?, has_all_inclusive=?, meal_flags=?, airports_csv=?, theme_flags=?,
+        offers_last_seen = CASE WHEN ? > 0 THEN ? ELSE offers_last_seen END WHERE id = ?`).bind(want.min_price, want.offers_active, want.partners_count, want.has_last_minute, want.has_first_minute, want.has_all_inclusive, want.meal_flags, want.airports_csv, theme_flags, want.offers_active, o.nowSql, h.id));
     }
     written += await runBatches(db, stmts);
   }

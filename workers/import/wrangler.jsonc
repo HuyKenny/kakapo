@@ -17,11 +17,32 @@
   "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
   "vars": {
     // exact hosts or *.suffix; redirects are checked against the same list
-    "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz",
+    "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz,export.ceskekormidlo.cz,feeds.mergado.com,www.atis.cz",
+    "SITE_URL": "https://kakapo.cz",
     "IMPORT_WINDOW": "0-7",
     "MAX_DROP_PCT": "40",
     "LAST_MINUTE_DAYS": "14",
     "FIRST_MINUTE_DAYS": "120"
   },
-  "observability": { "enabled": true, "head_sampling_rate": 1 }
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "env": {
+    "staging": {
+      "name": "kakapo-import-staging",
+      "workers_dev": false,
+      "preview_urls": false,
+      // No cron on staging: imports are started by hand (avoids doubling partner API traffic while WordPress still imports).
+      "triggers": { "crons": [] },
+      "limits": { "cpu_ms": 300000 },
+      "d1_databases": [{ "binding": "DB", "database_name": "kakapo-staging", "database_id": "ad3a4546-c879-4fc2-85e2-80670c43ab84", "migrations_dir": "../../migrations" }],
+      "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots-staging" }],
+      "vars": {
+        "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz,export.ceskekormidlo.cz,feeds.mergado.com,www.atis.cz",
+        "SITE_URL": "https://kakapo-staging.huy-kenny.workers.dev",
+        "IMPORT_WINDOW": "0-24",
+        "MAX_DROP_PCT": "40",
+        "LAST_MINUTE_DAYS": "14",
+        "FIRST_MINUTE_DAYS": "120"
+      }
+    }
+  }
 }

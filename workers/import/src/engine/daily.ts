@@ -5,6 +5,7 @@ import type { Deps } from '../deps';
 import { addDays, pragueToday, sqlTime } from '../util/text';
 import { recomputeAggregates } from './hotels';
 import { chunk, runBatches, MAX_PARAMS, qs } from './db';
+import { afterRun } from './post';
 
 const RETENTION_DAYS = 180, DROP_MIN_PCT = 5, DROP_MIN_CZK = 500;
 
@@ -59,6 +60,7 @@ export async function runDaily(deps: Deps): Promise<DailyReport> {
     await db.prepare(`DELETE FROM import_errors WHERE run_id IN (${qs(part.length)})`).bind(...part).run();
     r.prunedRuns += await changes(`DELETE FROM import_runs WHERE id IN (${qs(part.length)})`, ...part);
   }
+  await afterRun(deps); // snapshots reflect the expired offers; sitemaps only if older than 20 h
   deps.log('daily.done', { ...r });
   return r;
 }

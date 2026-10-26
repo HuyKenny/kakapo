@@ -25,6 +25,7 @@ export interface ImportEnv {
   CJ_API_TOKEN?: string;
   CJ_CID?: string;
   CJ_PID?: string;
+  SITE_URL?: string;             // base for the sitemaps rebuilt after imports
   MAX_DROP_PCT?: string;         // size guard, default 40
   LAST_MINUTE_DAYS?: string;
   FIRST_MINUTE_DAYS?: string;
@@ -39,4 +40,6 @@ export interface Deps {
   /** wall-clock budget for one invocation (ms); engine stops between blocks when exceeded */
   budgetMs: number;
   log(event: string, data?: Record<string, unknown>): void;
+  /** overridable in tests; production uses src/lib/snapshots.ts and src/lib/sitemap.ts */
+  hooks?: { rebuildSnapshots?: (db: Db, now: string) => Promise<unknown>; rebuildSitemaps?: (db: Db, base: string) => Promise<unknown> };
 }
