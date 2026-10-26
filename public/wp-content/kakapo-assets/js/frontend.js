@@ -151,9 +151,6 @@
 		if (partners > 1) {
 			html += '<p class="text-sm font-semibold text-coral-dark">Porovnat ' + partners + ' ' + (partners >= 5 ? 'nabídek' : 'nabídky') + '</p>';
 		}
-		if (best && best.go_url) {
-			html += '<a href="' + escAttr(best.go_url.replace('ctx=listing', 'ctx=card')) + '" rel="nofollow sponsored noopener" class="card-cta" data-affiliate="1" data-placement="card">Zobrazit u ' + esc(best.partner_label || best.partner) + '</a>';
-		}
 		html += '</div></div></article>';
 
 		return html;
