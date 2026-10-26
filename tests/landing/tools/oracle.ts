@@ -1,20 +1,21 @@
 // Compares landing logic output (over the exported catalogue) with the live WordPress pages.
 // Usage: tsx tests/landing/tools/oracle.ts [path ...]   (writes a markdown report to stdout)
+import { execFileSync } from 'node:child_process';
 import { exportDb } from '../d1';
 import { resolveRoute, landingContext, landingTitle, landingDescription, getTopic, canonicalAliasTarget } from '../../../src/lib/landing';
 import { search, normalizeFilters } from '../../../src/lib/search';
 
 const PATHS = process.argv.slice(2).length ? process.argv.slice(2) : ['/recko/', '/recko/kos/', '/last-minute/', '/all-inclusive/', '/dovolena-u-more/', '/odlet-z-prahy/', '/egypt/hurghada/', '/cedok-zajezdy/', '/zajezdy/', '/kam-v-rijnu-k-mori/', '/egypt/dovolena-listopad/'];
 const e = exportDb(); if (!e) throw new Error('export missing');
-const UA = `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 kakapo-landing-oracle-${Date.now()}`;
+const UA = 'Mozilla/5.0 (X11; Linux aarch64) KakapoSeoSnapshot/1.0';
 const strip = (s: string) => s.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&#0?39;|&#8217;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 const h2s = (html: string) => [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)].map((m) => strip(m[1]!));
 const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
 
 console.log('| URL | pole | živě | nově | shoda |\n|---|---|---|---|---|');
 for (const p of PATHS) {
-  const res = await fetch('https://kakapo.cz' + p + (p.includes('?') ? '&' : '?') + 'oracle=' + Date.now() % 1e6, { headers: { 'User-Agent': UA } });
-  const html = await res.text();
+  const out = execFileSync('curl', ['-s', '-m', '60', '-A', UA, '-w', '\n%{http_code}', 'https://kakapo.cz' + p], { maxBuffer: 50e6 }).toString();
+  const html = out.slice(0, out.lastIndexOf('\n')); const res = { status: Number(out.slice(out.lastIndexOf('\n') + 1)) };
   const liveTitle = strip(/<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1] ?? '');
   const liveDesc = /<meta name="description" content="([^"]*)"/i.exec(html)?.[1] ?? '';
   const liveH1 = strip(/<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html)?.[1] ?? '');

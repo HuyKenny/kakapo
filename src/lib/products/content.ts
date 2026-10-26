@@ -3,7 +3,7 @@ import { cleanProductTitle, formatPrice, nightsLabel, partnerLabel, slugify } fr
 import { getCategory } from './data';
 import type { ProductRow } from './repo';
 
-export interface Term { from?: string; to?: string; nights?: number; price: number }
+export interface Term { from?: string; to?: string; nights?: number; price: number; /** index in the ORIGINAL meta.terms (the go redirect indexes the unfiltered list) */ idx?: number }
 export interface DetailModel {
   p: ProductRow; title: string; place: string; partner: string; plabel: string; cat: ReturnType<typeof getCategory>; type: string;
   images: string[]; terms: Term[]; hasTerms: boolean; rows: Term[]; goUrl: string; fitPoints: string[]; checkPoints: string[];
@@ -18,7 +18,7 @@ export function buildDetail(p: ProductRow, today: string): DetailModel {
   if (!images.length && p.image_url) images = [p.image_url];
   const type = p.type;
   const cat = getCategory(type);
-  const terms: Term[] = ((p.meta?.terms ?? []) as any[]).filter((t) => t?.from && String(t.from) >= today);
+  const terms: Term[] = ((p.meta?.terms ?? []) as any[]).map((t, idx) => ({ ...t, idx })).filter((t) => t?.from && String(t.from) >= today);
   const hasTerms = terms.length > 0;
   const rows: Term[] = hasTerms ? terms : [{ from: p.date_from ?? '', to: p.date_to ?? '', nights: p.nights ?? 0, price: p.price }];
   const place = [p.destination, p.country].filter(Boolean).join(', ');
@@ -99,7 +99,7 @@ export function buildDetail(p: ProductRow, today: string): DetailModel {
   };
 }
 /** Link for one term row (mirrors add_query_arg('t', i, go_product_url(id, 'product-term'))). */
-export const termGoUrl = (d: DetailModel, i: number): string => (d.hasTerms ? `/akce/${d.p.id}/?ctx=product-term&t=${i}` : d.goUrl);
+export const termGoUrl = (d: DetailModel, i: number): string => (d.hasTerms ? `/akce/${d.p.id}/?ctx=product-term&t=${d.rows[i]?.idx ?? i}` : d.goUrl);
 
 /** "8. 10. – 15. 10. 2026" like the PHP term cell. */
 export function termLabel(t: Term): string {
