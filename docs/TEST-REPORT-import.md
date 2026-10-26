@@ -2,12 +2,13 @@
 
 Spuštěno: `npx vitest run tests/import` (Node 22.23, vitest 4.1.11, `node:sqlite` jako náhrada D1 nad skutečnými migracemi 0001+0002, R2 v paměti, `fetch` mock). Typová kontrola: `npx tsc -p workers/import/tsconfig.json` bez chyb.
 
-**Výsledek: 4 soubory, 72 testů, všechny prošly.**
+**Výsledek: 5 souborů, 80 testů, všechny prošly.**
 
 > Co tyto testy NEdokazují: běh v runtime workerd (Cloudflare), skutečný D1 (latence, účtované řádky), skutečné feedy partnerů. Test v `@cloudflare/vitest-pool-workers` a staging běh jsou otevřené (viz FEED-IMPORTS.md, sekce Nezkoušeno).
 
 ## Výpis testů
 ```
+✓ tests/import/engine.test.ts > first import and repeat > imports hotels and offers, computes aggregates and reports counters
 ✓ tests/import/adapters.test.ts > CJ per-partner parsers > atcom (Fischer/Exim): country, destination, city, giata, meal, nights, dates from the URL
 ✓ tests/import/adapters.test.ts > CJ per-partner parsers > bluestyle: rating from customLabel1, date, duration and meal from room1
 ✓ tests/import/adapters.test.ts > CJ per-partner parsers > tui: airport, dates and nights from the offer code
@@ -15,33 +16,50 @@ Spuštěno: `npx vitest run tests/import` (Node 22.23, vitest 4.1.11, `node:sqli
 ✓ tests/import/adapters.test.ts > CJ per-partner parsers > spa products: city, nights and type from the title
 ✓ tests/import/adapters.test.ts > CJ per-partner parsers > GraphQL query only accepts numeric ids (no injection through the feed config)
 ✓ tests/import/adapters.test.ts > CJ per-partner parsers > end to end: CJ feed pages through the API, imports hotels and offers; the token never leaves the Authorization header
-✓ tests/import/engine.test.ts > first import and repeat > imports hotels and offers, computes aggregates and reports counters
 ✓ tests/import/adapters.test.ts > CJ per-partner parsers > CJ without secrets fails with a clear message and touches nothing
 ✓ tests/import/adapters.test.ts > HTTP download policy > allow-list matching
 ✓ tests/import/adapters.test.ts > HTTP download policy > rejects plain http, IP literals and hosts outside the list
+✓ tests/import/engine.test.ts > first import and repeat > repeating the same feed changes nothing and writes no offer rows
 ✓ tests/import/adapters.test.ts > HTTP download policy > follows redirects only to allowed hosts (SSRF through a redirect is blocked)
 ✓ tests/import/adapters.test.ts > HTTP download policy > retries 5xx / 429 but not 4xx
 ✓ tests/import/adapters.test.ts > HTTP download policy > affiliate url builder: params, {url} templates and untouched tracking links
 ✓ tests/import/adapters.test.ts > product feeds > variants of one tour merge into one product with dated terms and the lowest price
+✓ tests/import/engine.test.ts > first import and repeat > a price change updates one offer, keeps the previous price and refreshes the hotel minimum
 ✓ tests/import/adapters.test.ts > product feeds > a product that disappears from a complete feed is deactivated; a rejected one keeps its row
+✓ tests/import/engine.test.ts > first import and repeat > a new offer is added and a vanished one is deactivated (complete feed)
 ✓ tests/import/adapters.test.ts > product feeds > categorisation rules
 ✓ tests/import/adapters.test.ts > Čedok slim feed through R2 > imports an uploaded snapshot; the same snapshot is a no-op; a new upload runs ahead of the night window
-✓ tests/import/engine.test.ts > first import and repeat > repeating the same feed changes nothing and writes no offer rows
+✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > empty body
 ✓ tests/import/adapters.test.ts > admin API > rejects missing or wrong credentials and a weak secret
 ✓ tests/import/adapters.test.ts > admin API > status, run, pause/resume with an audit trail
-✓ tests/import/adapters.test.ts > admin API > upload endpoint validates size
-✓ tests/import/engine.test.ts > first import and repeat > a price change updates one offer, keeps the previous price and refreshes the hotel minimum
-✓ tests/import/adapters.test.ts > daily maintenance and scheduling > expires departed offers, slides the last-minute window, snapshots prices once a day and computes drops
-✓ tests/import/adapters.test.ts > daily maintenance and scheduling > window parsing and next run times respect DST
-✓ tests/import/adapters.test.ts > real feed configuration from the WordPress export > every exported feed maps to a registered adapter with a usable mapping
-✓ tests/import/adapters.test.ts > real feed configuration from the WordPress export > the real Invia hotel mapping (flat feed, hashed ids, nights from days) imports a synthetic Invia document
-✓ tests/import/engine.test.ts > first import and repeat > a new offer is added and a vanished one is deactivated (complete feed)
-✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > empty body
 ✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > valid XML without items
+✓ tests/import/adapters.test.ts > admin API > upload endpoint validates size
+✓ tests/import/adapters.test.ts > daily maintenance and scheduling > expires departed offers, slides the last-minute window, snapshots prices once a day and computes drops
 ✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > truncated XML
 ✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > malformed XML
 ✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > wrong encoding
+✓ tests/import/adapters.test.ts > daily maintenance and scheduling > window parsing and next run times respect DST
+✓ tests/import/adapters.test.ts > real feed configuration from the WordPress export > every exported feed maps to a registered adapter with a usable mapping
 ✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > HTML error page served with 200
+✓ tests/import/adapters.test.ts > real feed configuration from the WordPress export > the real Invia hotel mapping (flat feed, hashed ids, nights from days) imports a synthetic Invia document
+✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > partner unavailable: bounded retries with exponential backoff, then failure
+✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > a failed run schedules a retry and does not mark the feed as successfully imported
+✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > mostly invalid records are treated as a broken mapping, not as a catalogue to import
+✓ tests/import/engine.test.ts > conditional requests > 304 is a successful no-op, never an empty catalogue
+✓ tests/import/themes.test.ts > theme_flags > are computed from name, description and amenities at import
+✓ tests/import/themes.test.ts > theme_flags > use active offer titles and rooms (max 40) and follow offer changes
+✓ tests/import/themes.test.ts > theme_flags > a changed feed description updates the flags in the same run; unchanged hotels are not written again
+✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > a feed that suddenly shrinks by more than the limit is parked, not applied; approval applies it
+✓ tests/import/themes.test.ts > after a successful run: snapshots and sitemaps > snapshots are rebuilt after every successful run and fill site_cache (real src/lib/snapshots.ts)
+✓ tests/import/themes.test.ts > after a successful run: snapshots and sitemaps > sitemaps are rebuilt at most once per 20 hours, with SITE_URL from the vars
+✓ tests/import/themes.test.ts > after a successful run: snapshots and sitemaps > a failing snapshot/sitemap step is logged but does not fail the import
+✓ tests/import/themes.test.ts > after a successful run: snapshots and sitemaps > a failed or not-modified run does not trigger the rebuild
+✓ tests/import/themes.test.ts > after a successful run: snapshots and sitemaps > daily maintenance also refreshes snapshots
+✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > many ids vanishing while the size looks normal is also held (ratio guard), then approved
+✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > an incremental feed never deactivates what it does not list
+✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > a record that fails validation keeps its previous offer alive (parse error != removal)
+✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > past departures are skipped and their offers expire
+✓ tests/import/engine.test.ts > interruption, resume and duplicate delivery > a run interrupted between blocks resumes from its checkpoint and ends identical to an uninterrupted one
 ✓ tests/import/xml-stream.test.ts > streaming XML parser > emits items with attributes, entities, CDATA, namespaces and self-closing tags
 ✓ tests/import/xml-stream.test.ts > streaming XML parser > gives the same result for any chunk size (tags, CDATA and entities split across chunks)
 ✓ tests/import/xml-stream.test.ts > streaming XML parser > rejects a truncated document
@@ -59,16 +77,6 @@ Spuštěno: `npx vitest run tests/import` (Node 22.23, vitest 4.1.11, `node:sqli
 ✓ tests/import/xml-stream.test.ts > byte decoding > caps the decompressed size (gzip bomb)
 ✓ tests/import/xml-stream.test.ts > byte decoding > md5 matches the PHP hash used for Invia ids
 ✓ tests/import/xml-stream.test.ts > byte decoding > parses dates like the PHP transforms
-✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > partner unavailable: bounded retries with exponential backoff, then failure
-✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > a failed run schedules a retry and does not mark the feed as successfully imported
-✓ tests/import/engine.test.ts > broken, empty and unavailable feeds never touch the catalogue > mostly invalid records are treated as a broken mapping, not as a catalogue to import
-✓ tests/import/engine.test.ts > conditional requests > 304 is a successful no-op, never an empty catalogue
-✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > a feed that suddenly shrinks by more than the limit is parked, not applied; approval applies it
-✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > many ids vanishing while the size looks normal is also held (ratio guard), then approved
-✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > an incremental feed never deactivates what it does not list
-✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > a record that fails validation keeps its previous offer alive (parse error != removal)
-✓ tests/import/engine.test.ts > suspicious drops and incremental feeds > past departures are skipped and their offers expire
-✓ tests/import/engine.test.ts > interruption, resume and duplicate delivery > a run interrupted between blocks resumes from its checkpoint and ends identical to an uninterrupted one
 ✓ tests/import/engine.test.ts > interruption, resume and duplicate delivery > re-applying an already applied block (duplicate delivery) is idempotent
 ✓ tests/import/engine.test.ts > interruption, resume and duplicate delivery > an older run cannot overwrite data written by a newer run
 ✓ tests/import/engine.test.ts > interruption, resume and duplicate delivery > two concurrent importers of the same feed: the second one is refused by the lock

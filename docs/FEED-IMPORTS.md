@@ -15,6 +15,8 @@ cron */10 (tick)  ──►  stepFeed(feed)
   3. finalize
        complete feed only: deactivate offers missing from the manifest (ratio guard) ► recompute hotel aggregates (changed hotels only)
        last_success_* / etag / next_run_at written ONLY here; old snapshots pruned (this + previous good run kept)
+after every successful run: rebuildSnapshots (registry/facets, bumps data_version) + rebuildSitemaps at most once per 20 h (site_cache 'sitemap:index'), SITE_URL from vars; failures are logged, never fail the run
+  hotel aggregates also store hotels.theme_flags (computeThemeFlags: name/description/amenities + up to 40 active offer titles/rooms), written only when changed
 cron 30 1 * * *   ►  runDaily (expire departures, slide last/first-minute flags, price_history snapshot, drops, retention)
 ```
 One invocation has a wall budget (9 min, `Deps.budgetMs`); an unfinished run returns `continue` and the next tick resumes at the next block. Download/normalise is **not** resumable on purpose (no parser restart from an arbitrary byte of a gzip stream): an interrupted download restarts from scratch and the abandoned run is marked `aborted`.
