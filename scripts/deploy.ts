@@ -35,7 +35,8 @@ function run(cmd: string, args: string[], opts: { input?: string; env?: Record<s
 const wr = (args: string[], opts: Parameters<typeof run>[2] = {}) => run(join(NODE, 'node'), [join(ROOT, 'node_modules/wrangler/bin/wrangler.js'), ...args], opts);
 const sfx = envName === 'staging' ? '_STAGING' : '_PRODUCTION';
 const sha = run('git', ['rev-parse', '--short', 'HEAD'], { quiet: true }).trim();
-const base = envName === 'staging' ? 'https://kakapo-staging.huy-kenny.workers.dev' : 'https://kakapo.cz';
+const base = process.env.SMOKE_BASE ?? (envName === 'staging' ? 'https://kakapo-staging.huy-kenny.workers.dev' : 'https://kakapo.cz');
+const siteBase = envName === 'staging' ? 'https://kakapo-staging.huy-kenny.workers.dev' : 'https://kakapo.cz';
 
 mkdirSync(join(ROOT, 'backups'), { recursive: true });
 try { wr(['d1', 'export', 'DB', '--remote', '--env', envName, '--output', join('backups', `d1-${envName}-${new Date().toISOString().replace(/[:.]/g, '-')}.sql`)]); } catch { console.log('backup skipped (empty database on first deploy)'); }
@@ -48,7 +49,7 @@ if (argv.includes('--secrets')) {
   if (missing.length) throw new Error(`missing secret values ${missing.join(', ')}`);
   (globalThis as { __web?: Record<string, string | undefined> }).__web = web;
 }
-if (!argv.includes('--skip-build')) run(join(NODE, 'npx'), ['astro', 'build'], { env: { CLOUDFLARE_ENV: envName, BUILD_ID: sha, SITE_URL: base } });
+if (!argv.includes('--skip-build')) run(join(NODE, 'npx'), ['astro', 'build'], { env: { CLOUDFLARE_ENV: envName, BUILD_ID: sha, SITE_URL: siteBase } });
 run(join(NODE, 'npx'), ['tsx', 'scripts/verify-no-secrets.ts']);
 wr(['deploy', '-c', 'dist/server/wrangler.json']);
 const web = (globalThis as { __web?: Record<string, string | undefined> }).__web;

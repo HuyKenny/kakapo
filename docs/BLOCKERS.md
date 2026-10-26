@@ -10,3 +10,8 @@
 | 6 | Čedok (SFTP 3,4 GB) | Zůstává na Malině (`scripts/kakapo/cedok-slim-feed.py`), nahrává slim feed do R2 | Claude |
 | 7 | Provize / atribuce | Funkční odkaz neprokazuje připsání; nutné potvrzení z CJ/partnerů (CJ Commission Detail API) | Kenny |
 | 8 | Právní texty | Beze změny převést, označit k posouzení; žádné prohlášení o souladu | Kenny |
+
+## Aktualizace 26. 10. (večer)
+- **Čeká na výslovné povolení Kennyho:** nasazení produkčních Workerů (`kakapo`, `kakapo-import`), přidání Workers routy `kakapo.cz/*` (= přepnutí provozu), vypnutí WP importů a cron-job.org pingu. Klasifikátor Claude Code produkční deploy zablokoval – je potřeba potvrdit.
+- Hotové produkční prostředky (bez provozu): D1 `kakapo-production` (data načtena, 22 030 hotelů…), R2 `kakapo-snapshots`, Access aplikace `kakapo admin`, secrets v `credentials/.kakapo-credentials.env` (`*_PRODUCTION`).
+- Staging cron importu zapnut pro ověření; po ověření vypnout/ponechat jen produkční cron.
