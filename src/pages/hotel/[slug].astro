@@ -18,7 +18,7 @@ const res = await loadHotel(db, slug, {
 	siteUrl: siteUrl(),
 	longtailLink: landing?.longtailLink ? (c, d, t) => landing.longtailLink!(db, c, d, t) : undefined,
 });
-if (!res) return Astro.rewrite('/404');
+if (!res) return Astro.rewrite('/404/');
 if (res.kind === 'redirect') return Astro.redirect(res.to, res.status as 301);
 if (res.kind === 'gone') return new Response('Gone', { status: 410, headers: { 'content-type': 'text/plain; charset=utf-8' } });
 

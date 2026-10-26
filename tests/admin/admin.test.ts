@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { generateKeyPairSync, sign } from 'node:crypto';
-import { env as stubEnv } from 'cloudflare:workers';
+import { env as stubEnvTyped } from 'cloudflare:workers';
+const stubEnv = stubEnvTyped as unknown as Record<string, any>;
 import { makeDb, seed } from './helpers';
 import { normalizePath, validateOverride, validateRedirect } from '../../src/lib/admin/validate';
 import { deleteOverride, hideHotel, hideOffer, saveOverride, saveRedirect, setFeedEnabled, triggerImport } from '../../src/lib/admin/actions';

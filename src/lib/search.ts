@@ -1,6 +1,7 @@
 // Port of Kakapo_Search_Engine: filters normalisation, SQL builder over hotels/offers, similar hotels.
 // Hotel-level filters hit `hotels` (indexed), offer-level filters go through EXISTS.
 import { jsonArr, slugify } from './helpers';
+import { THEME_BITS } from './themes';
 
 export interface Filters {
   country?: string; country_exclude?: string[]; dest?: string; city?: string; q?: string; theme?: string;
@@ -41,35 +42,15 @@ const FAMILY_COUNTRIES = ['recko', 'turecko', 'egypt', 'spanelsko', 'bulharsko',
 const like = (kw: string) => '%' + kw.replace(/[\\%_]/g, '\\$&') + '%';
 
 type Sql = [string, unknown[]];
+/** SQL string literal for CODE-OWNED constants only (never user input): D1 allows max 100 bound parameters per statement. */
+const lit = (v: string) => `'${v.replace(/'/g, "''")}'`;
 const qs = (n: number) => Array(n).fill('?').join(',');
 
-/** Interní tematické filtry (sea/children/aquapark/sandy-beach); keyword signals from feed texts. */
+/** Interní tematické filtry (sea/children/aquapark/sandy-beach). Keyword themes use hotels.theme_flags (see themes.ts). */
 export function themeConditionSql(theme: string, alias = 'h'): Sql {
-  const hotelKw = (kws: string[], cols: string[]): Sql => {
-    const parts: string[] = []; const params: unknown[] = [];
-    for (const kw of kws) for (const c of cols) { parts.push(`${alias}.${c} LIKE ? ESCAPE '\\'`); params.push(like(kw)); }
-    return [parts.length ? `(${parts.join(' OR ')})` : '', params];
-  };
-  const offerKw = (kws: string[]): Sql => {
-    const parts: string[] = []; const params: unknown[] = [];
-    for (const kw of kws) { parts.push("ox.title LIKE ? ESCAPE '\\'", "ox.room_type LIKE ? ESCAPE '\\'"); params.push(like(kw), like(kw)); }
-    return parts.length ? [`EXISTS (SELECT 1 FROM offers ox WHERE ox.hotel_id = ${alias}.id AND ox.active = 1 AND (${parts.join(' OR ')}))`, params] : ['', []];
-  };
-  if (theme === 'sea') return [`(${alias}.country_slug IN (${qs(SEA_COUNTRIES.length)}))`, [...SEA_COUNTRIES]];
-  if (theme === 'children') {
-    const kws = ['děti', 'deti', 'dětmi', 'detmi', 'dítě', 'dite', 'dětsk', 'detsk', 'rodin', 'family', 'child', 'children', 'kids', 'baby', 'aquapark', 'aqua park', 'tobog', 'skluzav', 'miniklub', 'mini klub', 'hřišt', 'hrist', 'animac', 'dětský klub', 'detsky klub'];
-    const [hs, hp] = hotelKw(kws, ['name', 'description', 'amenities_json']); const [os, op] = offerKw(kws);
-    const signals = [`${alias}.has_all_inclusive = 1`, hs, os].filter(Boolean);
-    return [`(${alias}.country_slug IN (${qs(FAMILY_COUNTRIES.length)}) AND (${signals.join(' OR ')}))`, [...FAMILY_COUNTRIES, ...hp, ...op]];
-  }
-  if (theme === 'aquapark' || theme === 'sandy-beach') {
-    const kws = theme === 'aquapark'
-      ? ['aquapark', 'aqua park', 'water park', 'vodní park', 'vodni park', 'tobog', 'skluzav', 'skluzavka', 'skluzavky', 'water slide', 'bazénový komplex', 'bazenovy komplex']
-      : ['píseč', 'pisec', 'písčit', 'piscit', 'písek', 'pisek', 'sandy', 'sand beach', 'pláž s jemným pískem', 'plaz s jemnym piskem', 'pozvolný vstup', 'pozvolny vstup'];
-    const [hs, hp] = hotelKw(kws, theme === 'aquapark' ? ['name', 'description', 'amenities_json'] : ['description', 'amenities_json']); const [os, op] = offerKw(kws);
-    const parts = [hs, os].filter(Boolean);
-    return [parts.length ? `(${parts.join(' OR ')})` : '', [...hp, ...op]];
-  }
+  if (theme === 'sea') return [`(${alias}.country_slug IN (${SEA_COUNTRIES.map(lit).join(',')}))`, []];
+  if (theme === 'children') return [`(${alias}.country_slug IN (${FAMILY_COUNTRIES.map(lit).join(',')}) AND (${alias}.has_all_inclusive = 1 OR (${alias}.theme_flags & ${THEME_BITS.children}) != 0))`, []];
+  if (theme === 'aquapark' || theme === 'sandy-beach') return [`((${alias}.theme_flags & ${THEME_BITS[theme]}) != 0)`, []];
   return ['', []];
 }
 

@@ -5,6 +5,7 @@ import { createReadStream, mkdirSync, writeFileSync, readFileSync, existsSync } 
 import { createInterface } from 'node:readline';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
+import { computeThemeFlags } from '../src/lib/themes';
 
 const dir = process.argv[2] as string, out = process.argv[3] as string;
 if (!dir || !out) throw new Error('usage: migrate-from-wp.ts <export-dir> <out-sql-dir>');
@@ -52,11 +53,18 @@ const pSql = new Chunker('00-partners');
 for (const p of partners.keys()) pSql.push(`INSERT INTO partners (slug,name,disclosure,enabled) VALUES (${q(p)},${q(p)},'',1);`);
 pSql.flush(); feedsSql.flush();
 
+// offer texts per hotel (active offers) feed the keyword themes
+const offerTexts = new Map<number, string[]>();
+for await (const o of rows('offers')) {
+  if (String(o.active) !== '1') continue;
+  const arr = offerTexts.get(Number(o.hotel_id)) ?? [];
+  if (arr.length < 40) { arr.push(o.title ?? '', o.room_type ?? ''); offerTexts.set(Number(o.hotel_id), arr); }
+}
 // hotels (all rows keep their URL; hidden=0)
 const hSql = new Chunker('02-hotels'); const hotelIds = new Set<number>(); let hn = 0;
 for await (const h of rows('hotels')) {
   hotelIds.add(Number(h.id)); hn++;
-  hSql.push(`INSERT INTO hotels (id,slug,dedup_key,giata_id,name,country,country_slug,destination,destination_slug,city,city_slug,stars,rating,rating_count,lat,lng,description,description_source,images_json,images_source,amenities_json,min_price,prev_min_price,price_drop_pct,offers_active,offers_last_seen,partners_count,has_last_minute,has_first_minute,has_all_inclusive,meal_flags,airports_csv,created_at,updated_at) VALUES (${h.id},${q(h.slug)},${q(h.dedup_key)},${q(int(h.giata_id))},${q(h.name)},${q(h.country)},${q(h.country_slug)},${q(h.destination)},${q(h.destination_slug)},${q(h.city)},${q(h.city_slug)},${intz(h.stars)},${q(flt(h.rating))},${intz(h.rating_count)},${q(flt(h.lat))},${q(flt(h.lng))},${q(h.description)},${q(h.description_source ?? '')},${q(h.images)},${q(h.images_source ?? '')},${q(h.amenities)},${q(int(h.min_price))},${q(int(h.prev_min_price))},${intz(h.price_drop_pct)},${intz(h.offers_active)},${q(iso(h.offers_last_seen))},${intz(h.partners_count)},${intz(h.has_last_minute)},${intz(h.has_first_minute)},${intz(h.has_all_inclusive)},${intz(h.meal_flags)},${q(h.airports_csv ?? '')},${q(h.created_at)},${q(h.updated_at)});`);
+  hSql.push(`INSERT INTO hotels (id,slug,dedup_key,giata_id,name,country,country_slug,destination,destination_slug,city,city_slug,stars,rating,rating_count,lat,lng,description,description_source,images_json,images_source,amenities_json,min_price,prev_min_price,price_drop_pct,offers_active,offers_last_seen,partners_count,has_last_minute,has_first_minute,has_all_inclusive,meal_flags,airports_csv,theme_flags,created_at,updated_at) VALUES (${h.id},${q(h.slug)},${q(h.dedup_key)},${q(int(h.giata_id))},${q(h.name)},${q(h.country)},${q(h.country_slug)},${q(h.destination)},${q(h.destination_slug)},${q(h.city)},${q(h.city_slug)},${intz(h.stars)},${q(flt(h.rating))},${intz(h.rating_count)},${q(flt(h.lat))},${q(flt(h.lng))},${q(h.description)},${q(h.description_source ?? '')},${q(h.images)},${q(h.images_source ?? '')},${q(h.amenities)},${q(int(h.min_price))},${q(int(h.prev_min_price))},${intz(h.price_drop_pct)},${intz(h.offers_active)},${q(iso(h.offers_last_seen))},${intz(h.partners_count)},${intz(h.has_last_minute)},${intz(h.has_first_minute)},${intz(h.has_all_inclusive)},${intz(h.meal_flags)},${q(h.airports_csv ?? '')},${computeThemeFlags({ name: h.name, description: h.description, amenities: h.amenities, offerTexts: offerTexts.get(Number(h.id)) ?? [] })},${q(h.created_at)},${q(h.updated_at)});`);
 }
 hSql.flush(); report.counts.hotels = hn;
 

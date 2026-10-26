@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import Listing from '../components/listing/Listing.astro';
+import TopicLanding from '../components/home/TopicLanding.astro';
+import Category from '../components/products/Category.astro';
+import { dispatch } from '../lib/dispatch';
+import { loadListing, loadTopic } from '../lib/listing';
+import { loadCategory } from '../lib/products';
+import { getEnv, siteUrl } from '../lib/server/env';
+import { todayPrague } from '../lib/search';
+
+export const prerender = false;
+
+const db = getEnv().DB;
+const url = Astro.url;
+const d = await dispatch(db, url.pathname);
+if (d.kind === 'redirect') return Astro.redirect(d.to + url.search, d.status);
+if (d.kind === 'notfound') return Astro.rewrite('/404/');
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300');
+const today = todayPrague();
+---
+{d.kind === 'listing' && await (async () => {
+	const data = await loadListing(db, d.ctx as any, url.searchParams, { ...d.deps, today });
+	const m = data.meta;
+	return (
+		<Base title={m.title} description={m.description} canonical={m.canonical} robots={m.robots} {...(m.image ? { ogImage: m.image } : {})} jsonLd={m.jsonLd} pageType={String(d.ctx.type ?? 'search')}>
+			<Listing data={data} url={url} today={today} />
+		</Base>
+	);
+})()}
+{d.kind === 'topic' && await (async () => {
+	const t = loadTopic(d.topic, url.searchParams);
+	if (!t) return null;
+	return (
+		<Base title={t.meta.title} description={t.meta.description} canonical={t.meta.canonical} robots={t.meta.robots} {...(t.meta.image ? { ogImage: t.meta.image } : {})} jsonLd={t.meta.jsonLd} pageType="topic">
+			<TopicLanding topic={t.topic} />
+		</Base>
+	);
+})()}
+{d.kind === 'product' && (d.route.kind === 'category' || d.route.kind === 'landing' || d.route.kind === 'hub') && await (async () => {
+	if (d.route.kind === 'hub') return null;
+	const view = await loadCategory(db, siteUrl(), { type: (d.route as any).type, landing: d.route.kind === 'landing' ? (d.route as any).landing : null }, url.searchParams);
+	return (
+		<Base title={view.meta.title} description={view.meta.description} canonical={view.meta.canonical} robots={view.meta.robots} {...(view.meta.image ? { ogImage: view.meta.image } : {})} jsonLd={view.meta.jsonLd} pageType="products">
+			<Category view={view} />
+		</Base>
+	);
+})()}

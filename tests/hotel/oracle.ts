@@ -44,7 +44,7 @@ for (const slug of slugs) {
     robots: (/<meta name="robots" content="([^"]*)"/.exec(html)?.[1] ?? /name='robots' content='([^']*)'/.exec(html)?.[1] ?? '').split(',').map((x) => x.trim()).filter((x) => x === 'index' || x === 'noindex' || x === 'follow' || x === 'nofollow'),
     canonical: /<link rel="canonical" href="([^"]*)"/.exec(html)?.[1] ?? '',
     h1: strip(/<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html)?.[1] ?? ''),
-    offers: (html.split('<tbody x-show="!loaded">')[1]?.split('</tbody>')[0].match(/<tr>/g) ?? []).length,
+    offers: (html.split('<tbody x-show="!loaded">')[1]?.split('</tbody>')[0]?.match(/<tr>/g) ?? []).length,
     h2: [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => strip(m[1]!)).filter((t) => !FOOTER.has(t)),
     faq: [...html.matchAll(/<summary[^>]*>([\s\S]*?)<\/summary>/g)].map((m) => strip(m[1]!)),
   };
