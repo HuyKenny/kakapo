@@ -7,7 +7,7 @@ import { productRepo, LANDINGS as PRODUCT_LANDINGS, CATEGORIES as PRODUCT_CATEGO
 import { HOTEL_MIN_DESC, HOTEL_GRACE_DAYS } from './hotel';
 
 export interface SitemapUrl { loc: string; mod: string; cf: 'daily' | 'weekly' | 'monthly' }
-const LANDING_TEXTS_REVISED = '2026-10-13'; // manual: bump only when landing texts are really rewritten (see PHP comment)
+const LANDING_TEXTS_REVISED = '2026-10-26'; // titles/headings switched to the season year // manual: bump only when landing texts are really rewritten (see PHP comment)
 const LEGAL = ['ochrana-osobnich-udaju', 'podminky-pouziti', 'kontakt'];
 const PER_FILE = 1000;
 const day = (v?: string | null, fb = '') => (v ? String(v).slice(0, 10) : fb);
