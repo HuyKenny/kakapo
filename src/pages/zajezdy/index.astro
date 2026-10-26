@@ -1,0 +1,22 @@
+---
+// /zajezdy/ — the main listing. Other landings are handled by the catch-all route using the same loaders.
+import Base from '../../layouts/Base.astro';
+import Listing from '../../components/listing/Listing.astro';
+import { loadListing, type LandingCtx } from '../../lib/listing';
+import { listingDeps } from '../../lib/listing/wire';
+import { landingContext, resolveRoute } from '../../lib/landing';
+import { db } from '../../lib/server/site';
+import { todayPrague } from '../../lib/search';
+
+const database = db();
+const route = await resolveRoute(database, '/zajezdy/');
+const ctx = route ? await landingContext(database, route.page, route.vars) : null;
+if (!ctx) return new Response('Not found', { status: 404 });
+const today = todayPrague();
+const data = await loadListing(database, ctx as unknown as LandingCtx, Astro.url.searchParams, await listingDeps(database, { today }));
+const m = data.meta;
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=300');
+---
+<Base title={m.title} description={m.description} canonical={m.canonical} robots={m.robots} {...(m.image ? { ogImage: 'https://kakapo.cz' + m.image } : {})} jsonLd={m.jsonLd} pageType="search">
+	<Listing data={data} url={Astro.url} today={today} />
+</Base>
