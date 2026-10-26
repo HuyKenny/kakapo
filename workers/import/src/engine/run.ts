@@ -118,7 +118,7 @@ async function startRun(deps: Deps, feed: FeedRow, runId: number): Promise<{ run
   const mapping = feed.adapter.startsWith('cj-') ? null : feedMapping(feed);
   let cj: { force_type?: string; default_type?: string } = {};
   if (feed.adapter.startsWith('cj-')) { try { cj = JSON.parse(feed.mapping_json || '{}'); } catch { /* defaults */ } }
-  const ctx: NormCtx = { today: pragueToday(deps.now()), affiliateParams: feed.adapter.startsWith('cj-') ? '' : feed.affiliate_params, lastMinuteDays: lmDays(deps), firstMinuteDays: fmDays(deps) };
+  const ctx: NormCtx = { today: pragueToday(deps.now()), affiliateParams: feed.adapter.startsWith('cj-') ? '' : feed.affiliate_params, lastMinuteDays: lmDays(deps), firstMinuteDays: fmDays(deps), defaultTransport: feed.adapter.startsWith('cj-') ? 'letecky' : '' };
   const popts = { defaultType: mapping?.default_type ?? cj.default_type ?? 'zajezdy', forceType: mapping?.force_type ?? cj.force_type ?? '' };
 
   const writer = new BlockWriter(deps.env.SNAPSHOTS, feed.id, runId);

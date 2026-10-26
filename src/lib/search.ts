@@ -2,6 +2,11 @@
 // Hotel-level filters hit `hotels` (indexed), offer-level filters go through EXISTS.
 import { jsonArr, slugify } from './helpers';
 import { THEME_BITS } from './themes';
+import { sellableSql, staleFeedIds } from './offers/eligibility';
+
+// per-isolate cache of stale feed ids (refreshed by the async entry points below)
+let staleNow: number[] = [];
+async function prime(db: D1Database): Promise<void> { staleNow = await staleFeedIds(db); }
 
 export interface Filters {
   country?: string; country_exclude?: string[]; dest?: string; city?: string; q?: string; theme?: string;
@@ -79,6 +84,8 @@ function buildConditions(f: Filters): { where: string[]; params: unknown[]; oc: 
   if (f.nights_min) { oc.push('o.nights >= ?'); op.push(f.nights_min); }
   if (f.nights_max) { oc.push('o.nights <= ?'); op.push(f.nights_max); }
   if (f.adults) { oc.push('o.adults >= ?'); op.push(f.adults); }
+  // sellable offers only: a listed hotel must have a bookable offer that matches every condition (future departure, fresh feed)
+  if (oc.length || staleNow.length) oc.push(...sellableSql(staleNow).slice(1));
   if (oc.length && f.price_max) { oc.push('o.price_pp <= ?'); op.push(f.price_max); }
   if (oc.length && f.price_min) { oc.push('o.price_pp >= ?'); op.push(f.price_min); }
   return { where, params, oc, op };
@@ -101,6 +108,7 @@ export interface SearchResult { hotels: HotelRow[]; total: number; pages: number
 export const todayPrague = (): string => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
 
 export async function search(db: D1Database, filters: Filters, today = todayPrague()): Promise<SearchResult> {
+  await prime(db);
   const f = filters;
   const { where, params, oc, op } = buildConditions(f);
   const exists = oc.length ? ` AND EXISTS (SELECT 1 FROM offers o INDEXED BY idx_offers_hotel WHERE o.hotel_id = h.id AND o.active = 1 AND ${oc.join(' AND ')})` : '';
@@ -157,10 +165,12 @@ export function countStatement(db: D1Database, f: Filters): D1PreparedStatement 
 }
 /** Count only (no card data, no best offers) — used by sitemap/noindex decisions. */
 export async function countHotels(db: D1Database, f: Filters): Promise<number> {
+  await prime(db);
   return (await countStatement(db, f).first<{ n: number }>())?.n ?? 0;
 }
 /** Many counts in as few round trips as possible (D1 batch, chunks of 40). */
 export async function countMany(db: D1Database, filters: Filters[]): Promise<number[]> {
+  await prime(db);
   const out: number[] = [];
   for (let i = 0; i < filters.length; i += 40) {
     const res = await db.batch(filters.slice(i, i + 40).map((f) => countStatement(db, f)));

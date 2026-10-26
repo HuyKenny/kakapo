@@ -57,6 +57,15 @@
 	 * Karta hotelu — 1:1 markup s templates/parts/card-hotel.php.
 	 * Vstup: položka z REST /search (image, url, best_offer.meal_label, partners…).
 	 */
+	/** Visitor's choice from the listing URL, carried to the hotel detail (same whitelist as selectionQuery() in src/lib/hotel/selection.ts). */
+	function selectionQuery() {
+		var keys = ['airport', 'meal', 'nights', 'nights_min', 'nights_max', 'date_from', 'date_to', 'price_max', 'transport', 'partner'];
+		var q = new URLSearchParams(window.location.search), out = new URLSearchParams();
+		keys.forEach(function (k) { if (q.get(k)) { out.set(k, q.get(k)); } });
+		var r = out.toString();
+		return r ? '?' + r : '';
+	}
+
 	function renderCard(h) {
 		var best = h.best_offer || null;
 		var price = null;
@@ -71,8 +80,6 @@
 					? best.discount
 					: Math.round(100 * (1 - best.price_pp / best.price_original));
 			}
-		} else if (h.min_price !== null && h.min_price !== undefined) {
-			price = h.min_price;
 		}
 
 		var isLm = best ? !!best.is_last_minute : false;
@@ -94,10 +101,6 @@
 		}
 		if (discount !== null && discount > 0) {
 			html += '<span class="badge badge-sale">−' + esc(discount) + ' %</span>';
-		}
-		var drop = parseInt(h.price_drop, 10) || 0;
-		if (drop >= 5) {
-			html += '<span class="badge badge-drop">Cena klesla o ' + esc(drop) + ' %</span>';
 		}
 		html += '</div></div>';
 
@@ -131,6 +134,9 @@
 			if (best.airport) {
 				bits.push('odlet ' + best.airport);
 			}
+			if (best.transport && best.transport !== 'letecky' && best.transport !== 'neuvedeno') {
+				bits.push(best.transport === 'vlastni' ? 'vlastní doprava' : best.transport);
+			}
 			html += '<p class="text-sm text-slate-500">' + esc(bits.filter(Boolean).join(' · ')) + '</p>';
 		}
 
@@ -144,6 +150,9 @@
 		}
 		if (partners > 1) {
 			html += '<p class="text-sm font-semibold text-coral-dark">Porovnat ' + partners + ' ' + (partners >= 5 ? 'nabídek' : 'nabídky') + '</p>';
+		}
+		if (best && best.go_url) {
+			html += '<a href="' + escAttr(best.go_url.replace('ctx=listing', 'ctx=card')) + '" rel="nofollow sponsored noopener" class="card-cta" data-affiliate="1" data-placement="card">Zobrazit u ' + esc(best.partner_label || best.partner) + '</a>';
 		}
 		html += '</div></div></article>';
 

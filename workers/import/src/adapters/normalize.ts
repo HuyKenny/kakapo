@@ -1,7 +1,7 @@
 // Raw adapter output -> validated model. Business rules from Kakapo_Offer_Repository / Product_Repository live here,
 // so every adapter (XML, CJ, Čedok) goes through the same gate and rejections are reported, never silently dropped.
 import { NormHotel, NormOffer, NormProduct, Term, type Rejection } from '../model';
-import { addDays, isYmd, normalizeMeal, slugify } from '../util/text';
+import { addDays, isYmd, normalizeMeal, normalizeTransport, slugify } from '../util/text';
 import { categorize, typeExists } from './categories';
 
 type R = Record<string, unknown>;
@@ -24,7 +24,7 @@ export function buildAffiliateUrl(deeplink: string, params: string): string {
   return base + (base.includes('?') ? '&' : '?') + p.replace(/^[?&]+/, '') + frag;
 }
 
-export interface NormCtx { today: string; affiliateParams: string; lastMinuteDays?: number; firstMinuteDays?: number }
+export interface NormCtx { today: string; affiliateParams: string; lastMinuteDays?: number; firstMinuteDays?: number; /** transport when the feed gives none: flight-only tour operators (CJ Fischer/Exim/Blue Style/TUI) = 'letecky', everything else stays unknown */ defaultTransport?: string }
 
 export type NormOutcome<T> = { ok: true; value: T } | { ok: false; rej: Rejection };
 
@@ -41,6 +41,14 @@ export function normalizeHotel(raw: R): NormalizedHotelResult {
   return parsed.success ? { ok: true, hotel: parsed.data } : { ok: false, reason: 'hotel: ' + parsed.error.issues.map((i) => i.path.join('.')).join(',') };
 }
 export type NormalizedHotelResult = { ok: true; hotel: NormHotel } | { ok: false; reason: string };
+
+/** Transport is never invented: feed value → departure airport (= a flight) → the operator's known default → 'neuvedeno'. */
+export function resolveTransport(feedValue: unknown, airport: unknown, fallback = ''): string {
+  const v = normalizeTransport(feedValue);
+  if (v !== '') return v;
+  if (s(airport) !== '') return 'letecky';
+  return fallback || 'neuvedeno';
+}
 
 export function normalizeOffer(raw: R, ctx: NormCtx): NormOutcome<NormOffer> {
   const external_id = s(raw.external_id);
@@ -61,7 +69,7 @@ export function normalizeOffer(raw: R, ctx: NormCtx): NormOutcome<NormOffer> {
     price_total: Math.round(n(raw.price_total)) > 0 ? Math.round(n(raw.price_total)) : null,
     price_original: original > 0 ? original : null,
     currency: s(raw.currency) || 'CZK', departure_date: dep, return_date: ret, nights,
-    meal_type: normalizeMeal(raw.meal_type), transport: s(raw.transport) || 'letecky',
+    meal_type: normalizeMeal(raw.meal_type), transport: resolveTransport(raw.transport, raw.airport, ctx.defaultTransport),
     airport: s(raw.airport), arrival_airport: s(raw.arrival_airport), room_type: s(raw.room_type),
     adults: Math.max(1, Math.trunc(n(raw.adults)) || 2), children: Math.max(0, Math.trunc(n(raw.children))),
     availability: s(raw.availability) || 'available', affiliate_url: url, image_url: s(raw.image_url) || null,

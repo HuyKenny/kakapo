@@ -7,6 +7,7 @@ import { autop } from '../../lib/hotel/text';
 import { amenityIcon, formatDate, formatPrice, nightsLabel } from '../../lib/helpers';
 import { svg } from '../../lib/icons';
 import { getEnv, siteUrl } from '../../lib/server/env';
+import { parseSelection } from '../../lib/hotel/selection';
 
 export const prerender = false;
 
@@ -16,6 +17,7 @@ const landing = Object.values(import.meta.glob('../../lib/landing/index.ts', { e
 const db = getEnv().DB;
 const res = await loadHotel(db, slug, {
 	siteUrl: siteUrl(),
+	selection: parseSelection(Astro.url.searchParams),
 	longtailLink: landing?.longtailLink ? (c, d, t) => landing.longtailLink!(db, c, d, t) : undefined,
 });
 if (!res) return Astro.rewrite('/404/');
@@ -24,6 +26,9 @@ if (res.kind === 'gone') return new Response('Gone', { status: 410, headers: { '
 
 const v = res.view;
 const h = v.hotel;
+const verifiedAt = v.offers.map((o) => o.verified_at ?? '').filter(Boolean).sort().pop()?.slice(0, 10) ?? '';
+const sel = v.selection;
+const singleOffer = v.offers.length === 1 ? v.offers[0]! : null;
 const gal = v.images.slice(0, 10);
 const grid = gal.length >= 5;
 const rStr = v.rating !== null ? v.rating.toFixed(1).replace('.', ',') : '';
@@ -229,7 +234,7 @@ const heroSizes = '(min-width:640px) 50vw, 88vw';
 							<p class="mt-1 text-xs text-slate-400">k {formatDate(v.lastKnown.date)}, teď bez volných termínů</p>
 						</>
 					) : null}
-					{h.updated_at && <p class="mt-1 text-xs text-slate-400">Ceny aktualizovány {formatDate(h.updated_at)}</p>}
+					{verifiedAt !== '' && <p class="mt-1 text-xs text-slate-400">Ověřeno ve feedu partnera {formatDate(verifiedAt)}. Dostupnost a cenu potvrdí partner.</p>}
 					<dl class="mt-4 space-y-2 text-sm">
 						<div class="flex items-center justify-between gap-2">
 							<dt class="text-slate-500">Nabídek celkem</dt>
@@ -276,6 +281,18 @@ const heroSizes = '(min-width:640px) 50vw, 88vw';
 				<h2 class="text-[1.35rem] font-extrabold tracking-tight text-ink sm:text-2xl">Nabídky cestovních kanceláří</h2>
 				<p class="text-sm text-slate-500" x-show="loading" x-cloak>Načítám nabídky…</p>
 			</div>
+
+			{sel.active && v.offers.length > 0 && (
+				<div class={`mb-4 rounded-2xl border p-4 text-sm ${sel.matchCount > 0 ? 'border-leaf/30 bg-white' : 'border-amber-300 bg-amber-50'}`} role="status">
+					<p class="font-semibold text-ink">Váš výběr: {sel.labels.join(' · ')}</p>
+					{sel.matchCount > 0
+						? <p class="mt-1 text-slate-600">Odpovídá {sel.matchCount} {sel.matchCount === 1 ? 'nabídka' : sel.matchCount < 5 ? 'nabídky' : 'nabídek'}{sel.otherCount > 0 ? `, dalších ${sel.otherCount} je jiných termínů a variant (níže).` : '.'} Nabídky ve výběru jsou na prvních místech.</p>
+						: <p class="mt-1 text-slate-700">Tento hotel nemá nabídku přesně podle výběru{sel.unmet.length ? ` (nevyšlo: ${sel.unmet.join(', ')})` : ''}. Níže jsou jeho nejbližší dostupné varianty.</p>}
+				</div>
+			)}
+			{singleOffer && (
+				<a href={singleOffer.go_url + (singleOffer.go_url.includes('?') ? '&' : '?') + 'ctx=detail-single'} rel="nofollow sponsored noopener" class="btn-primary mb-4 w-full sm:w-auto" data-affiliate="1">Zobrazit u {singleOffer.partner_label}</a>
+			)}
 
 			{v.offers.length > 0 && v.months.length >= 2 && (
 				<div class="mb-4">

@@ -121,7 +121,7 @@ describe('/api/search shape', () => {
     const h = apiHotel(r.hotels[0]!, { imgUrl, imgSrcset: (u, w) => imgUrl(u, w), flagUrl: countryFlagUrl });
     expect(Object.keys(h).sort()).toEqual(['best_offer', 'city', 'country', 'country_flag', 'country_flag_url', 'country_slug', 'destination', 'id', 'image', 'image_srcset', 'min_price', 'name', 'offers', 'partners', 'price_drop', 'rating', 'slug', 'stars', 'url'].sort());
     expect(h.url).toBe('/hotel/hotel-1/'); expect(h.best_offer!.go_url).toBe('/go/1/?ctx=listing');
-    expect(Object.keys(h.best_offer!).sort()).toEqual(['airport', 'departure_date', 'discount', 'go_url', 'id', 'is_last_minute', 'meal_label', 'meal_type', 'nights', 'partner', 'price_original', 'price_pp'].sort());
+    expect(Object.keys(h.best_offer!).sort()).toEqual(['airport', 'departure_date', 'discount', 'go_url', 'id', 'is_last_minute', 'meal_label', 'meal_type', 'nights', 'partner', 'partner_label', 'price_original', 'price_pp', 'transport'].sort());
   });
 });
 

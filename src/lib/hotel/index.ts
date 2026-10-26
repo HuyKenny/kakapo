@@ -69,11 +69,17 @@ const join = (items: string[]): string => {
   return a.join(', ') + ' a ' + last;
 };
 
+import { CONDITION_LABEL, describeSelection, failedConditions, type Selection } from './selection';
+import { staleFeedIds, transportLabel } from '../offers/eligibility';
+
 export interface OfferView {
   id: number; partner_slug: string; price_pp: number; price_original: number | null; departure_date: string; return_date: string | null;
   nights: number; airport: string; meal_type: string; meal_label: string; room_type: string; is_last_minute: boolean; availability: string;
   discount: number; real_drop: number; prev_price: number | null; term: string; go_url: string;
   partner_label: string; partner_color: string; partner_logo: string;
+  airport_slug: string; transport: string; transport_label: string; verified_at: string | null; price_changed_at: string | null;
+  /** true when the offer fits every condition of the visitor's selection (always true without a selection) */
+  matches: boolean;
 }
 export interface Faq { q: string; a: string }
 
@@ -84,6 +90,7 @@ export interface HotelView {
   descriptionParas: string[]; fitPoints: string[]; checkPoints: string[]; faqs: Faq[];
   relatedLinks: Array<[string, string]>; similar: HotelRow[]; nearby: Array<{ slug: string; name: string; min_price: number | null }>; nearbyLabel: string;
   locationLine: string; breadcrumbs: Array<{ label: string; url: string }>;
+  selection: { active: boolean; labels: string[]; matchCount: number; otherCount: number; unmet: string[] };
   partnersCfg: { id: number; partners: Record<string, string>; colors: Record<string, string>; logos: Record<string, string> };
   galleryCfg: { images: string[]; name: string };
   meta: { title: string; description: string; canonical: string; robots: string[]; image: string; jsonLd: Record<string, unknown>[] };
@@ -92,6 +99,8 @@ export type HotelResult = { kind: 'ok'; view: HotelView } | { kind: 'redirect'; 
 
 export interface LoadOpts {
   today?: string; now?: string; siteUrl?: string;
+  /** the visitor's search from the listing URL (parseSelection) */
+  selection?: Selection | null;
   /** Mirrors PHP longtail_link(): the longtail landing (h1+path) when it has enough results, else null. */
   longtailLink?: ((country: string, dest: string, topic: string) => Promise<{ h1: string; path: string } | null>) | undefined;
 }
@@ -122,7 +131,10 @@ export async function offersForHotel(db: D1Database, hotelId: number, sort = 'pr
     const next = mo === 12 ? `${y + 1}-01-01` : `${y}-${String(mo + 1).padStart(2, '0')}-01`;
     monthSql = ' AND departure_date >= ? AND departure_date < ?'; params.push(`${m[1]}-${m[2]}-01`, next);
   }
-  return all(db, `SELECT * FROM offers WHERE hotel_id = ? AND active = 1 AND departure_date >= ?${monthSql} ORDER BY ${order} LIMIT ${Math.trunc(limit)}`, ...params);
+  const stale = await staleFeedIds(db);
+  const staleSql = stale.length ? ` AND o.feed_id NOT IN (${stale.join(',')})` : '';
+  // verified_at = last successful import of the offer's feed (the offer is active, i.e. it was in that feed); not the page load time
+  return all(db, `SELECT o.*, f.last_success_at AS verified_at FROM offers o LEFT JOIN feeds f ON f.id = o.feed_id WHERE o.hotel_id = ? AND o.active = 1 AND o.departure_date >= ?${staleSql}${monthSql.replace(/departure_date/g, 'o.departure_date')} ORDER BY ${order.replace(/\b(price_pp|departure_date|nights|price_original)\b/g, 'o.$1')} LIMIT ${Math.trunc(limit)}`, ...params);
 }
 
 export function offerTerm(dep: string, ret: string | null): string {
@@ -146,6 +158,7 @@ export function toOfferView(o: any, now: string, labels: Record<string, string> 
     is_last_minute: !!o.is_last_minute, availability: o.availability, discount, real_drop: real, prev_price: real ? Number(o.prev_price_pp) : null,
     term: offerTerm(o.departure_date, o.return_date ?? null), go_url: goUrl(o.id),
     partner_label: labels[slug] ?? partnerLabel(slug) ?? slug, partner_color: PARTNER_COLORS[slug] ?? '#64748b', partner_logo: partnerLogoUrl(slug),
+    airport_slug: o.airport_slug ?? '', transport: o.transport ?? '', transport_label: transportLabel(o.transport), verified_at: o.verified_at ?? null, price_changed_at: o.price_changed_at ?? null, matches: true,
   };
 }
 
@@ -215,7 +228,19 @@ export async function loadHotel(db: D1Database, slug: string, opts: LoadOpts = {
   const rating = h.rating !== null && Number(h.rating) > 0 ? Number(h.rating) : null;
 
   const rawOffers = await offersForHotel(db, h.id, 'price', '', today);
-  const offers = rawOffers.map((o) => toOfferView(o, now));
+  let offers = rawOffers.map((o) => toOfferView(o, now));
+  const sel = opts.selection ?? null;
+  const unmet: string[] = [];
+  if (sel) {
+    const per = offers.map((o) => failedConditions(o, sel));
+    offers.forEach((o, i) => { o.matches = per[i]!.length === 0; });
+    offers = [...offers].sort((a, b) => Number(b.matches) - Number(a.matches) || a.price_pp - b.price_pp);
+    if (!offers.some((o) => o.matches) && offers.length) {
+      // a condition is "unmet" when no offer of this hotel satisfies it on its own
+      for (const key of Object.keys(CONDITION_LABEL)) if (offers.length && per.every((f) => f.includes(key))) unmet.push(CONDITION_LABEL[key]!);
+    }
+  }
+  const matchCount = offers.filter((o) => o.matches).length;
   const n = offers.length;
   const offersLabel = n === 1 ? '1 nabídka' : n >= 2 && n <= 4 ? `${n} nabídky` : `${n} nabídek`;
   let nearest = ''; for (const o of offers) if (nearest === '' || o.departure_date < nearest) nearest = o.departure_date;
@@ -373,7 +398,8 @@ export async function loadHotel(db: D1Database, slug: string, opts: LoadOpts = {
       ratingLabel: rating === null ? '' : rating >= 9 ? 'Vynikající' : rating >= 8 ? 'Výborné' : rating >= 7 ? 'Velmi dobré' : 'Dobré',
       offers, offersLabel, nearest, soldOut, lastKnown: known, months, sparkline: sparklineSvg(series),
       descriptionParas: paras, fitPoints: fit, checkPoints: check, faqs, relatedLinks: related, similar: sim, nearby: nearbyAll, nearbyLabel,
-      locationLine: [h.country, h.destination, h.city].filter(Boolean).join(' › '), breadcrumbs,
+      selection: { active: !!sel, labels: sel ? describeSelection(sel) : [], matchCount, otherCount: n - matchCount, unmet },
+    locationLine: [h.country, h.destination, h.city].filter(Boolean).join(' › '), breadcrumbs,
       partnersCfg: { id: h.id, partners: partnersMap, colors: PARTNER_COLORS, logos },
       galleryCfg: { images: images.map((u) => galleryImg(u)), name: String(h.name) }, meta,
     },

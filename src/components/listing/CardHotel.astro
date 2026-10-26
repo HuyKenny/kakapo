@@ -3,10 +3,11 @@
 import { countryFlagHtml, formatPrice } from '../../lib/helpers';
 import { cardModel, ratingStr, srcsetRaw } from '../../lib/listing/html';
 import type { HotelRow } from '../../lib/search';
+import { selectionQuery } from '../../lib/hotel/selection';
 interface Props { hotel: HotelRow; eager?: boolean }
 // eager = above-the-fold card: its photo is the LCP element on listings, so it must not be lazy-loaded
 const { hotel, eager = false } = Astro.props;
-const m = cardModel(hotel);
+const m = cardModel(hotel, selectionQuery(Astro.url.searchParams));
 const flag = countryFlagHtml(String(hotel.country ?? ''), String(hotel.country_slug ?? ''));
 const srcset = m.image ? srcsetRaw(m.image, 640) : '';
 const star = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.26 6.86.83-5.07 4.7 1.35 6.77L12 17.2l-6.04 3.36 1.35-6.77-5.07-4.7 6.86-.83z"/></svg>';
@@ -24,7 +25,6 @@ import { imgUrl } from '../../lib/helpers';
 		<div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
 			{m.isLm && <span class="badge badge-lm">Last minute</span>}
 			{m.discount !== null && m.discount > 0 && <span class="badge badge-sale">−{m.discount} %</span>}
-			{m.drop >= 5 && <span class="badge badge-drop">Cena klesla o {m.drop} %</span>}
 		</div>
 	</div>
 	<div class="flex flex-1 flex-col pt-3">
@@ -54,6 +54,7 @@ import { imgUrl } from '../../lib/helpers';
 				</p>
 			)}
 			{m.partners > 1 && <p class="text-sm font-semibold text-coral-dark">Porovnat {m.partners} {m.partners >= 5 ? 'nabídek' : 'nabídky'}</p>}
+			{m.cta && <a href={m.cta.href} rel="nofollow sponsored noopener" class="card-cta" data-affiliate="1" data-placement="card">Zobrazit u {m.cta.partner}</a>}
 		</div>
 	</div>
 </article>

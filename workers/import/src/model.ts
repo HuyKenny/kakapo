@@ -33,7 +33,7 @@ export const NormOffer = z.object({
   return_date: ymd.nullable().default(null),
   nights: z.number().int().min(1).max(120).default(7),
   meal_type: z.string().default('bez-stravy'),
-  transport: z.string().default('letecky'),
+  transport: z.string().default('neuvedeno'),
   airport: z.string().max(100).default(''),
   arrival_airport: z.string().max(100).default(''),
   room_type: z.string().max(150).default(''),

@@ -267,12 +267,12 @@ export function apiHotel(h: HotelRow, helpers: { imgUrl: (u: string, w: number) 
     destination: h.destination, city: h.city, stars: Number(h.stars), rating: h.rating !== null && h.rating !== undefined ? Number(h.rating) : null,
     image: helpers.imgUrl(h.images[0] ?? '', 640), image_srcset: helpers.imgSrcset(h.images[0] ?? '', 640),
     min_price: h.min_price !== null && h.min_price !== undefined ? Number(h.min_price) : null,
-    price_drop: h.price_drop_pct ? Number(h.price_drop_pct) : null, partners: Number(h.partners_count), offers: Number(h.offers_active),
+    price_drop: null, partners: Number(h.partners_count), offers: Number(h.offers_active),
     best_offer: best ? {
       id: Number(best.id), price_pp: Number(best.price_pp), price_original: best.price_original ? Number(best.price_original) : null,
       discount: best.price_original > 0 ? Math.round(100 * (1 - best.price_pp / best.price_original)) : null,
       departure_date: best.departure_date, nights: Number(best.nights), meal_type: best.meal_type, meal_label: MEAL_LABELS[best.meal_type] ?? best.meal_type,
-      airport: best.airport, partner: best.partner_slug, is_last_minute: !!best.is_last_minute, go_url: `/go/${Number(best.id)}/?ctx=listing`,
+      airport: best.airport, transport: best.transport ?? '', partner: best.partner_slug, partner_label: partnerLabel(String(best.partner_slug ?? '')), is_last_minute: !!best.is_last_minute, go_url: `/go/${Number(best.id)}/?ctx=listing`,
     } : null,
   };
 }
