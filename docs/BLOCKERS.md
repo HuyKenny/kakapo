@@ -15,3 +15,6 @@
 - **Čeká na výslovné povolení Kennyho:** nasazení produkčních Workerů (`kakapo`, `kakapo-import`), přidání Workers routy `kakapo.cz/*` (= přepnutí provozu), vypnutí WP importů a cron-job.org pingu. Klasifikátor Claude Code produkční deploy zablokoval – je potřeba potvrdit.
 - Hotové produkční prostředky (bez provozu): D1 `kakapo-production` (data načtena, 22 030 hotelů…), R2 `kakapo-snapshots`, Access aplikace `kakapo admin`, secrets v `credentials/.kakapo-credentials.env` (`*_PRODUCTION`).
 - Staging cron importu zapnut pro ověření; po ověření vypnout/ponechat jen produkční cron.
+
+## Stav 26. 10. 2026 ~18:30 — PŘEPNUTO
+kakapo.cz běží na Workeru (routy `kakapo.cz/*`, `www.kakapo.cz/*`). Otevřené: (1) Malina crontab: Čedok `--target r2` (creds už míří na produkční importér), vypnout `kakapo-nocni-purge` a cron-job.org wp-cron ping; (2) `bin/kakapo-health.py` přepsat; (3) IndexNow; (4) sledovat Invia feedy v cronu, 404 u 3 produktů z parity, `/go/` starých neaktivních ID (404 místo 302 na hotel); (5) po týdnu vyhodnotit náklady D1 a GSC.
