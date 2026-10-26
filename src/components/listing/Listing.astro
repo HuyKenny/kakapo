@@ -1,0 +1,254 @@
+---
+// Shared listing (landings, countries, destinations, last/first minute, meals, airports, topic listings). Port of templates/search.php.
+// First page is server-rendered (SEO); filter changes go through Alpine kakapoFilters → /api/search + /api/filters.
+import Breadcrumbs from '../Breadcrumbs.astro';
+import CardHotel from './CardHotel.astro';
+import Filters from './Filters.astro';
+import { mascot } from '../../lib/icons';
+import { formatPrice } from '../../lib/helpers';
+import { wpautop } from '../../lib/listing/html';
+import { SORT_OPTIONS, type ListingData } from '../../lib/listing';
+import { monthLabel } from '../../lib/listing/calendar';
+import { normalizeFaqs } from '../../lib/listing/seo';
+import { relHtml } from '../../lib/url';
+
+interface Props { data: ListingData; url: URL; today: string }
+const { data: d, url, today } = Astro.props;
+const { ctx, result } = d;
+const total = result.total; const page = result.page; const pages = result.pages;
+
+const pgLink = (n: number) => {
+	const sp = new URLSearchParams(url.search);
+	if (n <= 1) sp.delete('strana'); else sp.set('strana', String(n));
+	const s = sp.toString();
+	return url.pathname + (s ? '?' + s : '');
+};
+const items = new Set<number>([1, pages]);
+for (let n = Math.max(2, page - 2); n <= Math.min(pages - 1, page + 2); n++) items.add(n);
+for (let n = 10; n < pages; n += 10) items.add(n);
+const pgItems = [...items].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b);
+
+const cal = d.calendar;
+const calPrices = cal.map((m) => m.mp);
+const calMin = calPrices.length ? Math.min(...calPrices) : 0;
+const calMax = calPrices.length ? Math.max(...calPrices) : 0;
+const calSpan = Math.max(1, calMax - calMin);
+const lastDay = (ym: string) => { const [y, m] = ym.split('-').map(Number) as [number, number]; return new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10); };
+
+const emptyDest = Object.entries(d.registry.countries).slice(0, 6);
+const hotelsWord = total === 1 ? 'hotel' : total >= 2 && total <= 4 ? 'hotely' : 'hotelů';
+const faqs = normalizeFaqs(ctx.faqs);
+const empty = !result.hotels.length;
+---
+<main class="bg-white">
+	<div class="container-k py-6 sm:py-8" x-data={`kakapoFilters(${JSON.stringify(d.cfg).replace(/</g, '\\u003c')})`}>
+
+		<Breadcrumbs items={ctx.breadcrumbs} />
+
+		<div class="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+			<h1 class="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-[2.6rem] sm:leading-tight">{ctx.h1}</h1>
+			<p class="text-sm text-slate-500" x-ref="count" aria-live="polite">{d.totalLabel}</p>
+		</div>
+
+		{ctx.intro && <div class="mb-4 max-w-3xl text-sm leading-relaxed text-slate-600" set:html={relHtml(wpautop(ctx.intro))}></div>}
+
+		{/* SEO/nav blocks are rendered BELOW the results (mobile reaches hotels first) — see "moved" block after the grid */}
+
+		<div class="grid gap-6 lg:grid-cols-[280px_1fr]">
+			<Filters facets={d.facets} active={d.active} total={total} today={today} />
+
+			<section aria-label="Výsledky vyhledávání">
+				<div class="mb-4 flex items-center justify-between gap-3">
+					<button type="button" class="btn-ghost inline-flex items-center gap-2 lg:hidden" @click="open = true" aria-label="Otevřít filtry">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4"/></svg>
+						Filtry
+						<span x-show="activeCount > 0" x-cloak class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-ink px-1 text-xs font-bold text-white" x-text="activeCount"></span>
+					</button>
+					<label class="ml-auto flex items-center gap-2">
+						<span class="hidden text-sm text-slate-500 sm:inline">Řadit:</span>
+						<select class="select w-auto" x-ref="sort" @change="sort = $event.target.value; apply()" aria-label="Řazení výsledků">
+							{Object.entries(SORT_OPTIONS).map(([v, l]) => <option value={v} selected={d.sort === v}>{l}</option>)}
+						</select>
+					</label>
+				</div>
+
+				<div class="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 xl:grid-cols-3" x-ref="grid">
+					{!empty ? result.hotels.map((h) => <CardHotel hotel={h} />) : (
+						<div class="col-span-full rounded-3xl bg-paper p-8 text-center sm:p-12">
+							<Fragment set:html={mascot(72, 'mx-auto mb-3')} />
+							<p class="text-lg font-semibold text-ink">Této kombinaci nic neodpovídá</p>
+							<p class="mx-auto mt-1 max-w-md text-sm text-slate-500">Zkuste zrušit filtry, rozšířit termín odletu, nebo se podívejte na oblíbené destinace níže — dovolenou tu najdete vždy.</p>
+							<div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+								<a href={ctx.path} class="btn-primary btn-sm">Zrušit filtry</a>
+								<a href="/last-minute/" class="btn-ghost btn-sm">Last minute nabídky</a>
+							</div>
+							{emptyDest.length > 0 && (
+								<div class="mt-6">
+									<p class="text-sm font-bold text-ink">Oblíbené destinace</p>
+									<ul class="mt-3 flex flex-wrap items-center justify-center gap-2">
+										{emptyDest.map(([s, c]) => <li><a class="chip" href={`/${s}/`}>Dovolená {c.label}</a></li>)}
+									</ul>
+								</div>
+							)}
+						</div>
+					)}
+				</div>
+
+				<nav class="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Stránkování" x-ref="pagination">
+					{pages > 1 && (
+						<>
+							{page > 1 && (
+								<a class="page-link" href={pgLink(page - 1)} aria-label="Předchozí stránka">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+								</a>
+							)}
+							{pgItems.map((n, i) => (
+								<>
+									{n - (pgItems[i - 1] ?? 0) > 1 && <span class="px-1 text-slate-400" aria-hidden="true">…</span>}
+									{n === page ? <span class="page-link page-link-active" aria-current="page">{n}</span> : <a class="page-link" href={pgLink(n)}>{n}</a>}
+								</>
+							))}
+							{page < pages && (
+								<a class="page-link" href={pgLink(page + 1)} aria-label="Další stránka">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+								</a>
+							)}
+						</>
+					)}
+				</nav>
+			</section>
+		</div>
+	</div>
+
+	<div class="container-k pt-2 pb-4">
+		{cal.length >= 3 && (
+			<section class="mb-5 rounded-3xl border border-line bg-white p-5" aria-label="Kdy je nejlevněji">
+				<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+					<h2 class="text-base font-bold text-ink">Kdy je nejlevněji</h2>
+					<span class="text-xs text-slate-400">nejnižší cena za osobu podle měsíce odletu</span>
+				</div>
+				<div class="flex items-end gap-1.5 overflow-x-auto pb-1 sm:gap-2">
+					{cal.map((m) => {
+						const cheapest = m.mp === calMin;
+						const h = 22 + Math.round((42 * (m.mp - calMin)) / calSpan);
+						return (
+							<a href={`${ctx.path}?date_from=${m.ym}-01&date_to=${lastDay(m.ym)}`} class="group flex min-w-[64px] flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-center no-underline transition hover:bg-mist" title={`${monthLabel(m.ym).charAt(0).toUpperCase()}${monthLabel(m.ym).slice(1)} od ${formatPrice(m.mp)}`}>
+								{cheapest && <span class="whitespace-nowrap rounded-full bg-leaf-light px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-leaf">nejlevněji</span>}
+								<span class={`w-full max-w-[38px] rounded-t-md ${cheapest ? 'bg-leaf' : 'bg-slate-200 group-hover:bg-slate-300'}`} style={`height:${h}px`} aria-hidden="true"></span>
+								<span class={`text-xs font-semibold ${cheapest ? 'text-leaf' : 'text-ink'}`}>{monthLabel(m.ym)}</span>
+								<span class={`whitespace-nowrap text-[11px] ${cheapest ? 'font-semibold text-leaf' : 'text-slate-500'}`}>od {formatPrice(m.mp)}</span>
+							</a>
+						);
+					})}
+				</div>
+			</section>
+		)}
+
+		{d.moneyLinks.length > 0 && (
+			<section class="mb-5 rounded-3xl border border-line bg-white p-5" aria-label="Nejhledanější výběry">
+				<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+					<h2 class="text-base font-bold text-ink">Nejhledanější výběry</h2>
+					<span class="text-sm font-bold text-ink">SEO rozcestník</span>
+				</div>
+				<div class="flex flex-wrap gap-2">{d.moneyLinks.map(([l, p]) => <a class="chip" href={p}>{l}</a>)}</div>
+			</section>
+		)}
+
+		{total > 0 && (
+			<section class="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Rychlý přehled nabídky">
+				<div class="rounded-2xl bg-paper p-5">
+					<p class="text-xs font-bold text-slate-500">Aktuálně v nabídce</p>
+					<p class="mt-1 text-2xl font-bold text-ink">{String(total).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}</p>
+					<p class="mt-1 text-sm text-slate-500">{hotelsWord} odpovídá tomuto výběru</p>
+				</div>
+				{d.quickMinPrice > 0 && (
+					<div class="rounded-2xl bg-paper p-5">
+						<p class="text-xs font-bold text-slate-500">Cena od</p>
+						<p class="mt-1 text-2xl font-bold text-ink">{formatPrice(d.quickMinPrice)}</p>
+						<p class="mt-1 text-sm text-slate-500">orientační minimum z aktuálních nabídek</p>
+					</div>
+				)}
+				{d.quickDestinations.length > 0 && (
+					<div class="rounded-2xl bg-paper p-5">
+						<p class="text-xs font-bold text-slate-500">{d.destSlug !== '' ? 'Další oblasti' : 'Top oblasti'}</p>
+						<div class="mt-2 flex flex-wrap gap-1.5">
+							{d.quickDestinations.map((q) => <a class="rounded-full bg-mist px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-ink hover:underline" href={`/${d.countrySlug}/${q.slug}/`}>{q.label}</a>)}
+						</div>
+					</div>
+				)}
+				{d.quickMeals.length > 0 && (
+					<div class="rounded-2xl bg-paper p-5">
+						<p class="text-xs font-bold text-slate-500">Strava</p>
+						<div class="mt-2 flex flex-wrap gap-1.5">{d.quickMeals.map((m) => <span class="rounded-full bg-mist px-2.5 py-1 text-xs font-semibold text-slate-600">{m.label}</span>)}</div>
+					</div>
+				)}
+			</section>
+		)}
+
+		{d.destChips.length > 0 && (
+			<div class="mb-5 flex flex-wrap items-center gap-2">
+				<span class="text-sm font-medium text-slate-500">Oblíbené destinace:</span>
+				{d.destChips.map((c) => <a class="chip" href={`/${d.countrySlug}/${c.slug}/`}>{c.label}{c.cnt ? <> <span class="text-xs opacity-60">{c.cnt}</span></> : null}</a>)}
+			</div>
+		)}
+
+		{d.longtailLinks.length > 0 && (
+			<div class="mb-5 flex flex-wrap items-center gap-2">
+				<span class="text-sm font-medium text-slate-500">Související výběr:</span>
+				{d.longtailLinks.map((l) => <a class="chip" href={l.path}>{l.h1}</a>)}
+			</div>
+		)}
+
+		{d.popularGroups.length > 0 && (d.destSlug === '' || d.popularGroups.length > 1) && (
+			<section class="mb-6 rounded-3xl border border-line bg-white p-5" aria-label="Oblíbené výběry">
+				<div class="mb-3 flex items-center justify-between gap-3">
+					<h2 class="text-base font-bold text-ink">Oblíbené výběry</h2>
+					<span class="text-sm font-bold text-ink">{d.destSlug !== '' ? 'Destinace' : 'Dovolená ' + (d.registry.countries[d.countrySlug]?.label ?? '')}</span>
+				</div>
+				<div class="grid gap-4 md:grid-cols-3">
+					{d.popularGroups.map((g) => (
+						<div>
+							<p class="mb-2 text-xs font-bold text-slate-500">{g.label}</p>
+							<div class="flex flex-wrap gap-2">{g.links.map((l) => <a class="chip" href={l.path}>{l.h1}</a>)}</div>
+						</div>
+					))}
+				</div>
+			</section>
+		)}
+	</div>
+
+	{ctx.seo_text && (
+		<div class="container-k pb-10">
+			<section class="border-t border-line pt-8">
+				<div class="prose-kakapo max-w-5xl text-slate-600" set:html={relHtml(wpautop(ctx.seo_text))}></div>
+			</section>
+		</div>
+	)}
+
+	{faqs.length > 0 && (
+		<div class="container-k pb-12">
+			<section class="border-t border-line pt-8">
+				<h2 class="h-section">Nejčastější otázky</h2>
+				<div class="mt-5 grid gap-3 md:grid-cols-2">
+					{faqs.map((f) => (
+						<details class="rounded-2xl bg-paper p-5">
+							<summary class="cursor-pointer text-sm font-semibold text-ink">{f.q}</summary>
+							<div class="mt-2 text-sm leading-relaxed text-slate-600" set:html={relHtml(wpautop(f.a))}></div>
+						</details>
+					))}
+				</div>
+			</section>
+		</div>
+	)}
+</main>
+
+<template id="kakapo-skeleton">
+	{[0, 1, 2, 3, 4, 5].map(() => (
+		<div aria-hidden="true">
+			<div class="aspect-[4/3] animate-pulse rounded-2xl bg-mist"></div>
+			<div class="space-y-2.5 pt-3">
+				<div class="skel h-4 w-3/4"></div><div class="skel h-3 w-1/2"></div><div class="skel h-3 w-2/3"></div><div class="skel h-4 w-28"></div>
+			</div>
+		</div>
+	))}
+</template>

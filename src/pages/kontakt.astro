@@ -1,0 +1,18 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { LEGAL_DESCRIPTIONS, LEGAL_HTML, LEGAL_LABELS, legalMeta } from '../lib/products';
+import { siteUrl } from '../lib/server/env';
+const slug = 'kontakt';
+const label = LEGAL_LABELS[slug]!;
+const m = legalMeta(siteUrl(), slug, label, LEGAL_DESCRIPTIONS[slug]!);
+---
+<Base title={m.title} description={m.description} canonical={m.canonical} robots={m.robots} jsonLd={m.jsonLd} pageType="legal">
+	<main class="container-k py-8 sm:py-10">
+		<Breadcrumbs items={m.breadcrumbs} />
+		<article class="prose-kakapo mt-6 max-w-3xl">
+			<h1 class="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-[2.6rem] sm:leading-tight">{label}</h1>
+			<Fragment set:html={LEGAL_HTML[slug]} />
+		</article>
+	</main>
+</Base>

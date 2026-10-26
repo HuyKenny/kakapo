@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductDetail from '../../components/products/ProductDetail.astro';
+import NotFound from '../../components/products/NotFound.astro';
+import { loadDetail, resolveProductRoute } from '../../lib/products';
+import { siteUrl } from '../../lib/server/env';
+import { db } from '../../lib/server/site';
+
+const route = await resolveProductRoute(db(), Astro.url.pathname);
+if (route?.kind === 'redirect') return Astro.redirect(route.location, route.status);
+const data = route?.kind === 'product' ? await loadDetail(db(), siteUrl(), route.product) : null;
+if (!data) { Astro.response.status = 404; Astro.response.headers.set('cache-control', 'public, max-age=60'); }
+const m = data?.meta;
+---
+{data && m ? (
+	<Base title={m.title} description={m.description} canonical={m.canonical} robots={m.robots} {...(m.image ? { ogImage: m.image } : {})} jsonLd={m.jsonLd} pageType="product">
+		<ProductDetail data={data} />
+	</Base>
+) : (
+	<Base title="Stránka nenalezena | Kakapo.cz" robots={['noindex', 'follow']} pageType="404"><NotFound /></Base>
+)}

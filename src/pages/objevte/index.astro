@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import Hub from '../../components/products/Hub.astro';
+import { loadHub } from '../../lib/products';
+import { siteUrl } from '../../lib/server/env';
+import { db } from '../../lib/server/site';
+const data = await loadHub(db(), siteUrl());
+const m = data.meta;
+---
+<Base title={m.title} description={m.description} canonical={m.canonical} robots={m.robots} {...(m.image ? { ogImage: m.image } : {})} jsonLd={[...m.jsonLd, ...data.extraJsonLd]} pageType="phub">
+	<Hub data={data} />
+</Base>

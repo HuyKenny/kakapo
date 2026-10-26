@@ -1,0 +1,114 @@
+---
+// Curated SEO/affiliate topic page without a hotel listing. Port of templates/topic-landing.php.
+import Breadcrumbs from '../Breadcrumbs.astro';
+import { rel, relHtml } from '../../lib/url';
+import { esc } from '../../lib/helpers';
+import { wpautop } from '../listing/../../lib/listing/html';
+interface Props { topic: any }
+const { topic } = Astro.props;
+const external = (l: any) => !!l?.external;
+const partnerOf = (l: any) => { if (l.partner) return String(l.partner); try { return new URL(String(l.url)).host; } catch { return ''; } };
+const linkAttrs = (l: any) => (external(l) ? { 'data-kakapo-partner': partnerOf(l), target: '_blank', rel: 'nofollow sponsored noopener' } : {});
+const cards: any[] = Array.isArray(topic.cards) ? topic.cards : [];
+const single = cards.length === 1;
+const isAff = topic.type === 'affiliate';
+const crumbs = [{ label: 'Domů', url: '/' }, { label: topic.label }];
+const sections: any[] = Array.isArray(topic.sections) ? topic.sections : [];
+const faqs: any[] = Array.isArray(topic.faqs) ? topic.faqs : [];
+const href = (u: string) => (external({ external: true }) && /^https?:\/\/(?!(www\.)?kakapo\.cz)/.test(u) ? u : rel(u));
+---
+<main class="container-k py-8 sm:py-10">
+	<Breadcrumbs items={crumbs} />
+	<section class="overflow-hidden rounded-3xl border border-line bg-white">
+		<div class="grid gap-0 lg:grid-cols-2">
+			<div class="p-6 sm:p-10">
+				<span class="eyebrow">{topic.eyebrow}</span>
+				<h1 class="mt-3 font-display text-4xl font-bold leading-tight tracking-tightish text-ink sm:text-5xl">{topic.h1}</h1>
+				<p class="mt-5 text-lg leading-relaxed text-slate-600">{topic.intro}</p>
+				<div class="mt-7 flex flex-col gap-3 sm:flex-row">
+					{topic.primary_cta && <a class="btn-primary" href={href(topic.primary_cta.url)} {...linkAttrs(topic.primary_cta)}>{topic.primary_cta.label}</a>}
+					{topic.secondary_cta && <a class="btn-ghost" href={href(topic.secondary_cta.url)} {...linkAttrs(topic.secondary_cta)}>{topic.secondary_cta.label}</a>}
+				</div>
+				{isAff && <p class="mt-4 text-xs leading-relaxed text-slate-400">Odkazy na partnery jsou affiliate odkazy. Pokud přes ně nakoupíte nebo odešlete žádost, Kakapo.cz může získat provizi. Vaši cenu to nemění.</p>}
+			</div>
+			<div class="relative min-h-[240px] bg-mist lg:min-h-[420px]">
+				<img src={rel(topic.hero_image)} alt={topic.label} class="absolute inset-0 h-full w-full object-cover" loading="eager" decoding="async">
+				<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+			</div>
+		</div>
+	</section>
+
+	{cards.length > 0 && (
+		<section id="partneri" class="mt-12">
+			<div class="mb-5 flex items-end justify-between gap-4"><div>
+				<h2 class="h-section">{topic.cards_heading ?? (isAff ? 'Doporučení partneři' : 'Kam pokračovat')}</h2>
+				<p class="mt-1 text-sm text-slate-500">{topic.cards_intro ?? (isAff ? 'Vyberte službu podle destinace, ceny a podmínek partnera.' : 'Nejčastější volby pro rychlé zúžení výběru.')}</p>
+			</div></div>
+			<div class={single ? 'grid max-w-4xl grid-cols-1 gap-5' : 'grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'}>
+				{cards.map((c) => (
+					<a class={`affiliate-card ${single ? 'affiliate-card-single' : ''} group flex flex-col rounded-3xl border border-line bg-white p-6 transition hover:-translate-y-1 hover:shadow-card-hover`} href={href(c.url)} {...linkAttrs(c)}>
+						<div class={single ? 'grid gap-5 sm:grid-cols-[240px_1fr]' : ''}>
+							{c.logo ? (
+								<div class={`affiliate-logo-frame ${single ? '' : 'mb-5'}`}><img src={rel(c.logo)} alt={c.title} class={`affiliate-logo affiliate-logo-${c.logo_shape ?? 'wide'}`} loading="lazy" decoding="async"></div>
+							) : (
+								<span class={`${single ? '' : 'mb-5'} inline-flex h-12 w-12 items-center justify-center rounded-xl bg-coral-light font-display text-xl font-bold text-ink`}>{String(c.title).charAt(0)}</span>
+							)}
+							<div class="min-w-0">
+								<div class="flex flex-wrap items-start justify-between gap-3">
+									<h3 class="font-display text-xl font-bold tracking-tightish text-ink">{c.title}</h3>
+									{c.badge && <span class="shrink-0 rounded-full bg-coral-light px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-ink">{c.badge}</span>}
+								</div>
+								<p class="mt-2 text-sm leading-relaxed text-slate-600">{c.text}</p>
+							</div>
+						</div>
+						{(c.best_for || c.check) && (
+							<dl class="mt-4 space-y-2 rounded-xl bg-mist/70 p-3 text-xs leading-relaxed">
+								{c.best_for && <div><dt class="font-bold text-slate-500">Vhodné pro</dt><dd class="mt-0.5 text-slate-600">{c.best_for}</dd></div>}
+								{c.check && <div><dt class="font-bold text-slate-500">Pohlídat</dt><dd class="mt-0.5 text-slate-600">{c.check}</dd></div>}
+							</dl>
+						)}
+						<span class="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-semibold text-ink">
+							Zobrazit nabídku
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="transition group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+						</span>
+					</a>
+				))}
+			</div>
+		</section>
+	)}
+
+	{sections.length > 0 && (
+		<section class="mt-14 border-t border-line pt-10">
+			<div class="prose-kakapo max-w-5xl text-slate-600">
+				{sections.map((s) => (
+					<>
+						<h2>{s.h2}</h2>
+						{s.body && <Fragment set:html={relHtml(String(s.body))} />}
+						{Array.isArray(s.table) && s.table.length > 0 && (
+							<table><tbody>
+								{s.table.map((row: string[], ri: number) => <tr>{row.map((cell) => (ri === 0 ? <th>{cell}</th> : <td>{cell}</td>))}</tr>)}
+							</tbody></table>
+						)}
+						{Array.isArray(s.list) && s.list.length > 0 && <ul>{s.list.map((li: string) => <li>{li}</li>)}</ul>}
+					</>
+				))}
+			</div>
+		</section>
+	)}
+
+	{faqs.length > 0 && (
+		<section class="mt-14 border-t border-line pt-10">
+			<div class="max-w-4xl">
+				<h2 class="h-section">Časté otázky</h2>
+				<div class="mt-5 divide-y divide-line rounded-2xl border border-line bg-white shadow-soft">
+					{faqs.map((f) => (
+						<details class="group p-5" open>
+							<summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">{f.q}<span class="text-xl leading-none text-slate-400 transition group-open:rotate-45">+</span></summary>
+							<div class="mt-3 text-sm leading-relaxed text-slate-600" set:html={relHtml(wpautop(String(f.a)))}></div>
+						</details>
+					))}
+				</div>
+			</div>
+		</section>
+	)}
+</main>

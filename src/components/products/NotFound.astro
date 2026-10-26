@@ -1,0 +1,22 @@
+---
+import SearchBarForm from './SearchBarForm.astro';
+import { mascot } from '../../lib/icons';
+const links: Array<[string, string]> = [
+	['Last minute', '/last-minute/'], ['First minute', '/first-minute/'], ['Dovolená u moře', '/dovolena-u-more/'],
+	['All inclusive', '/all-inclusive/'], ['Dovolená s dětmi', '/dovolena-s-detmi/'], ['Zážitky & pobyty', '/objevte/'],
+];
+---
+<main class="bg-white">
+	<div class="container-k py-14 sm:py-20">
+		<div class="mx-auto max-w-2xl text-center">
+			<Fragment set:html={mascot(112, 'mx-auto')} />
+			<p class="mt-6 text-sm font-bold text-coral">Chyba 404</p>
+			<h1 class="mt-2 font-display text-4xl font-extrabold tracking-[-0.03em] text-ink sm:text-5xl">Tahle stránka nám uletěla</h1>
+			<p class="mx-auto mt-4 max-w-lg text-lg text-slate-600">Kakapo sice létat neumí, ale dovolenou vám najde. Zkuste vyhledávání nebo některý z oblíbených výběrů.</p>
+		</div>
+		<div class="mx-auto mt-10 max-w-5xl"><SearchBarForm /></div>
+		<div class="mx-auto mt-8 flex max-w-3xl flex-wrap justify-center gap-2">
+			{links.map(([label, path]) => <a class="chip" href={path}>{label}</a>)}
+		</div>
+	</div>
+</main>

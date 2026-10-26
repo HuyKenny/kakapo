@@ -1,0 +1,104 @@
+---
+// Port of templates/parts/searchbar.php (used by the 404 page). The home/search pages may reuse it.
+import { svg } from '../../lib/icons';
+import { MEAL_LABELS } from '../../lib/helpers';
+import { registry } from '../../lib/server/site';
+interface Props { query?: URLSearchParams }
+const { query = new URLSearchParams() } = Astro.props;
+const reg = await registry();
+const countries = Object.entries(reg.countries);
+const airports = Object.values(reg.airports);
+const dests: Record<string, Record<string, string>> = {};
+for (const [c, list] of Object.entries(reg.destinations)) for (const [d, v] of Object.entries(list)) (dests[c] ??= {})[d] = v.label ?? d;
+const g = (k: string) => query.get(k) ?? '';
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9-]/g, '');
+const country = slug(g('country')); const dest = slug(g('dest'));
+const date = /^\d{4}-\d{2}-\d{2}$/.test(g('date_from')) ? g('date_from') : '';
+const adults = Math.max(0, parseInt(g('adults'), 10) || 0);
+const pmin = Math.max(0, parseInt(g('price_min'), 10) || 0); const pmax = Math.max(0, parseInt(g('price_max'), 10) || 0);
+const meal = slug(g('meal')); const airport = slug(g('airport'));
+const nmin = parseInt(g('nights_min'), 10) || 0; const nmax = parseInt(g('nights_max'), 10) || 0;
+let nights = '';
+for (const [k, [a, b]] of Object.entries({ '3-5': [3, 5], '6-8': [6, 8], '9-12': [9, 12], '13': [13, 0] } as Record<string, number[]>)) if (nmin === a && nmax === b) nights = k;
+const cfg = JSON.stringify({ country, dest, nights, dests });
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
+---
+<form action="/zajezdy/" method="get" x-data={`kakapoSearchbar(${cfg})`} role="search" aria-label="Vyhledávání dovolené">
+	<div class="flex flex-col gap-2 rounded-[1.75rem] border border-line bg-white p-2 shadow-pill sm:flex-row sm:items-center sm:gap-0 sm:rounded-full">
+		<label class="flex min-w-0 flex-1 flex-col justify-center rounded-full px-6 py-3 transition hover:bg-mist">
+			<span class="block text-xs font-bold text-ink">Kam</span>
+			<select name="country" class="w-full cursor-pointer truncate border-0 bg-transparent p-0 text-[15px] text-slate-600 focus:outline-none focus:ring-0" x-model="country" @change="dest = ''">
+				<option value="">Všechny země</option>
+				{countries.map(([s, c]) => <option value={s} selected={country === s}>{c.label}</option>)}
+			</select>
+		</label>
+		<span class="hidden h-8 w-px shrink-0 bg-line sm:block" aria-hidden="true"></span>
+		<label class="flex min-w-0 flex-1 flex-col justify-center rounded-full px-6 py-3 transition hover:bg-mist">
+			<span class="block text-xs font-bold text-ink">Destinace</span>
+			<select name="dest" class="w-full cursor-pointer truncate border-0 bg-transparent p-0 text-[15px] text-slate-600 focus:outline-none focus:ring-0 disabled:cursor-default disabled:text-slate-400" x-model="dest" x-bind:disabled="!destOptions.length">
+				<option value="">Všechny destinace</option>
+				<template x-for="opt in destOptions" x-bind:key="opt.slug">
+					<option x-bind:value="opt.slug" x-text="opt.label" x-bind:selected="opt.slug === dest"></option>
+				</template>
+			</select>
+		</label>
+		<span class="hidden h-8 w-px shrink-0 bg-line sm:block" aria-hidden="true"></span>
+		<label class="flex min-w-0 flex-1 flex-col justify-center rounded-full px-6 py-3 transition hover:bg-mist">
+			<span class="block text-xs font-bold text-ink">Odlet od</span>
+			<input type="date" name="date_from" class="w-full cursor-pointer truncate border-0 bg-transparent p-0 text-[15px] text-slate-600 focus:outline-none focus:ring-0" value={date} min={today}>
+		</label>
+		<button type="submit" class="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-coral px-7 py-4 text-base font-bold text-white transition hover:bg-coral-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 sm:ml-2">
+			<Fragment set:html={svg('search', 19, '', 2.6)} />
+			Hledat
+		</button>
+	</div>
+
+	<button type="button" class="mt-3 inline-flex items-center gap-1.5 px-2 text-sm font-bold text-ink underline decoration-ink/25 underline-offset-4 hover:decoration-ink"
+		@click="more = !more" x-bind:aria-expanded="more ? 'true' : 'false'" aria-controls="kakapo-sb-more">
+		<Fragment set:html={svg('sliders', 16)} />
+		<span x-text="more ? 'Méně filtrů' : 'Další filtry — strava, letiště, cena'">Další filtry — strava, letiště, cena</span>
+	</button>
+
+	<div id="kakapo-sb-more" class="mt-3 grid-cols-2 gap-3 rounded-3xl border border-line bg-white p-4 sm:grid-cols-3 lg:grid-cols-6" x-bind:class="more ? 'grid' : 'hidden'" x-cloak>
+		<label class="block">
+			<span class="mb-1 block text-xs font-bold text-ink">Počet nocí</span>
+			<select class="select" x-model="nights">
+				<option value="">Libovolně</option>
+				<option value="3-5">3–5 nocí</option>
+				<option value="6-8">6–8 nocí</option>
+				<option value="9-12">9–12 nocí</option>
+				<option value="13">13 a více nocí</option>
+			</select>
+			<input type="hidden" name="nights_min" x-bind:value="nightsMin" value={nmin || ''}>
+			<input type="hidden" name="nights_max" x-bind:value="nightsMax" value={nmax || ''}>
+		</label>
+		<label class="block">
+			<span class="mb-1 block text-xs font-bold text-ink">Osoby</span>
+			<select name="adults" class="select">
+				{[[1, '1 osoba'], [2, '2 osoby'], [3, '3 osoby'], [4, '4 osoby']].map(([a, l]) => <option value={String(a)} selected={(adults || 2) === a}>{l}</option>)}
+			</select>
+		</label>
+		<label class="block">
+			<span class="mb-1 block text-xs font-bold text-ink">Cena od</span>
+			<input type="number" name="price_min" class="input" min="0" step="500" placeholder="0 Kč" value={pmin || ''}>
+		</label>
+		<label class="block">
+			<span class="mb-1 block text-xs font-bold text-ink">Cena do</span>
+			<input type="number" name="price_max" class="input" min="0" step="500" placeholder="50 000 Kč" value={pmax || ''}>
+		</label>
+		<label class="block">
+			<span class="mb-1 block text-xs font-bold text-ink">Strava</span>
+			<select name="meal" class="select">
+				<option value="">Libovolná</option>
+				{Object.entries(MEAL_LABELS).map(([s, l]) => <option value={s} selected={meal === s}>{l}</option>)}
+			</select>
+		</label>
+		<label class="block">
+			<span class="mb-1 block text-xs font-bold text-ink">Letiště</span>
+			<select name="airport" class="select">
+				<option value="">Libovolné</option>
+				{airports.map((a) => <option value={a.slug} selected={airport === a.slug}>{a.label}</option>)}
+			</select>
+		</label>
+	</div>
+</form>

@@ -1,0 +1,299 @@
+---
+// Homepage. Port of templates/home.php (hero + searchbar, type tiles, destinations, promo collage, deals, card sections, products, partners, FAQ, SEO guide).
+import CardHotel from '../listing/CardHotel.astro';
+import SearchBar from '../listing/SearchBar.astro';
+import { svg, mascot } from '../../lib/icons';
+import { formatPrice, nightsLabel, imgUrl, partnerLabel, cleanProductTitle, countryFlagHtml, formatDate, partnerLabel as pl, jsonArr } from '../../lib/helpers';
+import { srcsetRaw } from '../../lib/listing/html';
+import { relHtml } from '../../lib/url';
+import type { HomeData } from '../../lib/listing';
+import type { Registry } from '../../lib/snapshots';
+import categories from '../../data/product-categories.json';
+interface Props { data: HomeData; registry: Registry; today: string }
+const { data: d, registry, today } = Astro.props;
+const A = '/wp-content/kakapo-assets/img/';
+const dest = A + 'dest/'; const typ = A + 'typ/';
+const heroImg = dest + 'hero-1600.webp'; const heroSm = dest + 'hero-800.webp'; const promoImg = dest + 'promo.webp';
+const DEST_PHOTO = ['cesko', 'recko', 'turecko', 'spanelsko', 'bulharsko', 'egypt', 'tunisko', 'italie', 'kypr', 'kanarske-ostrovy', 'portugalsko', 'chorvatsko', 'madeira', 'malta', 'spojene-arabske-emiraty', 'maledivy', 'zanzibar'];
+const photo = (slug: string) => (DEST_PHOTO.includes(slug) ? `${dest}${slug}-640.webp` : '');
+const num = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const MONTH_SHORT = ['led', 'úno', 'bře', 'dub', 'kvě', 'čvn', 'čvc', 'srp', 'zář', 'říj', 'lis', 'pro'];
+const dayOf = (ymd: string) => Number(ymd.slice(8, 10)) + '.';
+const monOf = (ymd: string) => MONTH_SHORT[Number(ymd.slice(5, 7)) - 1] ?? '';
+const cats = categories as unknown as Record<string, { photo?: string; label: string }>;
+const poznPhoto = String(cats.poznavaci?.photo ?? '').replace('.webp', '-640.webp');
+
+const ccodes = d.countries.map((c) => c.slug);
+const c1 = ccodes[0] ?? ''; const c2 = ccodes[1] ?? '';
+const promoSmall: Array<{ title: string; sub: string; url: string; img: string }> = [
+	{ title: 'First minute', sub: 'Zamluvte s předstihem', url: '/first-minute/', img: photo(ccodes[2] ?? '') || promoImg },
+	{ title: 'Zážitky & poznávačky', sub: 'Nejen hotely', url: '/objevte/', img: poznPhoto || promoImg },
+];
+for (const slug of [c1, c2]) {
+	if (!slug) continue;
+	const c = d.countries.find((x) => x.slug === slug)!;
+	promoSmall.push({ title: 'Dovolená ' + c.label, sub: c.min_price ? 'od ' + formatPrice(c.min_price) : 'Oblíbená destinace', url: `/${slug}/`, img: photo(slug) || promoImg });
+}
+const promo = promoSmall.slice(0, 4);
+
+const heroChips: Array<[string, string]> = [['Dovolená u moře', '/dovolena-u-more/'], ['All inclusive', '/all-inclusive/'], ['Last minute', '/last-minute/'], ['Last minute all inclusive', '/last-minute-all-inclusive/'], ['Odlet zítra', '/super-last-minute-odlet-zitra/'], ['Levná dovolená', '/levna-dovolena/'], ['S dětmi', '/dovolena-s-detmi/'], ['Vlastní dopravou', '/dovolena-vlastni-dopravou/'], ...d.countries.slice(0, 4).map((c) => [c.label, `/${c.slug}/`] as [string, string])];
+const types = [
+	['Dovolená u moře', 'Pláže a hotely u moře', '/dovolena-u-more/', 'more', 'Lidé se koupou ve vlnách u písečné pláže'],
+	['All inclusive', 'Vše v ceně', '/all-inclusive/', 'all-inclusive', 'Drinky na stolku u hotelového bazénu'],
+	['Last minute', 'Odleťte brzy a levně', '/last-minute/', 'last-minute', 'Cestovatelka s kufrem na letišti'],
+	['Levná dovolená', 'Výhodné termíny', '/levna-dovolena/', 'levna', 'Žabky, klobouk a mušle na písku'],
+	['Dovolená s dětmi', 'Rodinné hotely', '/dovolena-s-detmi/', 's-detmi', 'Rodina s dětmi na písečné pláži'],
+	['Letecky', 'Odlety z ČR', '/dovolena-letecky/', 'letecky', 'Křídlo letadla nad mraky'],
+];
+const seoLinks: Array<[string, string]> = [['Last minute all inclusive', '/last-minute-all-inclusive/'], ['Dovolená u moře all inclusive', '/dovolena-u-more-all-inclusive/'], ['Řecko all inclusive', '/recko-all-inclusive/'], ['Odlet zítra', '/super-last-minute-odlet-zitra/'], ['Egypt last minute all inclusive', '/egypt-last-minute-all-inclusive/'], ['Turecko all inclusive', '/turecko-all-inclusive/'], ['Kam v srpnu k moři', '/kam-v-srpnu-k-mori/'], ['Last minute all inclusive z Prahy', '/last-minute-all-inclusive-z-prahy/'], ['Wellness pobyt pro dva', '/wellness-pobyt-pro-dva/'], ['Krátké poznávací zájezdy', '/kratke-poznavaci-zajezdy/'], ['Chorvatsko apartmány u moře', '/chorvatsko-apartmany-u-more/']];
+const heading = (title: string, url = '', link = 'Zobrazit vše', sub = '') => ({ title, url, link, sub });
+const offersLine = d.offersRound > 0 ? num(d.offersRound) + '+ ' : '';
+const L = (p: string, t: string) => `<a href="${p}">${t}</a>`;
+const sections = [
+	d.picked.length ? { title: 'Dovolená s nejlepším hodnocením', url: '/zajezdy/?sort=rating', hotels: d.picked, sub: 'Hotely, které hosté hodnotí nejlépe.' } : null,
+	d.drops.length >= 4 ? { title: 'Právě zlevněno — reálné poklesy cen', url: '/zlevneno/', hotels: d.drops.slice(0, 8), sub: 'Ceny hlídáme každý den — tady klesly doopravdy.' } : null,
+	...['last-minute', 'first-minute', 'cheapest'].map((k) => d.sections.find((s) => s.key === k)).map((s) => (s ? { title: s.title, url: s.url, hotels: s.hotels, sub: s.sub } : null)),
+].filter(Boolean) as Array<{ title: string; url: string; hotels: any[]; sub: string }>;
+---
+<main>
+	<section class="bg-white cv-auto">
+		<div class="container-k pb-10 pt-6 sm:pt-10 lg:pb-14">
+			<div class="grid items-center gap-8 lg:grid-cols-[1.02fr_1fr] lg:gap-14">
+				<div class="order-2 lg:order-1">
+					<p class="eyebrow"><Fragment set:html={svg('sun', 16, '', 2.2)} />Dovolená 2026 · porovnání českých CK</p>
+					<h1 class="mt-3 font-display text-[2.2rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-ink sm:text-5xl lg:text-[3.4rem]">Dovolená 2026: zájezdy u moře na jednom místě</h1>
+					<p class="mt-4 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">Porovnejte {offersLine}zájezdů a pobytů u moře — last minute, all inclusive i dovolenou s dětmi od {d.ckLabel}. Vidíte termín, stravu i cenu a rezervaci dokončíte přímo u pořadatele.</p>
+					<ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-600">
+						<li class="inline-flex items-center gap-1.5"><span class="text-leaf"><Fragment set:html={svg('check', 16, '', 2.6)} /></span>{d.ckCount} prověřených cestovek</li>
+						<li class="inline-flex items-center gap-1.5"><span class="text-leaf"><Fragment set:html={svg('check', 16, '', 2.6)} /></span>{d.offersRound > 0 ? num(d.offersRound) + '+ zájezdů' : 'Tisíce zájezdů'}</li>
+						<li class="inline-flex items-center gap-1.5"><span class="text-leaf"><Fragment set:html={svg('check', 16, '', 2.6)} /></span>Bez příplatků navíc</li>
+					</ul>
+				</div>
+				<div class="relative order-1 lg:order-2">
+					<img src={heroImg} srcset={`${heroSm} 800w, ${heroImg} 1600w`} sizes="(min-width:1024px) 46vw, 92vw" width="1600" height="1067" alt="Písečná pláž s tyrkysovým mořem — dovolená u moře 2026" fetchpriority="high" decoding="async" class="aspect-[16/11] w-full rounded-[2rem] object-cover lg:aspect-[5/4]">
+					{d.minPrice > 0 && (
+						<a href="/last-minute/" class="absolute bottom-4 left-4 flex items-center gap-3 rounded-2xl bg-white/95 py-2.5 pl-2.5 pr-4 shadow-pill backdrop-blur transition hover:bg-white sm:bottom-6 sm:left-6">
+							<Fragment set:html={mascot(40)} />
+							<span class="leading-tight"><span class="block text-xs font-semibold text-slate-500">Last minute už od</span><span class="block text-lg font-extrabold text-ink">{formatPrice(d.minPrice)}</span></span>
+						</a>
+					)}
+				</div>
+			</div>
+			<div class="mt-8 lg:mt-10"><SearchBar registry={registry} today={today} /></div>
+			<div class="rail mt-5 items-center lg:flex-wrap lg:overflow-visible">
+				<span class="text-sm font-semibold text-slate-500">Oblíbené:</span>
+				{heroChips.map(([l, u]) => <a href={u} class="chip">{l}</a>)}
+			</div>
+		</div>
+	</section>
+
+	<section class="bg-white cv-auto">
+		<div class="container-k py-10 sm:py-12">
+			<div class="mb-6 flex items-end justify-between gap-4"><div class="max-w-2xl"><h2 class="h-section">Dovolená pro každého</h2><p class="mt-1.5 text-slate-500">Od pobytů u moře přes all inclusive až po last minute — vyberte si typ dovolené a porovnejte nabídky českých cestovek.</p></div></div>
+			<div class="rail sm:grid sm:grid-cols-3 sm:overflow-visible lg:grid-cols-6">
+				{types.map(([t, ds, u, img, alt]) => (
+					<a href={u} class="group block w-[42vw] sm:w-auto">
+						<span class="block aspect-[4/5] overflow-hidden rounded-2xl bg-mist"><img src={`${typ}${img}-640.webp`} srcset={`${typ}${img}-400.webp 400w, ${typ}${img}-640.webp 640w`} sizes="(min-width:1024px) 16vw, (min-width:640px) 25vw, 42vw" alt={alt} width="640" height="427" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"></span>
+						<h3 class="mt-2.5 text-[15px] font-bold leading-tight text-ink">{t}</h3>
+						<p class="text-sm text-slate-500">{ds}</p>
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+
+	{d.countries.length > 0 && (
+		<section class="bg-white cv-auto">
+			<div class="container-k py-10 sm:py-12">
+				<div class="mb-6 flex items-end justify-between gap-4"><div class="max-w-2xl"><h2 class="h-section">Dovolená u moře podle destinace</h2></div>
+					<a href="/zajezdy/" class="group inline-flex shrink-0 items-center gap-1 text-sm font-bold text-ink underline decoration-ink/25 underline-offset-4 transition hover:decoration-ink">Zobrazit vše<Fragment set:html={svg('arrow-right', 15, 'transition-transform group-hover:translate-x-0.5', 2.2)} /></a></div>
+				<div class="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-4">
+					{d.countries.map((c) => {
+						const ph = photo(c.slug);
+						const cnt = c.cnt === 1 ? '1 hotel' : c.cnt >= 2 && c.cnt <= 4 ? `${c.cnt} hotely` : `${num(c.cnt)} hotelů`;
+						return (
+							<a href={`/${c.slug}/`} class="group block">
+								<span class="relative block aspect-[4/3] overflow-hidden rounded-2xl bg-mist">
+									{ph && <img src={ph} srcset={`${ph.replace('-640.webp', '-400.webp')} 400w, ${ph} 640w`} sizes="(min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw" alt={`Dovolená ${c.label} — zájezdy k moři`} width="640" height="427" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]">}
+									{c.min_price ? <span class="price-tag absolute bottom-3 left-3"><span class="font-medium text-slate-500">od</span> {formatPrice(c.min_price)}</span> : null}
+								</span>
+								<span class="mt-2.5 block text-[15px] font-bold leading-tight text-ink">Dovolená {c.label}</span>
+								<span class="block text-sm text-slate-500">{cnt}</span>
+							</a>
+						);
+					})}
+				</div>
+			</div>
+		</section>
+	)}
+
+	<section class="bg-white cv-auto">
+		<div class="container-k py-6">
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2">
+				<a href="/last-minute/" class="group relative flex min-h-[260px] flex-col justify-end overflow-hidden rounded-3xl sm:col-span-2 lg:col-span-2 lg:row-span-2 lg:min-h-[400px]">
+					<img src={promoImg} alt="" width="1200" height="800" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
+					<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+					<div class="relative p-6 text-white sm:p-8">
+						<span class="text-sm font-bold text-white/90">Last minute</span>
+						<p class="mt-1 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">Odleťte brzy{d.minPrice > 0 && <Fragment set:html={`<br>už od ${formatPrice(d.minPrice)}/os.`} />}</p>
+						<span class="btn-primary btn-lg mt-5">Prohlédnout slevy</span>
+					</div>
+				</a>
+				{promo.map((p) => (
+					<a href={p.url} class="group relative flex min-h-[170px] flex-col justify-end overflow-hidden rounded-3xl lg:min-h-[192px]">
+						<img src={p.img} alt="" width="640" height="427" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]">
+						<div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent"></div>
+						<div class="relative p-5 text-white"><p class="font-display text-lg font-extrabold leading-tight">{p.title}</p><p class="mt-0.5 text-sm text-white/90">{p.sub}</p></div>
+					</a>
+				))}
+			</div>
+		</div>
+	</section>
+
+	{d.deals.length > 0 && (
+		<section class="bg-white cv-auto">
+			<div class="container-k py-10 sm:py-12">
+				<div class="mb-6 flex items-end justify-between gap-4"><div class="max-w-2xl"><h2 class="h-section">Nejlevnější dovolená a last minute</h2></div>
+					<a href="/zajezdy/" class="group inline-flex shrink-0 items-center gap-1 text-sm font-bold text-ink underline decoration-ink/25 underline-offset-4 transition hover:decoration-ink">Zobrazit vše<Fragment set:html={svg('arrow-right', 15, 'transition-transform group-hover:translate-x-0.5', 2.2)} /></a></div>
+				<div class="grid grid-cols-1 gap-x-10 lg:grid-cols-2">
+					{d.deals.map((h) => {
+						const o = h.best_offer;
+						const place = [h.country, h.destination].filter(Boolean).join(' · ');
+						return (
+							<a href={`/hotel/${h.slug}/`} class="group flex items-center gap-4 border-b border-line py-3.5 text-sm">
+								<span class="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-mist leading-none"><span class="text-base font-extrabold text-ink">{dayOf(o.departure_date)}</span><span class="mt-0.5 text-[11px] font-semibold text-slate-500">{monOf(o.departure_date)}</span></span>
+								<span class="min-w-0 flex-1"><span class="block truncate font-bold text-ink group-hover:underline">{h.name}</span><span class="block truncate text-slate-500">{place} · {nightsLabel(Number(o.nights))}{o.airport ? ' · ' + o.airport : ''}</span></span>
+								<span class="whitespace-nowrap text-right"><span class="text-slate-500">od</span> <strong class="text-base font-extrabold text-ink">{formatPrice(o.price_pp)}</strong></span>
+							</a>
+						);
+					})}
+				</div>
+			</div>
+		</section>
+	)}
+
+	{sections.map((s) => (
+		<section class="bg-white cv-auto">
+			<div class="container-k py-10 sm:py-12">
+				<div class="mb-6 flex items-end justify-between gap-4"><div class="max-w-2xl"><h2 class="h-section">{s.title}</h2>{s.sub && <p class="mt-1.5 text-slate-500">{s.sub}</p>}</div>
+					<a href={s.url} class="group inline-flex shrink-0 items-center gap-1 text-sm font-bold text-ink underline decoration-ink/25 underline-offset-4 transition hover:decoration-ink">Zobrazit vše<Fragment set:html={svg('arrow-right', 15, 'transition-transform group-hover:translate-x-0.5', 2.2)} /></a></div>
+				<div class="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">{s.hotels.map((h) => <CardHotel hotel={h} />)}</div>
+			</div>
+		</section>
+	))}
+
+	{d.products.length > 0 && (
+		<section class="bg-white cv-auto">
+			<div class="container-k py-10 sm:py-12">
+				<div class="mb-6 flex items-end justify-between gap-4"><div class="max-w-2xl"><h2 class="h-section">Zážitky, které stojí za cestu</h2><p class="mt-1.5 text-slate-500">Poznávací zájezdy, romantické pobyty, wellness i plavby od prověřených partnerů — dovolená nemusí být jen pláž.</p></div>
+					<a href="/objevte/" class="group inline-flex shrink-0 items-center gap-1 text-sm font-bold text-ink underline decoration-ink/25 underline-offset-4 transition hover:decoration-ink">Objevte vše<Fragment set:html={svg('arrow-right', 15, 'transition-transform group-hover:translate-x-0.5', 2.2)} /></a></div>
+				<div class="grid grid-cols-1 gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
+					{d.products.map((p) => {
+						const images = jsonArr<string>(p.images_json);
+						const image = String(p.image_url ?? images[0] ?? '');
+						const price = Number(p.price); const orig = p.price_original && Number(p.price_original) > price ? Number(p.price_original) : null;
+						const disc = orig ? Math.round(100 * (1 - price / orig)) : null;
+						const title = cleanProductTitle(String(p.title ?? ''), String(p.partner_slug ?? ''));
+						const place = [p.country, p.destination].filter(Boolean).join(' · ');
+						const meta = (() => { try { return JSON.parse(p.meta_json ?? '{}') ?? {}; } catch { return {}; } })();
+						const terms = Array.isArray(meta.dates) ? meta.dates.length : 0;
+						const bits = [p.nights ? nightsLabel(Number(p.nights)) : '', terms > 1 ? `${terms} termínů na výběr` : p.date_from ? 'od ' + formatDate(p.date_from) : ''].filter(Boolean).join(' · ');
+						const plabel = partnerLabel(String(p.partner_slug ?? ''));
+						const srcset = image ? srcsetRaw(image, 640) : '';
+						return (
+							<article class="card-k group">
+								<a href={`/zazitek/${p.slug}/`} class="absolute inset-0 z-10 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink" aria-label={title}></a>
+								<div class="card-k-img">
+									{image ? <img src={imgUrl(image, 640)} srcset={srcset || undefined} sizes="(min-width:1280px) 22vw, (min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw" alt={title} width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display='none'"> : <div class="flex h-full w-full items-center justify-center text-slate-400" aria-hidden="true"></div>}
+									<div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
+										<span class="badge-cat">{cats[String(p.type)]?.label ?? ''}</span>
+										{disc !== null && disc > 0 && <span class="badge badge-sale">−{disc} %</span>}
+									</div>
+								</div>
+								<div class="flex flex-1 flex-col pt-3">
+									<h3 class="line-clamp-2 text-[15px] font-bold leading-snug text-ink">{title}</h3>
+									{place && <p class="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500"><Fragment set:html={countryFlagHtml(String(p.country ?? ''), String(p.country_slug ?? ''))} /><span class="truncate">{place}</span></p>}
+									{bits && <p class="text-sm text-slate-500">{bits}</p>}
+									<div class="mt-auto pt-2">
+										<p class="text-[15px] text-ink"><span class="text-slate-500">od</span> <strong class="whitespace-nowrap font-extrabold">{formatPrice(price)}</strong>{orig !== null && <span class="ml-1 whitespace-nowrap text-sm text-slate-400 line-through">{formatPrice(orig)}</span>}</p>
+										{plabel && <p class="text-sm text-slate-500">{plabel}</p>}
+									</div>
+								</div>
+							</article>
+						);
+					})}
+				</div>
+			</div>
+		</section>
+	)}
+
+	<section class="bg-white cv-auto">
+		<div class="container-k py-10">
+			<div class="rounded-[2rem] bg-paper px-5 py-8 sm:px-10">
+				<h2 class="h-section">Rychlé odkazy na hledané kategorie</h2>
+				<div class="mt-5 flex flex-wrap gap-2">{seoLinks.map(([l, u]) => <a class="chip" href={u}>{l}</a>)}</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="bg-white cv-auto">
+		<div class="container-k py-10">
+			<p class="text-center text-sm font-bold text-ink">Porovnáváme nabídky od prověřených partnerů</p>
+			<p class="mt-1 text-center text-sm text-slate-500">Rezervaci dokončíte vždy přímo u cestovní kanceláře nebo partnera.</p>
+			<ul class="mx-auto mt-6 flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-5">
+				{d.partners.map((p) => (
+					<li class="flex h-12 items-center justify-center opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0">
+						{p.hub ? (
+							<a href={`/${p.slug}-zajezdy/`} class="flex h-12 items-center justify-center" title={`Zájezdy ${p.label} na Kakapo.cz`}>
+								{p.logo ? <img class="max-h-9 max-w-[120px] object-contain" src={p.logo} alt={p.label} loading="lazy" decoding="async"> : <span class="text-center text-sm font-bold text-slate-600">{p.label}</span>}
+							</a>
+						) : (p.logo ? <img class="max-h-9 max-w-[120px] object-contain" src={p.logo} alt={p.label} loading="lazy" decoding="async"> : <span class="text-center text-sm font-bold text-slate-600">{p.label}</span>)}
+					</li>
+				))}
+			</ul>
+		</div>
+	</section>
+
+	{d.faqs.length > 0 && (
+		<section class="bg-white cv-auto">
+			<div class="container-k py-10 sm:py-14">
+				<div class="mx-auto max-w-3xl">
+					<h2 class="h-section mb-4">Časté otázky o dovolené</h2>
+					<div class="divide-y divide-line border-y border-line">
+						{d.faqs.map((f, i) => (
+							<details class="group" open={i === 0}>
+								<summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-[17px] font-bold text-ink">
+									<span>{f.q}</span>
+									<span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line transition-transform duration-200 group-open:rotate-45"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+								</summary>
+								<div class="prose-kakapo pb-5 pr-12" set:html={relHtml(f.a)}></div>
+							</details>
+						))}
+					</div>
+				</div>
+			</div>
+		</section>
+	)}
+
+	<section class="bg-white cv-auto">
+		<div class="container-k pb-6 pt-4">
+			<div class="mx-auto max-w-3xl">
+				<h2 class="h-section">Dovolená 2026: kam, kdy a za kolik</h2>
+				<div class="prose-kakapo mt-4 space-y-4">
+					<p set:html={`Plánujete <strong>dovolenou 2026</strong> a nechcete procházet weby všech cestovek zvlášť? Kakapo.cz porovná zájezdy od prověřených českých cestovních kanceláří na jednom místě — od ${L('/dovolena-u-more/', 'dovolené u moře')} přes ${L('/last-minute/', 'last minute')} a ${L('/first-minute/', 'first minute')} až po poznávací zájezdy, wellness pobyty a plavby. U každé nabídky vidíte cenu, termín i stravu předem a rezervaci dokončíte přímo u pořadatele, bez jakýchkoli příplatků navíc.`}></p>
+					<h3 class="font-display text-lg font-bold text-ink">Kam na dovolenou k moři</h3>
+					<p set:html={`Nejoblíbenější destinace pro dovolenou u moře jsou ${L('/recko/', 'Řecko')}, ${L('/turecko/', 'Turecko')}, ${L('/egypt/', 'Egypt')}, ${L('/spanelsko/', 'Španělsko')}, ${L('/bulharsko/', 'Bulharsko')} a ${L('/kapverdy/', 'Kapverdy')}. Řecko a Turecko sázejí na jistotu teplého moře a all inclusive hotelů, Egypt láká na celoroční teplo a korálové útesy, Bulharsko na levnou rodinnou dovolenou.`}></p>
+					<h3 class="font-display text-lg font-bold text-ink">Kdy je dovolená nejlevnější</h3>
+					<p set:html={`Nejlevnější bývá <a href="/levna-dovolena/"><strong>levná dovolená</strong></a> mimo hlavní prázdniny — v květnu, červnu a září. Kdo je flexibilní, ušetří i díky ${L('/last-minute/', 'last minute')} nabídkám s blízkým odletem; kdo plánuje dopředu, získá nejlepší hotely a termíny přes ${L('/first-minute/', 'first minute')}.`}></p>
+					<h3 class="font-display text-lg font-bold text-ink">All inclusive, nebo polopenze?</h3>
+					<p set:html={`${L('/all-inclusive/', 'All inclusive dovolená')} se vyplatí rodinám s dětmi a všem, kdo chtějí mít jídlo i pití v ceně a nic neřešit. Na Kakapo.cz filtrujete podle stravy, ceny, délky i letiště a najdete ten pravý termín během chvilky.`}></p>
+					<h3 class="font-display text-lg font-bold text-ink">Rodinné hotely, aquaparky a písečné pláže</h3>
+					<p set:html={`Pro rodiny dává smysl začít přes ${L('/dovolena-s-detmi/', 'dovolenou s dětmi')}, hotely s ${L('/dovolena-s-aquaparkem/', 'aquaparkem')} nebo výběr u ${L('/dovolena-s-piscitou-plazi/', 'písečné pláže')}. Pokud chcete řešit hlavně odlet a termín, projděte také ${L('/dovolena-letecky/', 'leteckou dovolenou')}.`}></p>
+					<h3 class="font-display text-lg font-bold text-ink">Dovolená podle odletového letiště</h3>
+					<p set:html={`Často se vyplatí porovnat stejnou destinaci podle letiště: například ${L('/turecko/odlet-z-prahy/', 'Turecko z Prahy')}, ${L('/recko/odlet-z-brna/', 'Řecko z Brna')} nebo ${L('/egypt/odlet-z-ostravy/', 'Egypt z Ostravy')}. Rozdíl bývá v ceně, časech letů, dostupnosti termínů i délce pobytu.`}></p>
+					<p set:html={`Pokud chcete odletět rychle, začněte přes ${L('/last-minute-z-brna/', 'last minute z Brna')}, ${L('/last-minute-z-ostravy/', 'last minute z Ostravy')} nebo ${L('/last-minute-z-prahy/', 'last minute z Prahy')}. Pro sezónní výběr se hodí také ${L('/dovolena-v-zari-u-more/', 'dovolená v září u moře')} a ${L('/dovolena-v-prosinci/', 'dovolená v prosinci')}.`}></p>
+				</div>
+			</div>
+		</div>
+	</section>
+</main>

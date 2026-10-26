@@ -1,0 +1,162 @@
+---
+// Sidebar facets (server-rendered; AJAX via Alpine kakapoFilters in the parent wrapper).
+import type { Facets } from '../../lib/listing/facets';
+import type { Filters } from '../../lib/search';
+interface Props { facets: Facets; active: Filters; total: number; today: string }
+const { facets, active, total, today } = Astro.props;
+const fCountry = active.country ?? '';
+const fStars = (active.stars ?? []).map(Number);
+const fMeal = active.meal ?? [];
+const fAirport = active.airport ?? [];
+const fPartner = active.partner ?? [];
+const fRating = active.rating_min ? String(active.rating_min) : '';
+const fFlag = active.flag ?? '';
+const star = (n: number) => `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.26 6.86.83-5.07 4.7 1.35 6.77L12 17.2l-6.04 3.36 1.35-6.77-5.07-4.7 6.86-.83z"/></svg>`.repeat(n);
+const ratingWord = (r: number) => (r >= 9 ? 'vynikající' : r >= 8 ? 'výborné' : r >= 7 ? 'velmi dobré' : 'dobré');
+---
+<div x-show="open" x-cloak @click="open = false" class="fixed inset-0 z-40 bg-ink/40 lg:hidden" aria-hidden="true"></div>
+
+<aside
+	class="fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] translate-y-full overflow-y-auto rounded-t-3xl bg-white px-5 pb-0 pt-3 shadow-2xl transition-transform duration-300 ease-out lg:sticky lg:inset-auto lg:top-24 lg:z-auto lg:max-h-[calc(100vh-7rem)] lg:translate-y-0 lg:rounded-none lg:bg-transparent lg:p-0 lg:pr-3 lg:shadow-none lg:transition-none"
+	:class="open ? '!translate-y-0' : ''"
+	role="dialog" :aria-modal="open ? 'true' : 'false'"
+	aria-label="Filtry vyhledávání">
+
+	<div class="mx-auto mb-2 h-1.5 w-10 rounded-full bg-slate-200 lg:hidden" aria-hidden="true"></div>
+	<div class="mb-1 flex items-center justify-between lg:mb-0">
+		<h2 class="text-lg font-extrabold text-ink">Filtry</h2>
+		<button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink transition hover:bg-mist lg:hidden" @click="open = false" aria-label="Zavřít filtry">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+		</button>
+	</div>
+
+	<form x-ref="form" @submit.prevent="apply()" @change="apply()" @input.debounce.400ms="apply()">
+
+		<div class="facet">
+			<h3 class="facet-title">Cena za osobu</h3>
+			<div class="mt-3 grid grid-cols-2 gap-2">
+				<label><span class="sr-only">Cena od</span><input type="number" name="price_min" class="input" min="0" step="500" placeholder="od Kč" value={active.price_min ? active.price_min : ''}></label>
+				<label><span class="sr-only">Cena do</span><input type="number" name="price_max" class="input" min="0" step="500" placeholder="do Kč" value={active.price_max ? active.price_max : ''}></label>
+			</div>
+		</div>
+
+		<div class="facet">
+			<h3 class="facet-title">Last / First minute</h3>
+			<div class="mt-2">
+				<label class="facet-option"><input type="radio" name="flag" value="" class="checkbox" checked={fFlag === ''}><span>Vše</span></label>
+				<label class="facet-option"><input type="radio" name="flag" value="last-minute" class="checkbox" checked={fFlag === 'last-minute'}><span>Last minute</span></label>
+				<label class="facet-option"><input type="radio" name="flag" value="first-minute" class="checkbox" checked={fFlag === 'first-minute'}><span>First minute</span></label>
+			</div>
+		</div>
+
+		{facets.countries && facets.countries.length > 0 && (
+			<div class="facet">
+				<h3 class="facet-title">Země</h3>
+				<div class="mt-2 max-h-56 overflow-y-auto pr-1">
+					<label class="facet-option"><input type="radio" name="country" value="" class="checkbox" checked={fCountry === ''}><span>Všechny země</span></label>
+					{facets.countries.map((r) => (
+						<label class="facet-option">
+							<input type="radio" name="country" value={r.slug} class="checkbox" checked={fCountry === r.slug}>
+							<span>{r.label}</span>
+							<span class="facet-cnt" data-facet={`countries:${r.slug}`}>({r.cnt})</span>
+						</label>
+					))}
+				</div>
+			</div>
+		)}
+
+		{facets.stars && facets.stars.length > 0 && (
+			<div class="facet">
+				<h3 class="facet-title">Hvězdičky</h3>
+				<div class="mt-2">
+					{facets.stars.map((r) => (
+						<label class="facet-option">
+							<input type="checkbox" name="stars" value={r.value} class="checkbox" checked={fStars.includes(Number(r.value))}>
+							<span class="flex items-center gap-0.5 text-amber-400" role="img" aria-label={`${r.value} hvězdiček`}><Fragment set:html={star(Number(r.value))} /></span>
+							<span class="facet-cnt" data-facet={`stars:${r.value}`}>({r.cnt})</span>
+						</label>
+					))}
+				</div>
+			</div>
+		)}
+
+		{facets.meals && facets.meals.length > 0 && (
+			<div class="facet">
+				<h3 class="facet-title">Strava</h3>
+				<div class="mt-2">
+					{facets.meals.map((r) => (
+						<label class="facet-option">
+							<input type="checkbox" name="meal" value={r.slug} class="checkbox" checked={fMeal.includes(r.slug)}>
+							<span>{r.label}</span>
+							<span class="facet-cnt" data-facet={`meals:${r.slug}`}>({r.cnt})</span>
+						</label>
+					))}
+				</div>
+			</div>
+		)}
+
+		<div class="facet">
+			<h3 class="facet-title">Hodnocení hostů</h3>
+			<div class="mt-2">
+				<label class="facet-option"><input type="radio" name="rating_min" value="" class="checkbox" checked={fRating === ''}><span>Libovolné</span></label>
+				{[9, 8, 7, 6].map((r) => (
+					<label class="facet-option">
+						<input type="radio" name="rating_min" value={r} class="checkbox" checked={fRating !== '' && Number(fRating) === r}>
+						<span>{r}+ {ratingWord(r)}</span>
+					</label>
+				))}
+			</div>
+		</div>
+
+		<div class="facet">
+			<h3 class="facet-title">Termín odletu</h3>
+			<div class="mt-3 grid grid-cols-1 gap-2">
+				<label><span class="mb-1 block text-xs text-slate-500">Od</span><input type="date" name="date_from" class="input" min={today} value={active.date_from ?? ''}></label>
+				<label><span class="mb-1 block text-xs text-slate-500">Do</span><input type="date" name="date_to" class="input" min={today} value={active.date_to ?? ''}></label>
+			</div>
+		</div>
+
+		<div class="facet">
+			<h3 class="facet-title">Počet nocí</h3>
+			<div class="mt-3 grid grid-cols-2 gap-2">
+				<label><span class="sr-only">Nocí od</span><input type="number" name="nights_min" class="input" min="1" max="30" placeholder="od" value={active.nights_min ? active.nights_min : ''}></label>
+				<label><span class="sr-only">Nocí do</span><input type="number" name="nights_max" class="input" min="1" max="30" placeholder="do" value={active.nights_max ? active.nights_max : ''}></label>
+			</div>
+		</div>
+
+		{facets.airports && facets.airports.length > 0 && (
+			<div class="facet">
+				<h3 class="facet-title">Letiště odletu</h3>
+				<div class="mt-2 max-h-48 overflow-y-auto pr-1">
+					{facets.airports.map((r) => (
+						<label class="facet-option">
+							<input type="checkbox" name="airport" value={r.slug} class="checkbox" checked={fAirport.includes(r.slug)}>
+							<span>{r.label}</span>
+							<span class="facet-cnt" data-facet={`airports:${r.slug}`}>({r.cnt})</span>
+						</label>
+					))}
+				</div>
+			</div>
+		)}
+
+		{facets.partners && facets.partners.length > 0 && (
+			<div class="facet border-b-0">
+				<h3 class="facet-title">Cestovní kancelář</h3>
+				<div class="mt-2">
+					{facets.partners.map((r) => (
+						<label class="facet-option">
+							<input type="checkbox" name="partner" value={r.slug} class="checkbox" checked={fPartner.includes(r.slug)}>
+							<span>{r.label}</span>
+							<span class="facet-cnt" data-facet={`partners:${r.slug}`}>({r.cnt})</span>
+						</label>
+					))}
+				</div>
+			</div>
+		)}
+
+		<div class="sticky bottom-0 -mx-5 flex items-center justify-between gap-3 border-t border-line bg-white px-5 py-4 lg:hidden">
+			<button type="button" class="text-sm font-bold text-ink underline underline-offset-4" @click="resetFilters()">Zrušit filtry</button>
+			<button type="button" class="btn-dark" @click="open = false">Zobrazit <span x-text="total">{total}</span> výsledků</button>
+		</div>
+	</form>
+</aside>

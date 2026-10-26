@@ -68,8 +68,8 @@ export async function stepFeed(deps: Deps, feedId: number, deadline: number): Pr
       }
     }
     if (!cp) {
-      const started = await startRun(deps, feed);
-      runId = started.runId;
+      runId = await createRun(deps, feed);   // from here on every failure is recorded against this run
+      const started = await startRun(deps, feed, runId);
       if (started.result) return started.result;
       cp = started.cp!;
     }
@@ -95,12 +95,17 @@ function describeError(e: unknown): string {
 }
 
 // ---- phase 1: download + normalise ---------------------------------------------------------------------------
-async function startRun(deps: Deps, feed: FeedRow): Promise<{ runId: number; cp?: Checkpoint; result?: StepResult }> {
+async function createRun(deps: Deps, feed: FeedRow): Promise<number> {
   const db = deps.env.DB;
-  const t0 = Date.now();
   const ins = await db.prepare("INSERT INTO import_runs (feed_id, started_at, status) VALUES (?, ?, 'running')").bind(feed.id, sqlTime(deps.now())).run();
   const runId = ins.meta.last_row_id as number;
   await db.prepare('UPDATE feeds SET current_run = ? WHERE id = ?').bind(runId, feed.id).run();
+  return runId;
+}
+
+async function startRun(deps: Deps, feed: FeedRow, runId: number): Promise<{ runId: number; cp?: Checkpoint; result?: StepResult }> {
+  const db = deps.env.DB;
+  const t0 = Date.now();
 
   const opened = await openFeed(feed, deps);
   if (opened.notModified) {
@@ -258,9 +263,9 @@ export async function approveRun(deps: Deps, feedId: number, deadline: number): 
   const run = await db.prepare("SELECT id, checkpoint_json FROM import_runs WHERE feed_id = ? AND status = 'suspicious' ORDER BY id DESC LIMIT 1").bind(feedId).first<{ id: number; checkpoint_json: string | null }>();
   if (!run?.checkpoint_json) return { feedId, runId: null, status: 'skipped', message: 'no suspicious run to approve' };
   const cp = JSON.parse(run.checkpoint_json) as Checkpoint;
-  if (cp.phase === 'held') { cp.phase = 'apply'; cp.hold = undefined; }
-  else if (cp.phase === 'finalize') cp.hold = 'approved';
-  // finalize-held runs re-run the deactivation without the ratio guard through a one-off flag in the checkpoint
+  // 'approved' lifts both guards (size guard already passed by the human decision, ratio guard at finalize)
+  if (cp.phase === 'held') cp.phase = 'apply';
+  cp.hold = 'approved';
   await saveRun(deps, run.id, { status: 'running', finished_at: null, message: 'approved manually', checkpoint_json: JSON.stringify(cp) });
   await db.prepare('UPDATE feeds SET current_run = ?, force_run = 0 WHERE id = ?').bind(run.id, feedId).run();
   return stepFeed(deps, feedId, deadline);
