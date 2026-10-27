@@ -3,8 +3,9 @@ import { mascot } from '../lib/icons';
 import { partnerLabel } from '../lib/helpers';
 import { PRODUCT_CATEGORIES, registry } from '../lib/server/site';
 import partnerData from '../data/partner-consts.json';
+import { demandCountries } from '../lib/landing/demand';
 const reg = await registry();
-const countries = Object.entries(reg.countries).slice(0, 6);
+const countries = demandCountries(reg, 12);
 const partners = Object.keys(reg.partners);
 const cats = Object.values(PRODUCT_CATEGORIES).slice(0, 6);
 const hubs = (partnerData as { PARTNERS: Record<string, unknown> }).PARTNERS;
@@ -30,11 +31,12 @@ const a = 'text-[15px] text-slate-600 transition hover:text-ink hover:underline'
 		<div>
 			<h2 class="mb-4 text-sm font-bold text-ink">Oblíbené destinace</h2>
 			<ul class="space-y-2.5">
-				{countries.length ? countries.map(([slug, c]) => <li><a class={a} href={`/${slug}/`}>Dovolená {c.label}</a></li>) : <li><a class={a} href="/zajezdy/">Všechny zájezdy</a></li>}
+				{countries.length ? countries.map((c) => <li><a class={a} href={`/${c.slug}/`}>Dovolená {c.label}</a></li>) : <li><a class={a} href="/zajezdy/">Všechny zájezdy</a></li>}
 				<li><a class={a} href="/last-minute/">Last minute zájezdy</a></li>
 				<li><a class={a} href="/dovolena-u-more/">Dovolená u moře</a></li>
 				<li><a class={a} href="/dovolena-s-detmi/">Dovolená s dětmi</a></li>
 				<li><a class={a} href="/dovolena-vlastni-dopravou/">Dovolená vlastní dopravou</a></li>
+				<li><a class={a} href="/cesko/">Dovolená Česko</a></li>
 			</ul>
 		</div>
 		<div>
@@ -51,6 +53,9 @@ const a = 'text-[15px] text-slate-600 transition hover:text-ink hover:underline'
 				<li><a class={a} href="/last-minute-all-inclusive/">Last minute all inclusive</a></li>
 				<li><a class={a} href="/dovolena-u-more-all-inclusive/">Dovolená u moře all inclusive</a></li>
 				<li><a class={a} href="/recko-all-inclusive/">Řecko all inclusive</a></li>
+				<li><a class={a} href="/turecko-all-inclusive/">Turecko all inclusive</a></li>
+				<li><a class={a} href="/egypt-last-minute-all-inclusive/">Egypt last minute all inclusive</a></li>
+				<li><a class={a} href="/bulharsko-all-inclusive/">Bulharsko all inclusive</a></li>
 				<li><a class={a} href="/super-last-minute-odlet-zitra/">Super last minute odlet zítra</a></li>
 				<li><a class={a} href="/kam-v-srpnu-k-mori/">Kam v srpnu k moři</a></li>
 				<li><a class={a} href="/wellness-pobyt-pro-dva/">Wellness pobyt pro dva</a></li>

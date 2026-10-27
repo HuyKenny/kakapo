@@ -45,7 +45,13 @@ const DEST_COUNTRY: Record<string, string> = {
   'sarajevo-a-okoli': 'Bosna a Hercegovina', neum: 'Bosna a Hercegovina', shahdag: 'Ázerbájdžán', bukurest: 'Rumunsko',
 };
 
+/** Placeholders feeds send instead of a country (Fischer/Exim: "Destinace" with the real country in `destination`). */
+const NOT_A_COUNTRY = new Set(['destinace']);
+const KNOWN_COUNTRIES = new Map(Object.values(ISO3).map((n) => [slugify(n), n]));
+
 export function resolveCountry(country: unknown, destination: unknown): string {
-  const c = canonicalCountry(country);
-  return c !== '' ? c : DEST_COUNTRY[slugify(destination)] ?? '';
+  const c = NOT_A_COUNTRY.has(slugify(country)) ? '' : canonicalCountry(country);
+  if (c !== '') return c;
+  const d = slugify(destination);
+  return DEST_COUNTRY[d] ?? KNOWN_COUNTRIES.get(d) ?? '';
 }

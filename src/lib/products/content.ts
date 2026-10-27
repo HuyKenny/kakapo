@@ -76,10 +76,11 @@ export function buildDetail(p: ProductRow, today: string): DetailModel {
     related.push({ label, url });
   };
   add('Další ' + cat.label.toLowerCase(), `/${cat.path}/`);
-  if (countrySlug !== '' && p.country && countrySlug !== 'cesko') add('Dovolená ' + p.country, `/${countrySlug}/`);
+  if (countrySlug !== '' && p.country) add('Dovolená ' + p.country, `/${countrySlug}/`);
   if (type === 'zajezdy') { add('Last minute zájezdy', '/last-minute/'); add('All inclusive dovolená', '/all-inclusive/'); }
   else if (type === 'eurovikendy') { add('Kam na eurovíkend', '/kam-na-eurovikend/'); add('Eurovíkend letecky', '/eurovikend-letecky/'); }
-  else if (type === 'wellness') { add('Termální lázně', '/termalni-lazne/'); add('Zážitky a pobyty', '/zazitky/'); }
+  else if (type === 'zazitky') { add('Wellness a lázně', '/wellness-pobyty/'); add('Wellness pobyt pro dva', '/wellness-pobyt-pro-dva/'); add('Eurovíkendy', '/eurovikendy/'); }
+  else if (type === 'wellness') { add('Termální lázně', '/termalni-lazne/'); add('Zážitky a pobyty', '/zazitky/'); add('Wellness pobyt pro dva', '/wellness-pobyt-pro-dva/'); }
   else if (type === 'plavby') { add('Zážitky a pobyty', '/zazitky/'); add('Poznávací zájezdy', '/poznavaci-zajezdy/'); }
   else if (type === 'poznavaci') { add('Eurovíkendy', '/eurovikendy/'); add('Adventní zájezdy', '/adventni-zajezdy/'); }
   else if (type === 'vzdelavaci') { add('Poznávací zájezdy', '/poznavaci-zajezdy/'); add('Eurovíkendy', '/eurovikendy/'); }
@@ -95,7 +96,7 @@ export function buildDetail(p: ProductRow, today: string): DetailModel {
   const descParagraphs = descClean.split(/\n+/).map((s) => s.trim()).filter(Boolean);
   return {
     p, title, place, partner, plabel, cat, type, images, terms, hasTerms, rows, goUrl: `/akce/${p.id}/?ctx=product-detail`,
-    fitPoints, checkPoints, related: related.slice(0, 5), faqs, descParagraphs, countrySlug,
+    fitPoints, checkPoints, related: related.slice(0, 8), faqs, descParagraphs, countrySlug,
   };
 }
 /** Link for one term row (mirrors add_query_arg('t', i, go_product_url(id, 'product-term'))). */

@@ -2,6 +2,7 @@
 import { svg, mascot } from '../lib/icons';
 import { countLabel } from '../lib/helpers';
 import { PRODUCT_CATEGORIES, productCounts, registry } from '../lib/server/site';
+import { demandCountries } from '../lib/landing/demand';
 interface Props { isHome?: boolean }
 const { isHome = false } = Astro.props;
 const reg = await registry();
@@ -9,6 +10,7 @@ const counts = await productCounts();
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Prague' }).format(new Date());
 const countries = Object.entries(reg.countries);
 const cats = Object.entries(PRODUCT_CATEGORIES);
+const topCountries = demandCountries(reg, 12);
 const thumb = (p?: string) => String(p ?? '').replace('.webp', '-640.webp');
 ---
 <header class="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur"
@@ -48,6 +50,17 @@ const thumb = (p?: string) => String(p ?? '').replace('.webp', '-640.webp');
 			<a class="nav-link" href="/last-minute/">Last minute</a>
 			<a class="nav-link" href="/first-minute/">First minute</a>
 			<a class="nav-link" href="/zajezdy/">Zájezdy</a>
+			<div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @focusin="open = true" @focusout="$el.contains($event.relatedTarget) || (open = false)">
+				<a class="nav-link inline-flex items-center gap-1" href="/zajezdy/" x-bind:aria-expanded="open ? 'true' : 'false'">
+					Destinace
+					<Fragment set:html={svg('chevron-down', 15, 'transition-transform', 2.2)} />
+				</a>
+				<div x-show="open" x-cloak x-transition.opacity.duration.150ms class="absolute right-0 top-full z-50 w-[26rem] pt-2">
+					<div class="grid grid-cols-2 gap-x-2 overflow-hidden rounded-3xl border border-line bg-white p-2 shadow-pill">
+						{topCountries.map((c) => <a class="rounded-2xl px-3 py-2 text-sm font-semibold text-ink transition hover:bg-mist" href={`/${c.slug}/`}>Dovolená {c.label}</a>)}
+					</div>
+				</div>
+			</div>
 			<div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false" @focusin="open = true" @focusout="$el.contains($event.relatedTarget) || (open = false)">
 				<a class="nav-link inline-flex items-center gap-1" href="/objevte/" x-bind:aria-expanded="open ? 'true' : 'false'">
 					Objevte
@@ -114,6 +127,10 @@ const thumb = (p?: string) => String(p ?? '').replace('.webp', '-640.webp');
 			{[['/last-minute/', 'Last minute'], ['/first-minute/', 'First minute'], ['/zajezdy/', 'Zájezdy']].map(([href, label]) => (
 				<a class="flex items-center justify-between border-b border-line py-4 text-base font-semibold text-ink" href={href}>{label} <Fragment set:html={svg('chevron-right', 18, 'text-slate-400')} /></a>
 			))}
+			<p class="mb-2 mt-6 text-sm font-bold text-ink">Destinace</p>
+			<div class="grid grid-cols-2 gap-2">
+				{topCountries.map((c) => <a class="rounded-2xl border border-line px-3 py-2.5 text-sm font-semibold text-ink transition hover:bg-mist" href={`/${c.slug}/`}>Dovolená {c.label}</a>)}
+			</div>
 			<p class="mb-2 mt-6 text-sm font-bold text-ink"><a href="/objevte/">Objevte</a></p>
 			<div class="grid grid-cols-2 gap-2">
 				{cats.map(([, pc]) => (

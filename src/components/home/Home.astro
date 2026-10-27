@@ -1,4 +1,5 @@
 ---
+import { DEMAND_COUNTRIES } from '../../lib/landing/demand';
 import { seasonYear } from '../../lib/year';
 const Y = seasonYear();
 // Homepage. Port of templates/home.php (hero + searchbar, type tiles, destinations, promo collage, deals, card sections, products, partners, FAQ, SEO guide).
@@ -38,7 +39,7 @@ for (const slug of [c1, c2]) {
 }
 const promo = promoSmall.slice(0, 4);
 
-const heroChips: Array<[string, string]> = [['Dovolená u moře', '/dovolena-u-more/'], ['All inclusive', '/all-inclusive/'], ['Last minute', '/last-minute/'], ['Last minute all inclusive', '/last-minute-all-inclusive/'], ['Odlet zítra', '/super-last-minute-odlet-zitra/'], ['Levná dovolená', '/levna-dovolena/'], ['S dětmi', '/dovolena-s-detmi/'], ['Vlastní dopravou', '/dovolena-vlastni-dopravou/'], ...d.countries.slice(0, 4).map((c) => [c.label, `/${c.slug}/`] as [string, string])];
+const heroChips: Array<[string, string]> = [['Dovolená u moře', '/dovolena-u-more/'], ['All inclusive', '/all-inclusive/'], ['Last minute', '/last-minute/'], ['Last minute all inclusive', '/last-minute-all-inclusive/'], ['Odlet zítra', '/super-last-minute-odlet-zitra/'], ['Levná dovolená', '/levna-dovolena/'], ['S dětmi', '/dovolena-s-detmi/'], ['Vlastní dopravou', '/dovolena-vlastni-dopravou/'], ...DEMAND_COUNTRIES.map((s) => d.countries.find((c) => c.slug === s)).filter((c): c is NonNullable<typeof c> => !!c && c.cnt >= 12).slice(0, 6).map((c) => ['Dovolená ' + c.label, `/${c.slug}/`] as [string, string])];
 const types = [
 	['Dovolená u moře', 'Pláže a hotely u moře', '/dovolena-u-more/', 'more', 'Lidé se koupou ve vlnách u písečné pláže'],
 	['All inclusive', 'Vše v ceně', '/all-inclusive/', 'all-inclusive', 'Drinky na stolku u hotelového bazénu'],

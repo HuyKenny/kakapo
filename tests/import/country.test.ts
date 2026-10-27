@@ -16,6 +16,8 @@ describe('country canonicalisation', () => {
   it('derives a country from a well-known destination when the feed has none', () => {
     expect(resolveCountry('', 'Jižní Tyrolsko')).toBe('Itálie');
     expect(resolveCountry('', 'Riga')).toBe('Lotyšsko');
+    expect(resolveCountry('Destinace', 'Mexiko')).toBe('Mexiko'); // placeholder country, real one in destination
+    expect(resolveCountry('Destinace', 'Neznámé místo')).toBe('');
     expect(resolveCountry('', 'Neznámé místo')).toBe('');
     expect(resolveCountry('Egypt', 'Riga')).toBe('Egypt'); // a delivered country always wins
   });

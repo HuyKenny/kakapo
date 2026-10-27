@@ -7,6 +7,8 @@ import partnerConsts from '../../data/partner-consts.json';
 import { facets, type Facets } from './facets';
 import { calendarMonths, topDrops } from './calendar';
 import { seasonYear } from '../year';
+import { demandCountries } from '../landing/demand';
+import { MIN_INDEX_RESULTS } from '../landing/meta';
 import { memoized, storedJson, versionedJson } from './cache';
 import type { Faq, LandingCtx, ListingDeps } from './landing-types';
 import { DEST_PHOTO_SLUGS, SITE, homeFaqs, homeLd, isIndexable, landingDescription, landingTitle, listingLd, normalizeFaqs, topicLd, topicTitle } from './seo';
@@ -42,6 +44,8 @@ export interface ListingData {
   longtailLinks: Array<{ path: string; h1: string }>;
   moneyLinks: Array<[string, string]>;
   destChips: Array<{ slug: string; label: string; cnt: number }>;
+  otherCountries: Array<{ slug: string; label: string; cnt: number }>;
+  themeByCountry: Array<{ path: string; h1: string }>;
   calendar: Array<{ ym: string; mp: number }>;
   registry: Registry;
   countrySlug: string; destSlug: string;
@@ -59,6 +63,7 @@ const MONEY_LINK_SETS: Record<string, Array<[string, string]>> = {
   '/zajezdy/': [['Last minute all inclusive', '/last-minute-all-inclusive/'], ['Dovolená u moře all inclusive', '/dovolena-u-more-all-inclusive/'], ['Řecko all inclusive', '/recko-all-inclusive/'], ['Turecko all inclusive', '/turecko-all-inclusive/'], ['Egypt last minute all inclusive', '/egypt-last-minute-all-inclusive/'], ['Kam v srpnu k moři', '/kam-v-srpnu-k-mori/']],
   '/dovolena-u-more/': [['Dovolená u moře all inclusive', '/dovolena-u-more-all-inclusive/'], ['Levná dovolená u moře all inclusive', '/levna-dovolena-u-more-all-inclusive/'], ['Kam v červenci k moři', '/kam-v-cervenci-k-mori/'], ['Kam v srpnu k moři', '/kam-v-srpnu-k-mori/'], ['Kam v září k moři', '/kam-v-zari-k-mori/'], ['Dovolená s dětmi u moře all inclusive', '/dovolena-s-detmi-u-more-all-inclusive/']],
   '/last-minute/': [['Last minute all inclusive', '/last-minute-all-inclusive/'], ['Last minute all inclusive z Prahy', '/last-minute-all-inclusive-z-prahy/'], ['Last minute all inclusive z Brna', '/last-minute-all-inclusive-z-brna/'], ['Egypt last minute all inclusive', '/egypt-last-minute-all-inclusive/'], ['Řecko last minute all inclusive', '/recko-last-minute-all-inclusive/'], ['Super last minute odlet zítra', '/super-last-minute-odlet-zitra/']],
+  '/cesko/': [['Zážitky a pobyty', '/zazitky/'], ['Wellness a lázně', '/wellness-pobyty/'], ['Wellness pobyt pro dva', '/wellness-pobyt-pro-dva/'], ['Eurovíkendy', '/eurovikendy/']],
   '/all-inclusive/': [['Dovolená u moře all inclusive', '/dovolena-u-more-all-inclusive/'], ['Levná dovolená u moře all inclusive', '/levna-dovolena-u-more-all-inclusive/'], ['Dovolená s dětmi u moře all inclusive', '/dovolena-s-detmi-u-more-all-inclusive/'], ['Řecko all inclusive', '/recko-all-inclusive/'], ['Bulharsko all inclusive', '/bulharsko-all-inclusive/'], ['Tunisko all inclusive', '/tunisko-all-inclusive/']],
 };
 const POPULAR_SETS: Array<[string, string[]]> = [
@@ -101,6 +106,22 @@ async function longtailBlocks(db: D1Database, ctx: LandingCtx, country: string, 
   }));
 }
 
+/** Global theme pages → the same theme per country (/all-inclusive/ → /egypt/all-inclusive/ …); only landings with enough results. */
+const THEME_BY_PATH: Record<string, string> = {
+  '/all-inclusive/': 'all-inclusive', '/last-minute/': 'last-minute', '/first-minute/': 'first-minute', '/dovolena-u-more/': 'dovolena-u-more',
+  '/levna-dovolena/': 'levna-dovolena', '/dovolena-s-detmi/': 'dovolena-s-detmi', '/dovolena-letecky/': 'dovolena-letecky', '/luxusni-dovolena/': 'luxusni-dovolena',
+};
+async function themeByCountry(db: D1Database, ctx: LandingCtx, registry: Registry, deps: ListingDeps, today: string): Promise<Array<{ path: string; h1: string }>> {
+  const theme = THEME_BY_PATH[ctx.path]; const lt = deps.longtail;
+  if (!theme || !lt) return [];
+  return memoized(`tbc:${ctx.path}:${today}`, 3600, () => storedJson(db, `tbc:${ctx.path}`, 3 * 3600, async () => {
+    const ctxs = await Promise.all(demandCountries(registry, 16).map((c) => lt.context(db, c.slug, '', theme)));
+    const todo = ctxs.filter((c): c is NonNullable<typeof ctxs[number]> => !!c);
+    const counts = await countMany(db, todo.map((c) => normalizeFilters({ ...c.filters, page: 1 })));
+    return todo.filter((c, i) => (counts[i] ?? 0) >= Number(c.index_min ?? MIN_INDEX_RESULTS)).map((c) => ({ path: c.path, h1: c.h1 }));
+  }));
+}
+
 export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSearchParams, deps: ListingDeps = {}): Promise<ListingData> {
   const today = deps.today ?? todayPrague();
   const registry = await loadRegistry(db);
@@ -137,8 +158,11 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
   const quickMeals = (fct.meals ?? []).slice(0, 3);
   const lt = await longtailBlocks(db, ctx, countrySlug, destSlug, deps, today);
   const moneyLinks = (MONEY_LINK_SETS[ctx.path] ?? []).filter(([, p]) => p !== ctx.path);
-  const destChips = countrySlug && !destSlug
-    ? Object.entries(registry.destinations[countrySlug] ?? {}).map(([slug, d]) => ({ slug, label: d.label, cnt: d.cnt })).sort((a, b) => b.cnt - a.cnt).slice(0, 12) : [];
+  // destinations of the country (20) — on a destination page its siblings (10), so every area links to its neighbours
+  const destChips = countrySlug
+    ? Object.entries(registry.destinations[countrySlug] ?? {}).filter(([slug, d]) => slug !== destSlug && d.cnt >= MIN_INDEX_RESULTS).map(([slug, d]) => ({ slug, label: d.label, cnt: d.cnt })).sort((a, b) => b.cnt - a.cnt).slice(0, destSlug ? 10 : 20) : [];
+  const otherCountries = countrySlug ? demandCountries(registry, 10, { exclude: countrySlug }) : [];
+  const themeByCountryLinks = countrySlug ? [] : await themeByCountry(db, ctx, registry, deps, today);
   const calendar = countrySlug && !hasQuery ? await calendarMonths(db, countrySlug, destSlug, today) : [];
 
   // --- meta (computed from landing filters only, like Kakapo_Seo::meta) ---
@@ -167,7 +191,7 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
   return {
     ctx, filters, active, result, facets: fct, sort, totalLabel: totalLabel(result.total),
     cfg: { pathFilters: (ctx.filters ?? {}) as Record<string, unknown>, sort, total: result.total, q: String(active.q ?? ''), adults: Number(active.adults ?? 0) },
-    hasQuery, quickMinPrice, quickDestinations, quickMeals, popularGroups: lt.groups, longtailLinks: lt.all, moneyLinks, destChips, calendar, registry,
+    hasQuery, quickMinPrice, quickDestinations, quickMeals, popularGroups: lt.groups, longtailLinks: lt.all, moneyLinks, destChips, otherCountries, themeByCountry: themeByCountryLinks, calendar, registry,
     countrySlug, destSlug, faqs,
     meta: { title, description, canonical, robots, image, jsonLd },
   };

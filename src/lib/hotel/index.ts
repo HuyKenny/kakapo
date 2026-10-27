@@ -316,13 +316,14 @@ export async function loadHotel(db: D1Database, slug: string, opts: LoadOpts = {
   if (h.country_slug) {
     related.push([`Dovolená ${h.country}`, `/${h.country_slug}/`]);
     const lt = opts.longtailLink;
-    if (lt) for (const t of ['all-inclusive', 'last-minute']) { const c = await lt(h.country_slug, '', t); if (c) related.push([c.h1, c.path]); }
+    if (lt) for (const t of ['all-inclusive', 'last-minute', 'dovolena-s-detmi', 'dovolena-u-more', 'levna-dovolena']) { const c = await lt(h.country_slug, '', t); if (c) related.push([c.h1, c.path]); }
     if (h.destination_slug) {
       related.push([String(h.destination), `/${h.country_slug}/${h.destination_slug}/`]);
-      if (lt) { const c = await lt(h.country_slug, h.destination_slug, 'all-inclusive'); if (c) related.push([c.h1, c.path]); }
+      if (lt) for (const t of ['all-inclusive', 'last-minute', 'dovolena-s-detmi', 'dovolena-u-more']) { const c = await lt(h.country_slug, h.destination_slug, t); if (c) related.push([c.h1, c.path]); }
     }
   }
   related.push(['Dovolená u moře all inclusive', '/dovolena-u-more-all-inclusive/'], ['Last minute all inclusive', '/last-minute-all-inclusive/']);
+  const seenRel = new Set<string>(); for (let i = related.length - 1; i >= 0; i--) { if (seenRel.has(related[i]![1])) related.splice(i, 1); else seenRel.add(related[i]![1]); } // de-dupe by URL (keeps the last)
 
   const breadcrumbs = [{ label: 'Domů', url: '/' }] as Array<{ label: string; url: string }>;
   if (h.country_slug) breadcrumbs.push({ label: h.country, url: `/${h.country_slug}/` });
