@@ -9,9 +9,12 @@ const CONCURRENCY = 6;
 const TIMEOUT_MS = 25_000;
 const UA = 'KakapoImageWarmer/1.0 (+https://kakapo.cz)';
 
-interface Item { table: 'hotels' | 'products'; id: number; key: string; urls: string[] }
+interface Item { table: 'hotels' | 'products'; id: number; key: string; urls: string[]; imgs?: string[]; dead?: Set<string> }
 
-export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ items: number; requests: number; failed: number; rateLimited: boolean }> {
+/** warmUrlsForHotel() order: first photo ×3 variants, then photos 2–5 → the source photo a URL index belongs to. */
+const hotelPhotoOf = (i: number) => (i < 3 ? 0 : i - 2);
+
+export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ items: number; requests: number; failed: number; pruned: number; rateLimited: boolean }> {
   const db = deps.env.DB;
   const items: Item[] = [];
   let planned = 0;
@@ -20,7 +23,7 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
   for (const h of hotels) {
     const imgs = jsonArr<string>(h.images_json); const urls = warmUrlsForHotel(imgs);
     if (!urls.length || planned + urls.length > budget) continue;
-    items.push({ table: 'hotels', id: h.id, key: String(imgs[0]), urls }); planned += urls.length;
+    items.push({ table: 'hotels', id: h.id, key: String(imgs[0]), urls, imgs }); planned += urls.length;
   }
   if (planned < budget) {
     const products = (await db.prepare(`SELECT id, image_url, images_json FROM products WHERE active = 1 AND hidden = 0
@@ -38,23 +41,32 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
   const worker = async () => {
     for (let it = queue.shift(); it && !rateLimited; it = queue.shift()) {
       let ok = true;
-      for (const u of it.urls) {
+      for (const [ui, u] of it.urls.entries()) {
         if (rateLimited) { ok = false; break; }
         requests++;
         try {
           const res = await deps.fetch(u, { headers: { 'User-Agent': UA, Accept: 'image/webp,image/*' }, signal: AbortSignal.timeout(TIMEOUT_MS) });
           await res.arrayBuffer().catch(() => undefined); // drain the body so the image is fully produced and cached
           if (res.status === 429) { rateLimited = true; ok = false; break; }
-          if (!res.ok) ok = false; // a broken partner photo: retried next tick, never blocks others
+          if (res.status === 404 || res.status === 410) {
+            // the partner's photo is gone (≈1 in 5 feed hotels): remember it so it is dropped below instead of being retried forever
+            if (it.imgs) (it.dead ??= new Set()).add(String(it.imgs[hotelPhotoOf(ui)]));
+            ok = false;
+          } else if (!res.ok) ok = false; // transient (5xx/timeout): retried next tick, never blocks others
         } catch { ok = false; }
       }
       if (ok) done.push(it); else failed++;
     }
   };
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, items.length) }, worker));
+  // dead photos leave images_json, so the next photo becomes the first one (cards/hero show it, the warmer moves on)
+  const pruned = items.filter((it) => it.dead && it.imgs);
+  for (let i = 0; i < pruned.length; i += 50) {
+    await db.batch(pruned.slice(i, i + 50).map((it) => db.prepare('UPDATE hotels SET images_json = ? WHERE id = ?').bind(JSON.stringify(it.imgs!.filter((u) => !it.dead!.has(String(u)))), it.id)));
+  }
   for (let i = 0; i < done.length; i += 50) {
     await db.batch(done.slice(i, i + 50).map((d) => db.prepare(`UPDATE ${d.table} SET img_warm = ? WHERE id = ?`).bind(d.key, d.id)));
   }
-  deps.log('warm.done', { items: done.length, requests, failed, rateLimited });
-  return { items: done.length, requests, failed, rateLimited };
+  deps.log('warm.done', { items: done.length, requests, failed, pruned: pruned.length, rateLimited });
+  return { items: done.length, requests, failed, pruned: pruned.length, rateLimited };
 }
