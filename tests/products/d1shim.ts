@@ -12,7 +12,11 @@ export function makeD1(): { db: D1Database; raw: DatabaseSync } {
     async first() { return (raw.prepare(sql).get(...(params as any[])) as any) ?? null; },
     async run() { const r = raw.prepare(sql).run(...(params as any[])); return { success: true, meta: { changes: Number(r.changes) } }; },
   });
-  return { db: { prepare: (s: string) => stmt(s) } as unknown as D1Database, raw };
+  const db = {
+    prepare: (s: string) => stmt(s),
+    async batch(list: Array<{ run(): Promise<unknown> }>) { const out = []; for (const st of list) out.push(await st.run()); return out; },
+  };
+  return { db: db as unknown as D1Database, raw };
 }
 
 export function seedProducts(raw: DatabaseSync): void {

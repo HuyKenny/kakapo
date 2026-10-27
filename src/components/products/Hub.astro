@@ -81,6 +81,23 @@ let i = 0;
 		</div>
 	</section>
 
+	{data.moreTopics.length > 0 && (
+		<section class="mt-14 border-t border-line pt-10">
+			<h2 class="h-section">Další výběry zájezdů</h2>
+			<div class="mt-5 flex flex-wrap gap-2">
+				{data.moreTopics.map((t) => <a class="chip" href={t.path}>{t.label}</a>)}
+			</div>
+			{data.airportLinks.length > 0 && (
+				<>
+					<h2 class="mb-3 mt-10 text-lg font-bold text-ink">Podle odletového letiště</h2>
+					<div class="flex flex-wrap gap-2">
+						{data.airportLinks.map((t) => <a class="chip" href={t.path}>{t.label}</a>)}
+					</div>
+				</>
+			)}
+		</section>
+	)}
+
 	<section class="mt-14 border-t border-line pt-10">
 		<div class="mx-auto max-w-4xl">
 			<h2 class="h-section">Časté otázky</h2>

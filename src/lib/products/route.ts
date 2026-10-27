@@ -1,6 +1,8 @@
 // Route resolution and data loading for the product section. The main catch-all page wires these into its routing:
 //   const r = await resolveProductRoute(db, pathname); if (r) -> loadHub / loadCategory / loadDetail + components/products/*.
 import { todayPrague } from '../search';
+import { loadRegistry } from '../snapshots';
+import { getTopicStatic, topicSlugList } from '../landing/topics';
 import { categoryExists, getCategory, getLanding, typeFromPath, type Landing } from './data';
 import { buildDetail, HUB_FAQS, type DetailModel } from './content';
 import { categoryMeta, hubFaqLd, hubMeta, productMeta, type PageMeta } from './meta';
@@ -50,11 +52,15 @@ export async function resolveProductRoute(db: D1Database, pathname: string, opts
 }
 
 /* ---------------------------------------------------------------- hub */
-export interface HubData { counts: Record<string, { cnt: number; min_price: number }>; total: number; faqs: typeof HUB_FAQS; meta: PageMeta; extraJsonLd: unknown[] }
+export interface HubData { counts: Record<string, { cnt: number; min_price: number }>; total: number; moreTopics: Array<{ label: string; path: string }>; airportLinks: Array<{ label: string; path: string }>; faqs: typeof HUB_FAQS; meta: PageMeta; extraJsonLd: unknown[] }
 export async function loadHub(db: D1Database, site: string): Promise<HubData> {
   const [counts, top] = await Promise.all([countsByType(db), search(db, { per_page: 12, sort: 'price' })]);
   const total = Object.values(counts).reduce((a, c) => a + c.cnt, 0);
-  return { counts, total, faqs: HUB_FAQS, meta: hubMeta(site, top.products), extraJsonLd: [hubFaqLd(HUB_FAQS)] };
+  // every hand-written selection and departure-airport page is linked from here (they were orphans: nothing else points at them)
+  const reg = await loadRegistry(db);
+  const moreTopics = topicSlugList().map((s) => getTopicStatic(s)).filter((t): t is NonNullable<typeof t> => !!t && !!t.path && !!t.label).map((t) => ({ label: t.label, path: t.path }));
+  const airportLinks = Object.values(reg.airports).filter((a) => a.cnt >= 10).sort((x, y) => y.cnt - x.cnt).slice(0, 30).map((a) => ({ label: 'Dovolená z letiště ' + a.label, path: `/odlet-z-${a.slug}/` }));
+  return { counts, total, moreTopics, airportLinks, faqs: HUB_FAQS, meta: hubMeta(site, top.products), extraJsonLd: [hubFaqLd(HUB_FAQS)] };
 }
 
 /* ---------------------------------------------------------------- category / landing */
