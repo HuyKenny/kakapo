@@ -11,6 +11,7 @@ export const MEAL_LANDINGS = ['all-inclusive', 'polopenze', 'snidane', 'bez-stra
 export interface Route { page: string; vars: LandingVars }
 
 const PREFIX_ALIASES: Array<[string, string]> = [
+  ['/svet/', '/plavby/'], // feed country "Svět" holds only cruise ships
   ['/destinace/mexiko/', '/mexiko/'], ['/destinace/', '/mexiko/'], // feed placeholder country "Destinace" (hotels are in Mexico)
   ['/egypt/egypt-hurghada/', '/egypt/hurghada/'], ['/egypt/egypt-marsa-alam/', '/egypt/marsa-alam/'], ['/egypt/marsa-matrouh/', '/egypt/marsa-matruh/'],
   ['/tunisko/tunisko-pevnina/', '/tunisko/pevnina/'], ['/kypr/kypr/', '/kypr/'], ['/maledivy/maledivy/', '/maledivy/'], ['/mauricius/mauricius/', '/mauricius/'],
