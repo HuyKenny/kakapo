@@ -51,3 +51,5 @@ main a.inline-flex,main button.inline-flex{min-height:2.75rem}
 /* utilities used by newer templates (the compiled utility set is fixed, see mobile-first block above) */
 .gap-x-2{column-gap:.5rem}
 @media (min-width:640px){.sm\:gap-3{gap:.75rem}.sm\:p-4{padding:1rem}.sm\:justify-between{justify-content:space-between}}
+/* product cards: the category badge hides the small mobile thumbnail and repeats the page's own category */
+@media (max-width:639px){.card-k .badge-cat{display:none}}
