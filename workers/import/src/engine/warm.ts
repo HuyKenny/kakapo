@@ -9,12 +9,9 @@ const CONCURRENCY = 6;
 const TIMEOUT_MS = 25_000;
 const UA = 'KakapoImageWarmer/1.0 (+https://kakapo.cz)';
 
-interface Item { table: 'hotels' | 'products'; id: number; key: string; urls: string[]; imgs?: string[]; dead?: Set<string> }
+interface Item { table: 'hotels' | 'products'; id: number; key: string; urls: string[] }
 
-/** warmUrlsForHotel() order: first photo ×3 variants, then photos 2–5 → the source photo a URL index belongs to. */
-const hotelPhotoOf = (i: number) => (i < 3 ? 0 : i - 2);
-
-export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ items: number; requests: number; failed: number; pruned: number; rateLimited: boolean; statuses: Record<string, number> }> {
+export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ items: number; requests: number; failed: number; rateLimited: boolean; statuses: Record<string, number> }> {
   const db = deps.env.DB;
   const items: Item[] = [];
   let planned = 0;
@@ -23,7 +20,7 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
   for (const h of hotels) {
     const imgs = jsonArr<string>(h.images_json); const urls = warmUrlsForHotel(imgs);
     if (!urls.length || planned + urls.length > budget) continue;
-    items.push({ table: 'hotels', id: h.id, key: String(imgs[0]), urls, imgs }); planned += urls.length;
+    items.push({ table: 'hotels', id: h.id, key: String(imgs[0]), urls }); planned += urls.length;
   }
   if (planned < budget) {
     const products = (await db.prepare(`SELECT id, image_url, images_json FROM products WHERE active = 1 AND hidden = 0
@@ -42,7 +39,7 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
   const worker = async () => {
     for (let it = queue.shift(); it && !rateLimited; it = queue.shift()) {
       let ok = true;
-      for (const [ui, u] of it.urls.entries()) {
+      for (const u of it.urls) {
         if (rateLimited) { ok = false; break; }
         requests++;
         try {
@@ -57,10 +54,9 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
     }
   };
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, items.length) }, worker));
-  const pruned: Item[] = []; // never edit images_json from here: wsrv.nl 404/400 does not prove the origin photo is gone
   for (let i = 0; i < done.length; i += 50) {
     await db.batch(done.slice(i, i + 50).map((d) => db.prepare(`UPDATE ${d.table} SET img_warm = ? WHERE id = ?`).bind(d.key, d.id)));
   }
-  deps.log('warm.done', { items: done.length, requests, failed, pruned: pruned.length, rateLimited, statuses });
-  return { items: done.length, requests, failed, pruned: pruned.length, rateLimited, statuses };
+  deps.log('warm.done', { items: done.length, requests, failed, rateLimited, statuses });
+  return { items: done.length, requests, failed, rateLimited, statuses };
 }

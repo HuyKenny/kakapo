@@ -6,17 +6,18 @@ import { addDays, pragueToday, sqlTime } from '../util/text';
 import { recomputeAggregates } from './hotels';
 import { chunk, runBatches, MAX_PARAMS, qs } from './db';
 import { afterRun } from './post';
+import { reactivateRetired, retireHotels } from './lifecycle';
 
 const RETENTION_DAYS = 180, DROP_MIN_PCT = 5, DROP_MIN_CZK = 500;
 
-export interface DailyReport { expiredOffers: number; expiredProducts: number; windowFlags: number; hotelsWritten: number; snapshots: number; dropsSet: number; prunedHistory: number; prunedOffers: number; prunedProducts: number; prunedRuns: number }
+export interface DailyReport { expiredOffers: number; expiredProducts: number; windowFlags: number; hotelsWritten: number; snapshots: number; dropsSet: number; prunedHistory: number; prunedOffers: number; prunedProducts: number; prunedRuns: number; retiredHotels: number; reactivatedHotels: number }
 
 export async function runDaily(deps: Deps): Promise<DailyReport> {
   const db = deps.env.DB;
   const now = deps.now();
   const today = pragueToday(now), nowSql = sqlTime(now);
   const lm = Number(deps.env.LAST_MINUTE_DAYS ?? 14) || 14, fm = Number(deps.env.FIRST_MINUTE_DAYS ?? 120) || 120;
-  const r: DailyReport = { expiredOffers: 0, expiredProducts: 0, windowFlags: 0, hotelsWritten: 0, snapshots: 0, dropsSet: 0, prunedHistory: 0, prunedOffers: 0, prunedProducts: 0, prunedRuns: 0 };
+  const r: DailyReport = { expiredOffers: 0, expiredProducts: 0, windowFlags: 0, hotelsWritten: 0, snapshots: 0, dropsSet: 0, prunedHistory: 0, prunedOffers: 0, prunedProducts: 0, prunedRuns: 0, retiredHotels: 0, reactivatedHotels: 0 };
   const changes = async (sql: string, ...v: unknown[]) => (await db.prepare(sql).bind(...v).run()).meta.changes ?? 0;
 
   // departures in the past, products past their validity
@@ -29,6 +30,10 @@ export async function runDaily(deps: Deps): Promise<DailyReport> {
   // aggregates of every hotel that has (or had) active offers
   const ids = (await db.prepare('SELECT id FROM hotels WHERE offers_active > 0 OR id IN (SELECT DISTINCT hotel_id FROM offers WHERE active = 1)').all<{ id: number }>()).results.map((x) => x.id);
   r.hotelsWritten = (await recomputeAggregates(db, ids, { today, nowSql })).written;
+
+  // hotels without offers for HOTEL_RETIRE_DAYS → 301 to their category; hotels with offers again → back
+  r.reactivatedHotels = await reactivateRetired(db);
+  r.retiredHotels = (await retireHotels(db, { now })).retired;
 
   // price history snapshot (idempotent per day) + drops vs ~7 days ago
   r.snapshots = await changes('INSERT INTO price_history (hotel_id, snap_date, min_price) SELECT id, ?, min_price FROM hotels WHERE offers_active > 0 AND min_price IS NOT NULL AND min_price > 0 ON CONFLICT (hotel_id, snap_date) DO UPDATE SET min_price = excluded.min_price WHERE price_history.min_price <> excluded.min_price', today);

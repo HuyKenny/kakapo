@@ -27,6 +27,7 @@ export async function runTick(deps: Deps): Promise<StepResult[]> {
   }
   await afterTick(deps);
   // image cache warming only when no import is busy with this invocation's budget
-  if (Date.now() < deadline - 120_000) await warmImages(deps).catch((e) => deps.log('warm.failed', { error: e instanceof Error ? e.message : 'error' }));
+  // WARM_ENABLED=0: wsrv.nl blocks Cloudflare egress with 403, the warm-up runs from Malina instead (bin/kakapo-warm-pi.py)
+  if (deps.env.WARM_ENABLED !== '0' && Date.now() < deadline - 120_000) await warmImages(deps).catch((e) => deps.log('warm.failed', { error: e instanceof Error ? e.message : 'error' }));
   return results;
 }

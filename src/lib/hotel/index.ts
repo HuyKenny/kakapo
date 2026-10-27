@@ -6,7 +6,9 @@ import { MEAL_LABELS, amenitiesFromText, countLabel, countryCode, esc, formatDat
 import { sameDestination, similar, todayPrague, type HotelRow } from '../search';
 
 export const HOTEL_MIN_DESC = 200;
-export const HOTEL_GRACE_DAYS = 180;
+import { HOTEL_RETIRE_DAYS } from './retention';
+/** a hotel without offers stays indexable (sold-out page) only until it is retired */
+export const HOTEL_GRACE_DAYS = HOTEL_RETIRE_DAYS;
 export const RATING_MIN_COUNT = 3;
 export const RATING_MIN_DESC = 7.0;
 export const TITLE_MAX = 60;

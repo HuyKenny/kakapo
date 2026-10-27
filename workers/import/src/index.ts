@@ -5,6 +5,7 @@ import { runTick } from './engine/tick';
 import { approveRun, stepFeed } from './engine/run';
 import { runDaily } from './engine/daily';
 import { warmImages } from './engine/warm';
+import { reactivateRetired, retireHotels } from './engine/lifecycle';
 import { sqlTime } from './util/text';
 
 const DAILY_CRON = '30 1 * * *';
@@ -42,6 +43,14 @@ export async function handle(request: Request, env: ImportEnv, ctx: { waitUntil(
     return json({ feeds, runs });
   }
   if (parts[0] === 'daily' && request.method === 'POST') return json(await runDaily(makeDeps(env)));
+  if (parts[0] === 'retire' && request.method === 'POST') {
+    // ?dry=1 only reports (counts by redirect target + sample); ?limit=N caps one run
+    const dry = url.searchParams.get('dry') === '1'; const limit = Number(url.searchParams.get('limit') ?? 0);
+    const rep = await retireHotels(env.DB, { now: new Date(), dry, limit });
+    const back = dry ? 0 : await reactivateRetired(env.DB);
+    if (!dry) await audit(env, 'hotels.retire', String(rep.retired), `reactivated ${back}`);
+    return json({ dry, ...rep, reactivated: back });
+  }
   if (parts[0] === 'warm' && request.method === 'POST') return json(await warmImages(makeDeps(env), Math.min(700, Math.max(1, Number(new URL(request.url).searchParams.get('budget') ?? 50)))));
 
   if (parts[0] === 'feeds' && /^\d+$/.test(parts[1] ?? '')) {

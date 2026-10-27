@@ -1,6 +1,7 @@
 // Routing for landing pages: Kakapo_Router rewrite rules + resolve_country_urls, legacy redirects and canonical aliases.
 import aliases from '../../data/landing-aliases.json';
 import { slugify } from '../helpers';
+import { COUNTRY_PREFIX_ALIASES } from './country-aliases';
 import { loadRegistry, isCountry, isDestination } from '../snapshots';
 import { existsTopic as longtailExists } from './longtail';
 import { topicExists } from './topics';
@@ -18,7 +19,6 @@ const PREFIX_ALIASES: Array<[string, string]> = [
   ['/cina/cina/', '/cina/'], ['/bahrajn/bahrajn/', '/bahrajn/'], ['/katar/katar/', '/katar/'], ['/bahrain/bahrain/', '/bahrajn/'], ['/kostarika/kostarika/', '/kostarika/'],
   ['/irsko/irsko/', '/irsko/'], ['/singapur/singapur/', '/singapur/'],
 ];
-const COUNTRY_PREFIX_ALIASES: Record<string, string> = { 'ceska-republika': 'cesko', 'kapverdske-ostrovy': 'kapverdy', bahrain: 'bahrajn' };
 
 /** Kakapo_Seo::canonical_alias_target — '' when the path is not an alias. */
 export function canonicalAliasTarget(pathIn: string): string {

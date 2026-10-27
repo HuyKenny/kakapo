@@ -61,6 +61,7 @@
         "MAX_DROP_PCT": "40",
         "LAST_MINUTE_DAYS": "14",
         "FIRST_MINUTE_DAYS": "120",
+        "WARM_ENABLED": "0",
         // public by design (served as /<key>.txt); IndexNow ping after the daily sitemap rebuild
         "INDEXNOW_KEY": "fe36085e9198035f67a3f56ddaee9101"
       }

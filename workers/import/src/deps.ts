@@ -29,6 +29,7 @@ export interface ImportEnv {
   MAX_DROP_PCT?: string;         // size guard, default 40
   LAST_MINUTE_DAYS?: string;
   FIRST_MINUTE_DAYS?: string;
+  WARM_ENABLED?: string;         // '0' = the tick does not pre-warm wsrv.nl images
   [key: `FEED_URL_${number}`]: string | undefined;
 }
 

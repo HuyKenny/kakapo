@@ -16,6 +16,8 @@ import { applyOffers, applyProducts, type RunCtx } from './offers';
 import { recomputeAggregates, upsertHotels } from './hotels';
 import { nextRunAt, parseWindow } from './schedule';
 import { markDirty } from './post';
+import { reactivateRetired } from './lifecycle';
+import { checkParity, type Parity } from './parity';
 import type { NormProduct } from '../model';
 
 export type StepStatus = 'ok' | 'not_modified' | 'failed' | 'suspicious' | 'continue' | 'locked' | 'skipped' | 'superseded';
@@ -235,10 +237,13 @@ async function continueRun(deps: Deps, feed: FeedRow, runId: number, cp: Checkpo
     }
   } // incremental feeds: a missing item is never interpreted as deleted
 
+  let parity: Parity | null = null;
   if (table === 'offers') {
     const hotelIds = (await db.prepare('SELECT DISTINCT hotel_id FROM offers WHERE feed_id = ?').bind(feed.id).all<{ hotel_id: number }>()).results.map((r) => r.hotel_id);
     const ag = await recomputeAggregates(db, hotelIds, { today, nowSql: run.nowSql });
     cp.counters.rows += ag.written;
+    await reactivateRetired(db, hotelIds);
+    if (feed.is_full_catalogue && !hold) parity = await checkParity(db, deps.env.SNAPSHOTS, feed, runId, cp.blocks, manifest.present.length, cp.counters.rejected);
   }
 
   const finished = sqlTime(deps.now());
@@ -248,7 +253,7 @@ async function continueRun(deps: Deps, feed: FeedRow, runId: number, cp: Checkpo
     await db.prepare('UPDATE feeds SET current_run = NULL, force_run = 0, next_run_at = ? WHERE id = ?').bind(nextRunAt(deps.now(), feed.interval_hours, win), feed.id).run();
     return { feedId: feed.id, runId, status: 'suspicious', message: hold };
   }
-  await saveRun(deps, runId, { status: 'ok', finished_at: finished, duration_ms: Date.now() - cp.startedMs, checkpoint_json: JSON.stringify(cp), message: `ok (${JSON.stringify(cp.rejectedByReason ?? {})})`, ...counterPatch(cp.counters) });
+  await saveRun(deps, runId, { status: 'ok', finished_at: finished, duration_ms: Date.now() - cp.startedMs, checkpoint_json: JSON.stringify(cp), message: `${parity?.warn ? `PARITY: ${parity.note}; ` : ''}ok (${JSON.stringify(cp.rejectedByReason ?? {})})${parity ? ` parity active ${parity.activeAfter}/${parity.present}, sample ${parity.sampled - parity.mismatched}/${parity.sampled}` : ''}`, ...counterPatch(cp.counters) });
   await db.prepare('UPDATE feeds SET current_run = NULL, force_run = 0, last_success_run = ?, last_success_at = ?, last_success_count = ?, etag = ?, last_modified = ?, next_run_at = ? WHERE id = ?')
     .bind(runId, finished, cp.counters.accepted, cp.etag, cp.lastModified, nextRunAt(deps.now(), feed.interval_hours, win), feed.id).run();
   // retention: keep this run and the previous good one restorable, drop older snapshots

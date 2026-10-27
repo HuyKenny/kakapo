@@ -112,10 +112,10 @@ describe('sold out + grace + indexability', () => {
     expect(v.sparkline).toContain('<polyline');
     expect(v.descriptionParas.length).toBeGreaterThan(0);
   });
-  it('noindex when out of the 180-day grace, or without text and image', async () => {
-    expect(withinGrace('2026-04-01 00:00:00', NOW)).toBe(false);
-    expect(withinGrace('2026-05-01 00:00:00', NOW)).toBe(true);
-    expect(hotelIsIndexable(0, LONG, '[]', '2026-04-01 00:00:00', NOW)).toBe(false);
+  it('noindex when out of the 60-day grace (= the retire period), or without text and image', async () => {
+    expect(withinGrace('2026-08-01 00:00:00', NOW)).toBe(false);
+    expect(withinGrace('2026-09-20 00:00:00', NOW)).toBe(true);
+    expect(hotelIsIndexable(0, LONG, '[]', '2026-08-01 00:00:00', NOW)).toBe(false);
     expect(hotelIsIndexable(0, LONG, '[]', null, NOW)).toBe(false);
     expect(hotelIsIndexable(2, 'krátký', '[]', null, NOW)).toBe(false);
     expect(hotelIsIndexable(2, 'krátký', '["https://x/a.jpg"]', null, NOW)).toBe(true);
