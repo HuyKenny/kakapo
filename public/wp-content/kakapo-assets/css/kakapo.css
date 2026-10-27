@@ -47,3 +47,7 @@ main a.inline-flex,main button.inline-flex{min-height:2.75rem}
 .hotel-page>#nabidky{margin-top:0}
 }
 @media (max-width:767px){.offers-table .cell-na{display:none}.hotel-page>#nabidky{margin-bottom:2rem}}
+
+/* utilities used by newer templates (the compiled utility set is fixed, see mobile-first block above) */
+.gap-x-2{column-gap:.5rem}
+@media (min-width:640px){.sm\:gap-3{gap:.75rem}.sm\:p-4{padding:1rem}.sm\:justify-between{justify-content:space-between}}
