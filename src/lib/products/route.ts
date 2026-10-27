@@ -3,7 +3,7 @@
 import { todayPrague } from '../search';
 import { loadRegistry } from '../snapshots';
 import { getTopicStatic, topicSlugList } from '../landing/topics';
-import { categoryExists, getCategory, getLanding, typeFromPath, type Landing } from './data';
+import { categoryExists, getCategory, getLanding, LANDINGS, typeFromPath, type Landing } from './data';
 import { buildDetail, HUB_FAQS, type DetailModel } from './content';
 import { categoryMeta, hubFaqLd, hubMeta, productMeta, type PageMeta } from './meta';
 import { countsByType, filterOptions, getBySlug, getBySlugAny, search, similar, type FilterOptions, type ProductRow, type ProductSearch } from './repo';
@@ -59,6 +59,7 @@ export async function loadHub(db: D1Database, site: string): Promise<HubData> {
   // every hand-written selection and departure-airport page is linked from here (they were orphans: nothing else points at them)
   const reg = await loadRegistry(db);
   const moreTopics = topicSlugList().map((s) => getTopicStatic(s)).filter((t): t is NonNullable<typeof t> => !!t && !!t.path && !!t.label).map((t) => ({ label: t.label, path: t.path }));
+  for (const l of Object.values(LANDINGS)) moreTopics.push({ label: l.label, path: `/${l.path}/` });
   const airportLinks = Object.values(reg.airports).filter((a) => a.cnt >= 10).sort((x, y) => y.cnt - x.cnt).slice(0, 30).map((a) => ({ label: 'Dovolená z letiště ' + a.label, path: `/odlet-z-${a.slug}/` }));
   return { counts, total, moreTopics, airportLinks, faqs: HUB_FAQS, meta: hubMeta(site, top.products), extraJsonLd: [hubFaqLd(HUB_FAQS)] };
 }

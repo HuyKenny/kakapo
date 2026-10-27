@@ -3,7 +3,7 @@ import Breadcrumbs from '../Breadcrumbs.astro';
 import ProductCard from './ProductCard.astro';
 import { CENA_BANDS, categoryUrl } from '../../lib/products/route';
 import type { CategoryView } from '../../lib/products/route';
-import { fixHtml } from '../../lib/products/data';
+import { fixHtml, LANDINGS } from '../../lib/products/data';
 import { partnerLabel } from '../../lib/helpers';
 interface Props { view: CategoryView }
 const { view } = Astro.props;
@@ -20,6 +20,7 @@ for (let n = 10; n < pages; n += 10) items.add(n);
 const pg = [...items].filter((n) => n >= 1 && n <= pages).sort((a, b) => a - b);
 const pgLink = (n: number) => (n <= 1 ? u({ strana: '' }) : u({ strana: n }));
 const faqs = (Array.isArray(cat.faqs) ? cat.faqs : []).filter((f) => String(f?.q ?? '').trim() !== '' && String(f?.a ?? '').trim() !== '');
+const sibling = Object.values(LANDINGS).filter((l) => l.type === type && `/${l.path}/` !== base);
 let prev = 0;
 ---
 <main class="container-k py-8">
@@ -160,6 +161,15 @@ let prev = 0;
 	{cat.seo_text && (
 		<section class="mt-16 border-t border-line pt-10">
 			<div class="prose-kakapo max-w-5xl text-slate-600" set:html={fixHtml(cat.seo_text)} />
+		</section>
+	)}
+
+	{sibling.length > 0 && (
+		<section class="mt-12 border-t border-line pt-8">
+			<h2 class="h-section">Související výběry</h2>
+			<div class="mt-4 flex flex-wrap gap-2">
+				{sibling.map((l) => <a class="chip" href={`/${l.path}/`}>{l.label}</a>)}
+			</div>
 		</section>
 	)}
 
