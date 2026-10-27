@@ -5,7 +5,7 @@
  * Rollback: `wrangler rollback --env <env>` for the web Worker and `-c workers/import/wrangler.jsonc` for the importer; D1: restore the backup.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = new URL('../', import.meta.url).pathname;
@@ -40,6 +40,9 @@ const siteBase = envName === 'staging' ? 'https://kakapo-staging.huy-kenny.worke
 
 mkdirSync(join(ROOT, 'backups'), { recursive: true });
 try { wr(['d1', 'export', 'DB', '--remote', '--env', envName, '--output', join('backups', `d1-${envName}-${new Date().toISOString().replace(/[:.]/g, '-')}.sql`)]); } catch { console.log('backup skipped (empty database on first deploy)'); }
+// each dump is ~300 MB: keep only the 2 newest per environment
+const dumps = readdirSync(join(ROOT, 'backups')).filter((f) => f.startsWith(`d1-${envName}-`) && f.endsWith('.sql')).sort();
+for (const f of dumps.slice(0, -2)) unlinkSync(join(ROOT, 'backups', f));
 wr(['d1', 'migrations', 'apply', 'DB', '--remote', '--env', envName], { input: 'y\n' });
 
 wr(['deploy', '-c', 'workers/import/wrangler.jsonc', '--env', envName]);
