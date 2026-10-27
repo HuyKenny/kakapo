@@ -14,7 +14,7 @@ interface Item { table: 'hotels' | 'products'; id: number; key: string; urls: st
 /** warmUrlsForHotel() order: first photo ×3 variants, then photos 2–5 → the source photo a URL index belongs to. */
 const hotelPhotoOf = (i: number) => (i < 3 ? 0 : i - 2);
 
-export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ items: number; requests: number; failed: number; pruned: number; rateLimited: boolean }> {
+export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ items: number; requests: number; failed: number; pruned: number; rateLimited: boolean; statuses: Record<string, number> }> {
   const db = deps.env.DB;
   const items: Item[] = [];
   let planned = 0;
@@ -36,6 +36,7 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
   }
 
   let requests = 0, failed = 0, rateLimited = false;
+  const statuses: Record<string, number> = {};
   const done: Item[] = [];
   const queue = [...items];
   const worker = async () => {
@@ -46,6 +47,7 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
         requests++;
         try {
           const res = await deps.fetch(u, { headers: { 'User-Agent': UA, Accept: 'image/webp,image/*' }, signal: AbortSignal.timeout(TIMEOUT_MS) });
+          statuses[res.status] = (statuses[res.status] ?? 0) + 1;
           await res.arrayBuffer().catch(() => undefined); // drain the body so the image is fully produced and cached
           if (res.status === 429) { rateLimited = true; ok = false; break; }
           if (res.status === 404 || res.status === 410) {
@@ -53,7 +55,7 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
             if (it.imgs) (it.dead ??= new Set()).add(String(it.imgs[hotelPhotoOf(ui)]));
             ok = false;
           } else if (!res.ok) ok = false; // transient (5xx/timeout): retried next tick, never blocks others
-        } catch { ok = false; }
+        } catch (e) { ok = false; const k = 'err:' + (e instanceof Error ? e.name : 'x'); statuses[k] = (statuses[k] ?? 0) + 1; }
       }
       if (ok) done.push(it); else failed++;
     }
@@ -67,6 +69,6 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
   for (let i = 0; i < done.length; i += 50) {
     await db.batch(done.slice(i, i + 50).map((d) => db.prepare(`UPDATE ${d.table} SET img_warm = ? WHERE id = ?`).bind(d.key, d.id)));
   }
-  deps.log('warm.done', { items: done.length, requests, failed, pruned: pruned.length, rateLimited });
-  return { items: done.length, requests, failed, pruned: pruned.length, rateLimited };
+  deps.log('warm.done', { items: done.length, requests, failed, pruned: pruned.length, rateLimited, statuses });
+  return { items: done.length, requests, failed, pruned: pruned.length, rateLimited, statuses };
 }
