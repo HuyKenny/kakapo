@@ -17,7 +17,7 @@ const DB = '302b7cb9-53f0-47f3-bb6a-239a7402334f';
 const url = `https://api.cloudflare.com/client/v4/accounts/${kk.CF_ACCOUNT_ID}/d1/database/${DB}/query`;
 const headers = { 'X-Auth-Email': (cf.CF_EMAIL || kk.CF_AUTH_EMAIL)!, 'X-Auth-Key': (cf.CF_GLOBAL_API_KEY || kk.CF_GLOBAL_API_KEY)!, 'Content-Type': 'application/json' };
 async function q(body: unknown): Promise<Array<{ results: Array<Record<string, unknown>> }>> {
-  const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+  const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(Array.isArray(body) ? { batch: body } : body) });
   const j = (await r.json()) as { success: boolean; result: Array<{ results: Array<Record<string, unknown>> }>; errors?: unknown };
   if (!j.success) throw new Error(JSON.stringify(j.errors));
   return j.result;
