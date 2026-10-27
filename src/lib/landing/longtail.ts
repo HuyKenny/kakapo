@@ -103,7 +103,7 @@ export async function longtailSitemapLandings(db: D1Database): Promise<Array<{ p
       const ctx = longtailContext(reg, country, '', t); if (!ctx) continue;
       const n = await countResults(db, ctx.filters); if (n >= ctx.index_min) out.push({ path: ctx.path, label: ctx.h1, cnt: n });
     }
-    const dests = Object.entries(reg.destinations[country] ?? {}).sort((a, b) => b[1].cnt - a[1].cnt).slice(0, 12);
+    const dests = Object.entries(reg.destinations[country] ?? {}).sort((a, b) => b[1].cnt - a[1].cnt).slice(0, 20);
     for (const [dest, d] of dests) {
       if (d.cnt < C.MIN_DEST_RESULTS) continue;
       for (const t of DEST_TOPIC_SLUGS) {
