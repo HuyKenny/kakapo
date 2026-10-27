@@ -186,10 +186,20 @@ const empty = !result.hotels.length;
 		)}
 
 		{d.destChips.length > 0 && (
+			<>
 			<div class="mb-5 flex flex-wrap items-center gap-2">
 				<span class="text-sm font-medium text-slate-500">{d.destSlug !== '' ? `Další oblasti v ${d.registry.countries[d.countrySlug]?.label ?? ''}:` : 'Oblíbené destinace:'}</span>
-				{d.destChips.map((c) => <a class="chip" href={`/${d.countrySlug}/${c.slug}/`}>{c.label}{c.cnt ? <>{' '}<span class="text-xs opacity-60">{c.cnt}</span></> : null}</a>)}
+				{d.destChips.slice(0, 20).map((c) => <a class="chip" href={`/${d.countrySlug}/${c.slug}/`}>{c.label}{c.cnt ? <>{' '}<span class="text-xs opacity-60">{c.cnt}</span></> : null}</a>)}
 			</div>
+			{d.destChips.length > 20 && (
+				<details class="mb-5 rounded-2xl border border-line bg-white p-4">
+					<summary class="cursor-pointer text-sm font-semibold text-ink">Všechny oblasti ({d.destChips.length})</summary>
+					<div class="mt-3 flex flex-wrap gap-2">
+						{d.destChips.slice(20).map((c) => <a class="chip" href={`/${d.countrySlug}/${c.slug}/`}>{c.label}</a>)}
+					</div>
+				</details>
+			)}
+			</>
 		)}
 
 		{d.themeByCountry.length > 0 && (

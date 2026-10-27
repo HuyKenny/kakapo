@@ -158,9 +158,9 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
   const quickMeals = (fct.meals ?? []).slice(0, 3);
   const lt = await longtailBlocks(db, ctx, countrySlug, destSlug, deps, today);
   const moneyLinks = (MONEY_LINK_SETS[ctx.path] ?? []).filter(([, p]) => p !== ctx.path);
-  // destinations of the country (20) — on a destination page its siblings (10), so every area links to its neighbours
+  // destinations of the country (top 20 as chips + the rest in a <details> list) — on a destination page its siblings (10)
   const destChips = countrySlug
-    ? Object.entries(registry.destinations[countrySlug] ?? {}).filter(([slug, d]) => slug !== destSlug && d.cnt >= MIN_INDEX_RESULTS).map(([slug, d]) => ({ slug, label: d.label, cnt: d.cnt })).sort((a, b) => b.cnt - a.cnt).slice(0, destSlug ? 10 : 20) : [];
+    ? Object.entries(registry.destinations[countrySlug] ?? {}).filter(([slug]) => slug !== destSlug).map(([slug, d]) => ({ slug, label: d.label, cnt: d.cnt })).sort((a, b) => b.cnt - a.cnt || a.label.localeCompare(b.label, 'cs')).slice(0, destSlug ? 10 : 120) : []; // destination pages are indexable from 1 hotel, so every one must be linked from its country
   const otherCountries = countrySlug ? demandCountries(registry, 10, { exclude: countrySlug }) : [];
   const themeByCountryLinks = countrySlug ? [] : await themeByCountry(db, ctx, registry, deps, today);
   const calendar = countrySlug && !hasQuery ? await calendarMonths(db, countrySlug, destSlug, today) : [];
