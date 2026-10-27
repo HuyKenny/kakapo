@@ -34,6 +34,7 @@ export function ga4Footer(id: string, pageType: string): string {
 .kakapo-consent__yes{background:#1F2328;color:#fff}
 .kakapo-consent__no{background:#fff;color:#1F2328;border-color:#D4D0CA}
 .kakapo-consent__l{margin-left:auto;color:#56514B;font-size:.8125rem}
+@media(max-width:639px){.kakapo-consent{left:0;right:0;bottom:0;max-width:none;border-radius:1rem 1rem 0 0;padding:.7rem 1rem calc(.7rem + env(safe-area-inset-bottom));font-size:.8125rem;line-height:1.4}.kakapo-consent__t{margin:0 0 .5rem}.kakapo-consent button,.kakapo-consent__l{min-height:2.75rem;display:inline-flex;align-items:center}}
 </style>
 <script id="kakapo-ga4-events">
 (function(){

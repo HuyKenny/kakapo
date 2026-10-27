@@ -139,7 +139,7 @@ export async function offersForHotel(db: D1Database, hotelId: number, sort = 'pr
 
 export function offerTerm(dep: string, ret: string | null): string {
   const d = /^(\d{4})-(\d{2})-(\d{2})/.exec(dep ?? ''); const r = ret ? /^(\d{4})-(\d{2})-(\d{2})/.exec(ret) : null;
-  if (d && r) {
+  if (d && r && dep.slice(0, 10) !== (ret ?? '').slice(0, 10)) { // return == departure (stays without a return leg) shows just the day
     const depFmt = d[1] === r[1] ? `${Number(d[3])}. ${Number(d[2])}.` : `${Number(d[3])}. ${Number(d[2])}. ${d[1]}`;
     return `${depFmt} – ${Number(r[3])}. ${Number(r[2])}. ${r[1]}`;
   }

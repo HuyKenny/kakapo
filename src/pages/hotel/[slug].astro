@@ -350,10 +350,10 @@ const heroSizes = '(min-width:1024px) 50vw, (min-width:640px) 90vw, 320px'; // p
 											<span class="block text-xs text-slate-400">{nightsLabel(o.nights)}</span>
 										</span>
 									</td>
-									<td data-label="Odlet z">{o.airport !== '' ? o.airport : '–'}</td>
+									<td data-label="Odlet z" class={o.airport === '' ? 'cell-na' : undefined}>{o.airport !== '' ? o.airport : '–'}</td>
 									<td data-label="Strava">{o.meal_label}</td>
-									<td data-label="Pokoj">{o.room_type !== '' ? o.room_type : '–'}</td>
-									<td data-label="Sleva">
+									<td data-label="Pokoj" class={o.room_type === '' ? 'cell-na' : undefined}>{o.room_type !== '' ? o.room_type : '–'}</td>
+									<td data-label="Sleva" class={o.discount <= 0 && o.real_drop <= 0 ? 'cell-na' : undefined}>
 										{o.real_drop > 0 && <span class="badge badge-drop" title="Reálný pokles ceny za posledních 7 dní">↓ {o.real_drop} %</span>}
 										{o.discount > 0 ? <span class="badge badge-sale">−{o.discount} %</span> : o.real_drop === 0 ? <span class="text-slate-300">—</span> : null}
 									</td>
@@ -391,10 +391,10 @@ const heroSizes = '(min-width:1024px) 50vw, (min-width:640px) 90vw, 320px'; // p
 											<span class="block text-xs text-slate-400" x-text="nightsLabel(o.nights)"></span>
 										</span>
 									</td>
-									<td data-label="Odlet z" x-text="o.airport || '–'"></td>
+									<td data-label="Odlet z" x-bind:class="o.airport ? '' : 'cell-na'" x-text="o.airport || '–'"></td>
 									<td data-label="Strava" x-text="o.meal_label"></td>
-									<td data-label="Pokoj" x-text="o.room_type || '–'"></td>
-									<td data-label="Sleva">
+									<td data-label="Pokoj" x-bind:class="o.room_type ? '' : 'cell-na'" x-text="o.room_type || '–'"></td>
+									<td data-label="Sleva" x-bind:class="(o.discount > 0 || o.real_drop > 0) ? '' : 'cell-na'">
 										<span class="badge badge-drop" title="Reálný pokles ceny za posledních 7 dní" x-show="o.real_drop > 0" x-text="'↓ ' + o.real_drop + ' %'"></span>
 										<span class="badge badge-sale" x-show="o.discount > 0" x-text="'−' + o.discount + ' %'"></span>
 										<span class="text-slate-300" x-show="!o.discount && !o.real_drop">—</span>
