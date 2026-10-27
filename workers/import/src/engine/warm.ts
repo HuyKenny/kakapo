@@ -50,22 +50,14 @@ export async function warmImages(deps: Deps, budget = WARM_BUDGET): Promise<{ it
           statuses[res.status] = (statuses[res.status] ?? 0) + 1;
           await res.arrayBuffer().catch(() => undefined); // drain the body so the image is fully produced and cached
           if (res.status === 429) { rateLimited = true; ok = false; break; }
-          if (res.status === 404 || res.status === 410) {
-            // the partner's photo is gone (≈1 in 5 feed hotels): remember it so it is dropped below instead of being retried forever
-            if (it.imgs) (it.dead ??= new Set()).add(String(it.imgs[hotelPhotoOf(ui)]));
-            ok = false;
-          } else if (!res.ok) ok = false; // transient (5xx/timeout): retried next tick, never blocks others
+          if (!res.ok) ok = false; // wsrv.nl error or a broken partner photo: retried next tick
         } catch (e) { ok = false; const k = 'err:' + (e instanceof Error ? e.name : 'x'); statuses[k] = (statuses[k] ?? 0) + 1; }
       }
       if (ok) done.push(it); else failed++;
     }
   };
   await Promise.all(Array.from({ length: Math.min(CONCURRENCY, items.length) }, worker));
-  // dead photos leave images_json, so the next photo becomes the first one (cards/hero show it, the warmer moves on)
-  const pruned = items.filter((it) => it.dead && it.imgs);
-  for (let i = 0; i < pruned.length; i += 50) {
-    await db.batch(pruned.slice(i, i + 50).map((it) => db.prepare('UPDATE hotels SET images_json = ? WHERE id = ?').bind(JSON.stringify(it.imgs!.filter((u) => !it.dead!.has(String(u)))), it.id)));
-  }
+  const pruned: Item[] = []; // never edit images_json from here: wsrv.nl 404/400 does not prove the origin photo is gone
   for (let i = 0; i < done.length; i += 50) {
     await db.batch(done.slice(i, i + 50).map((d) => db.prepare(`UPDATE ${d.table} SET img_warm = ? WHERE id = ?`).bind(d.key, d.id)));
   }
