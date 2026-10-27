@@ -37,6 +37,10 @@ describe('CJ per-partner parsers', () => {
     const p = mapCjProduct(cj('https://spa.example.test/x', { title: 'Romantický víkend v Mariánských Lázních na 2 noci' }), 'spa')!;
     expect(p).toMatchObject({ place: 'Mariánské Lázně', nights: 2, type_raw: 'Romantický pobyt', country: 'Česko' });
   });
+  it('firmanazazitky products: stay type and nights from the title', () => {
+    const p = mapCjProduct(cj('https://www.firmanazazitky.cz/romanticky-pobyt-na-zamku/', { title: 'Romantický pobyt na zámku na 2 noci' }), 'fna')!;
+    expect(p).toMatchObject({ nights: 2, type_raw: 'Zážitkový pobyt', country: 'Česko' });
+  });
   it('GraphQL query only accepts numeric ids (no injection through the feed config)', () => {
     expect(() => cjQuery({ ad_id: '1" }) { x' }, { token: 't', cid: '1', pid: '2' }, 0, 10)).toThrow();
     expect(cjQuery({ partner_id: '5525941' }, { token: 't', cid: '1', pid: '2' }, 500, 500)).toContain('partnerIds: ["5525941"]');

@@ -4,7 +4,7 @@ import type { Deps } from '../deps';
 import type { FeedRow } from '../model';
 import { decodeXmlStream, parseXmlItems, XmlError, DEFAULT_LIMITS } from '../xml/stream';
 import { mapItem, productIncluded, type Mapping, type RawHotelItem, type RawProductItem } from '../xml/mapper';
-import { fetchCjPage, mapCjHotel, mapCjProduct, CJ_PAGE_SIZE, type CjConfig } from './cj';
+import { fetchCjPage, mapCjHotel, mapCjProduct, cjProductSlug, CJ_PAGE_SIZE, type CjConfig } from './cj';
 import { openHttp, FeedFetchError } from './http';
 import PRESETS from '../xml/presets.json';
 import { pragueToday } from '../util/text';
@@ -71,6 +71,8 @@ async function* cjItems(feed: FeedRow, deps: Deps, cfg: CjConfig): AsyncGenerato
   const secrets = { token: deps.env.CJ_API_TOKEN ?? '', cid: deps.env.CJ_CID ?? '', pid: deps.env.CJ_PID ?? '' };
   if (!secrets.token || !secrets.cid || !secrets.pid) throw new FeedFetchError('CJ secrets are not configured', false);
   const parser = cfg.parser ?? feed.adapter.replace(/^cj-/, '');
+  const only = cfg.only_slugs?.length ? new Set(cfg.only_slugs) : null;
+  const seenSlugs = new Set<string>();
   let offset = 0;
   for (;;) {
     let page: Awaited<ReturnType<typeof fetchCjPage>> | undefined;
@@ -80,6 +82,11 @@ async function* cjItems(feed: FeedRow, deps: Deps, cfg: CjConfig): AsyncGenerato
     }
     if (!page || page.products.length === 0) return;
     for (const p of page.products) {
+      if (only) { // partner category allow-list; the feed lists a product more than once under different ids
+        const slug = cjProductSlug(p.link);
+        if (!only.has(slug) || seenSlugs.has(slug)) { yield { t: 'bad', external_id: String(p.id ?? ''), reason: 'filtered' }; continue; }
+        seenSlugs.add(slug);
+      }
       if (feed.content_type === 'products') {
         const prod = mapCjProduct(p, parser);
         yield prod ? { t: 'p', product: prod } : { t: 'bad', external_id: String(p.id ?? ''), reason: 'cj: unusable product' };

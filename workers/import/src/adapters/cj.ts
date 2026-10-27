@@ -138,10 +138,19 @@ export function mapCjProduct(p: CjProduct, parser: string): R | null {
     product.type_raw = h.includes('pivni') ? 'Pivní lázně' : h.includes('romantick') ? 'Romantický pobyt' : h.includes('wellness') || h.includes('spa') ? 'Wellness' : 'Wellness pobyt';
     product._categories = [String(product.type_raw)];
   }
+  if (parser === 'fna') {
+    const h = removeAccents(`${title} ${cjProductSlug(p.link)}`.toLowerCase());
+    const m = /(\d+)\s*(?:noc|noci|nocich)\b/.exec(h);
+    if (m) product.nights = parseInt(m[1]!, 10); else if (/\bnoc\b|vikend|pobyt/.test(h)) product.nights = h.includes('vikend') ? 2 : 1;
+    product.type_raw = 'Zážitkový pobyt';
+    product._categories = [String(product.type_raw)];
+  }
   return product;
 }
 
-export interface CjConfig { ad_id?: string; partner_id?: string; parser?: string; force_type?: string; default_type?: string }
+export interface CjConfig { ad_id?: string; partner_id?: string; parser?: string; force_type?: string; default_type?: string; only_slugs?: string[] }
+/** Last path segment of the partner's product URL (the partner's own product slug). */
+export const cjProductSlug = (link: string | undefined): string => (link ?? '').split(/[?#]/)[0]!.replace(/\/+$/, '').split('/').pop() ?? '';
 export interface CjSecrets { token: string; cid: string; pid: string }
 
 export function cjQuery(cfg: CjConfig, secrets: CjSecrets, offset: number, limit: number): string {
