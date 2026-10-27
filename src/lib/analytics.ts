@@ -54,10 +54,25 @@ export function ga4Footer(id: string, pageType: string): string {
 			box.style.display='none';
 		});
 	}
+	function send(n,p){if(window.gtag){gtag('event',n,p);}}
+	// funnel: detail viewed (hotel / experience), card opened from a list, search / filter submitted
+	var h1=document.querySelector('h1');
+	if(PT==='hotel'||PT==='product'){
+		var pe=document.querySelector('[data-kakapo-price]');
+		send('view_item',{page_type:PT,offer_name:(h1&&h1.textContent||'').trim().slice(0,100),offer_category:PT,partner:pe?pe.getAttribute('data-kakapo-partner')||'':'',value:pe?parseInt(pe.getAttribute('data-kakapo-price')||'0',10)||0:0,currency:'CZK'});
+	}
+	document.addEventListener('submit',function(e){
+		var f=e.target;if(!f||!f.elements){return;}
+		var q=f.elements.q,keys=[];
+		for(var i=0;i<f.elements.length;i++){var el=f.elements[i];if(el.name&&el.value&&el.type!=='hidden'&&el.type!=='submit'){keys.push(el.name);}}
+		send('search',{page_type:PT,search_term:q&&q.value?String(q.value).slice(0,80):'',filters:keys.join(',').slice(0,100)});
+	},true);
 	document.addEventListener('click',function(e){
 		if(!e.target||!e.target.closest){return;}
 		var a=e.target.closest('a[href]');
 		if(!a){return;}
+		var card=a.closest('article.card-k, .card-k');
+		if(card&&/^\\/(hotel|zazitek)\\//.test(a.getAttribute('href')||'')){send('select_item',{page_type:PT,offer_name:(a.getAttribute('aria-label')||a.textContent||'').trim().slice(0,100),offer_category:/^\\/hotel\\//.test(a.getAttribute('href'))?'hotel':'product',destination:a.getAttribute('href')});}
 		var u;try{u=new URL(a.getAttribute('href'),location.href);}catch(err){return;}
 		var same=u.host===location.host;
 		var viaGo=same&&/^\\/(go|akce)\\//.test(u.pathname);
