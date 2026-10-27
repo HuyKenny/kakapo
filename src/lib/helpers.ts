@@ -50,7 +50,7 @@ export function imgUrl(url: string | null | undefined, width: number, quality = 
 export function imgSrcset(url: string | null | undefined, width: number, quality = 72): string {
   const one = imgUrl(url, width, quality);
   if (one === (url ?? '')) return '';
-  return `${esc(one)} ${width}w, ${esc(imgUrl(url, width * 2, quality))} ${width * 2}w`;
+  return `${one} ${width}w, ${imgUrl(url, width * 2, quality)} ${width * 2}w`; // raw: Astro escapes attribute values itself
 }
 
 export function formatPrice(price: number | string | null | undefined): string {

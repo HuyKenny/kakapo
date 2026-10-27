@@ -16,7 +16,16 @@ const benefits = [
 	{ t: 'Bez příplatků', d: 'cenu neměníme', p: '<circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/>' },
 	{ t: d.rows.length > 1 ? `${d.rows.length} termínů` : 'Aktuální nabídka', d: 'k výběru', p: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
 ];
-const seoTrim = (t: string, n: number) => t.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).slice(0, n).join(' ') + (t.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length > n ? '…' : '');
+const perPerson = !['zazitky', 'wellness'].includes(d.type); // stays/vouchers are priced per offer, trips per person
+const priceNote = perPerson ? 'za osobu' : 'za nabídku';
+const ctaLabel = 'Rezervovat nabídku';
+const seen = String(p.last_seen ?? '').slice(0, 10);
+const hasDatedRows = d.rows.length > 1 || (d.rows[0] ? termLabel(d.rows[0]) !== 'Dle dostupnosti' : false);
+const usp = [
+	'Porovnáváme nabídky českých partnerů na jednom místě',
+	`Rezervaci dokončíte přímo u ${d.plabel || 'pořadatele'}, cenu u nás nenavyšujeme`,
+	'Cena a dostupnost se načítají z aktuálního feedu partnera',
+];
 const goAttrs = { 'data-kakapo-partner': p.partner_slug ?? '', 'data-kakapo-price': String(Math.trunc(p.price ?? 0)), target: '_blank', rel: 'nofollow sponsored noopener' };
 const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>';
 ---
@@ -28,7 +37,7 @@ const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 			<span set:html={categoryIcon(d.type)} />
 			{d.cat.label}
 		</a>
-		{d.plabel !== '' && <span class="text-sm text-slate-400">Nabízí {d.plabel}</span>}
+		{d.plabel !== '' && <span class="text-sm text-slate-500">Nabízí {d.plabel}</span>}
 	</div>
 	<h1 class="font-display text-3xl font-bold leading-tight tracking-tightish text-ink sm:text-4xl">{d.title}</h1>
 	{d.place !== '' && (
@@ -37,6 +46,14 @@ const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 			{d.place}
 		</p>
 	)}
+
+	<div class="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-line bg-white p-3 shadow-card lg:hidden">
+		<div class="leading-tight">
+			<span class="block text-xs text-slate-500">Cena od · {priceNote}</span>
+			<span class="block whitespace-nowrap font-display text-2xl font-bold text-ink">{price}</span>
+		</div>
+		<a href={d.goUrl} {...goAttrs} class="btn-sun shrink-0">{ctaLabel}</a>
+	</div>
 
 	<div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
 		<div>
@@ -70,6 +87,24 @@ const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 				</div>
 			)}
 
+			{d.descParagraphs.length > 0 && (
+				<section class="mb-8">
+					<h2 class="mb-3 h-section">O nabídce</h2>
+					<div class="prose-kakapo">
+						{d.descParagraphs.map((para, i) => <p class={i === 0 ? 'text-lg leading-relaxed text-slate-700' : 'mt-4 text-[15px] leading-relaxed text-slate-600'}>{para}</p>)}
+					</div>
+				</section>
+			)}
+
+			<section class="mb-8 flex flex-col gap-3 rounded-2xl border border-line bg-mist/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<p class="text-sm text-slate-500">Cena od · {priceNote}</p>
+					<p class="whitespace-nowrap font-display text-3xl font-bold text-ink">{price}</p>
+					{seen !== '' && <p class="mt-0.5 text-xs text-slate-500">Cena z feedu partnera, aktualizováno {formatDate(seen)}</p>}
+				</div>
+				<a href={d.goUrl} {...goAttrs} class="btn-sun btn-lg shrink-0">{ctaLabel}<Fragment set:html={arrow} /></a>
+			</section>
+
 			<div class="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
 				{benefits.map((bf) => (
 					<div class="flex items-start gap-2.5 rounded-2xl border border-line bg-white p-3.5">
@@ -82,57 +117,34 @@ const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 				))}
 			</div>
 
-			{d.descParagraphs.length > 0 && (
-				<section class="mb-8">
-					<h2 class="mb-3 h-section">O nabídce</h2>
-					<div class="prose-kakapo">
-						{d.descParagraphs.map((para, i) => <p class={i === 0 ? 'text-lg leading-relaxed text-slate-700' : 'mt-4 text-[15px] leading-relaxed text-slate-600'}>{para}</p>)}
-					</div>
-				</section>
-			)}
-
-			<section class="mb-8 grid gap-4 md:grid-cols-2">
-				<div class="rounded-2xl border border-line bg-white p-5 shadow-card">
-					<h2 class="mb-3 font-display text-xl font-bold tracking-tightish text-ink">Pro koho se nabídka hodí</h2>
-					<ul class="space-y-2.5 text-[15px] leading-relaxed text-slate-600">
-						{d.fitPoints.map((t) => <li class="flex gap-2.5"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-coral-bright" aria-hidden="true"></span><span>{t}</span></li>)}
-					</ul>
-				</div>
-				<div class="rounded-2xl border border-line bg-white p-5 shadow-card">
-					<h2 class="mb-3 font-display text-xl font-bold tracking-tightish text-ink">Co zkontrolovat před rezervací</h2>
-					<ul class="space-y-2.5 text-[15px] leading-relaxed text-slate-600">
-						{d.checkPoints.map((t) => <li class="flex gap-2.5"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-coral" aria-hidden="true"></span><span>{t}</span></li>)}
-					</ul>
-				</div>
-			</section>
-
-			<section class="mb-8" id="terminy">
+			{hasDatedRows && (<section class="mb-8" id="terminy">
 				<h2 class="mb-4 h-section">Termíny a ceny</h2>
 				<div class="overflow-x-auto rounded-2xl border border-line bg-white shadow-card">
 					<table class="offers-table">
 						<thead>
-							<tr><th scope="col">Termín</th><th scope="col">Nocí</th><th scope="col">Cena/os.</th><th scope="col"><span class="sr-only">Akce</span></th></tr>
+							<tr><th scope="col">Termín</th><th scope="col">Nocí</th><th scope="col">{perPerson ? 'Cena/os.' : 'Cena'}</th><th scope="col"><span class="sr-only">Akce</span></th></tr>
 						</thead>
 						<tbody>
 							{d.rows.map((t, ti) => (
 								<tr>
 									<td data-label="Termín"><span class="block whitespace-nowrap font-medium text-ink">{termLabel(t)}</span></td>
 									<td data-label="Nocí">{(t.nights ?? 0) > 0 ? nightsLabel(t.nights!) : '—'}</td>
-									<td data-label="Cena/os."><span class="whitespace-nowrap text-lg font-bold text-coral-dark">{formatPrice(t.price)}</span></td>
-									<td class="offers-cta"><a class="btn-primary btn-sm whitespace-nowrap" href={termGoUrl(d, ti)} data-kakapo-partner={p.partner_slug ?? ''} data-kakapo-price={String(Math.trunc(t.price ?? p.price ?? 0))} target="_blank" rel="nofollow sponsored noopener">Zobrazit nabídku</a></td>
+									<td data-label={perPerson ? 'Cena/os.' : 'Cena'}><span class="whitespace-nowrap text-lg font-bold text-coral-dark">{formatPrice(t.price)}</span></td>
+									<td class="offers-cta"><a class="btn-primary btn-sm whitespace-nowrap" href={termGoUrl(d, ti)} data-kakapo-partner={p.partner_slug ?? ''} data-kakapo-price={String(Math.trunc(t.price ?? p.price ?? 0))} target="_blank" rel="nofollow sponsored noopener">Rezervovat</a></td>
 								</tr>
 							))}
 						</tbody>
 					</table>
 				</div>
 			</section>
-
-			{d.cat.seo_text && (
-				<section class="rounded-2xl bg-mist/70 p-6">
-					<h2 class="mb-2 font-display text-xl font-bold tracking-tightish text-ink">Proč {d.cat.label.toLowerCase()} přes Kakapo.cz</h2>
-					<p class="text-[15px] leading-relaxed text-slate-600">{seoTrim(d.cat.seo_text, 42)}</p>
-				</section>
 			)}
+
+			<section class="rounded-2xl bg-mist/70 p-6">
+				<h2 class="mb-3 font-display text-xl font-bold tracking-tightish text-ink">Proč rezervovat přes Kakapo.cz</h2>
+				<ul class="space-y-2.5 text-[15px] leading-relaxed text-slate-600">
+					{usp.map((t) => <li class="flex gap-2.5"><span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-coral" aria-hidden="true"></span><span>{t}</span></li>)}
+				</ul>
+			</section>
 
 			{d.related.length > 0 && (
 				<section class="mt-8 rounded-2xl border border-line bg-white p-5 shadow-card">
@@ -170,7 +182,7 @@ const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 			<div class="rounded-2xl border border-line bg-white p-5 shadow-card">
 				<p class="text-sm text-slate-500">Cena od</p>
 				<p class="whitespace-nowrap font-display text-4xl font-bold text-ink">{price}</p>
-				<p class="mt-0.5 text-xs text-slate-400">za osobu</p>
+				<p class="mt-0.5 text-xs text-slate-500">{priceNote}</p>
 				<dl class="mt-4 space-y-2.5 border-t border-line pt-4 text-sm">
 					{p.nights ? <div class="flex items-center justify-between gap-2"><dt class="text-slate-500">Délka</dt><dd class="font-semibold text-ink">{nightsLabel(p.nights)}</dd></div> : null}
 					{d.rows.length > 1
@@ -180,12 +192,12 @@ const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 					{d.plabel !== '' ? <div class="flex items-center justify-between gap-2"><dt class="text-slate-500">Pořadatel</dt><dd class="font-semibold text-ink">{d.plabel}</dd></div> : null}
 				</dl>
 				<a href={d.goUrl} {...goAttrs} class="btn-sun btn-lg mt-5 w-full">
-					Zobrazit u partnera
+					{ctaLabel}
 					<Fragment set:html={arrow} />
 				</a>
-				<p class="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-slate-400">
+				<p class="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-slate-500">
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>
-					Rezervace bezpečně u {d.plabel || 'partnera'}
+					Rezervaci dokončíte u {d.plabel || 'pořadatele'}, bez příplatku od nás
 				</p>
 			</div>
 		</aside>
@@ -206,9 +218,9 @@ const arrow = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" strok
 <div class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 py-3 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] backdrop-blur lg:hidden">
 	<div class="flex items-center justify-between gap-3">
 		<div class="leading-tight">
-			<span class="block text-xs text-slate-500">Cena od</span>
-			<span class="block text-lg font-extrabold text-ink">{price}</span>
+			<span class="block text-xs text-slate-500">Cena od · {priceNote}</span>
+			<span class="block whitespace-nowrap text-lg font-extrabold text-ink">{price}</span>
 		</div>
-		<a href={d.goUrl} {...goAttrs} class="btn-sun shrink-0">Zobrazit u partnera</a>
+		<a href={d.goUrl} {...goAttrs} class="btn-sun shrink-0">{ctaLabel}</a>
 	</div>
 </div>

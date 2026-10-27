@@ -50,7 +50,7 @@ const srcset = image ? imgSrcset(image, 640) : '';
 		{bits.length > 0 && <p class="text-sm text-slate-500">{bits.join(' · ')}</p>}
 		<div class="mt-auto pt-2">
 			<p class="text-[15px] text-ink">
-				<span class="text-slate-500">od</span>
+				<span class="text-slate-500">od</span>{' '}
 				<strong class="whitespace-nowrap font-extrabold">{formatPrice(price)}</strong>
 				{priceOriginal !== null && <span class="ml-1 whitespace-nowrap text-sm text-slate-400 line-through">{formatPrice(priceOriginal)}</span>}
 			</p>

@@ -32,9 +32,9 @@ let prev = 0;
 	</header>
 
 	{summary.length > 0 && (
-		<section class="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Rychlý přehled kategorie">
+		<section class="mb-6 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4" aria-label="Rychlý přehled kategorie">
 			{summary.slice(0, 4).map((c) => (
-				<div class="rounded-2xl border border-line bg-white p-4 shadow-soft">
+				<div class="rounded-2xl border border-line bg-white p-3 shadow-soft sm:p-4">
 					<p class="text-xs font-bold text-slate-500">{c.label}</p>
 					<p class="mt-1 text-base font-bold leading-snug text-ink">{c.value}</p>
 				</div>

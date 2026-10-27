@@ -42,7 +42,8 @@ for off in range(0, 5000, 500):
     feed += d['resultList']
     if off + 500 >= d['totalCount']: break
 inFeed = {p['link'].split('?')[0].rstrip('/').split('/')[-1] for p in feed}
-allow = sorted(slugs & inFeed)
+# gift cards are not stays and would drag the category's "price from" down to 1 000 Kč
+allow = sorted(x for x in slugs & inFeed if not x.startswith('univerzalni-poukaz'))
 print(f'category links {len(slugs)}, in CJ feed {len(allow)}')
 if len(allow) < 50: sys.exit('suspiciously few products, not writing')
 mapping = json.dumps({'source': 'cj', 'partner_id': '7918457', 'parser': 'fna', 'force_type': 'zazitky', 'only_slugs': allow}, ensure_ascii=False, separators=(',', ':'))

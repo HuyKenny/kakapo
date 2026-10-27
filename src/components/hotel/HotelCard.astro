@@ -58,9 +58,9 @@ const srcset = image ? imgSrcset(image, 640) : '';
 		<div class="mt-auto pt-2">
 			{price !== null && (
 				<p class="text-[15px] text-ink">
-					<span class="text-slate-500">od</span>
+					<span class="text-slate-500">od</span>{' '}
 					<strong class="whitespace-nowrap font-extrabold">{formatPrice(price)}</strong>
-					<span class="text-slate-500">/ os.</span>
+					{' '}<span class="text-slate-500">/ os.</span>
 					{original !== null && <span class="ml-1 whitespace-nowrap text-sm text-slate-400 line-through">{formatPrice(original)}</span>}
 				</p>
 			)}
