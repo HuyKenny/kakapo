@@ -3,6 +3,7 @@
 import { NormHotel, NormOffer, NormProduct, Term, type Rejection } from '../model';
 import { addDays, isYmd, normalizeMeal, normalizeTransport, slugify } from '../util/text';
 import { categorize, typeExists } from './categories';
+import { resolveCountry } from '../util/country';
 
 type R = Record<string, unknown>;
 const s = (v: unknown) => (v === null || v === undefined ? '' : String(v).trim());
@@ -30,7 +31,7 @@ export type NormOutcome<T> = { ok: true; value: T } | { ok: false; rej: Rejectio
 
 export function normalizeHotel(raw: R): NormalizedHotelResult {
   const parsed = NormHotel.safeParse({
-    name: s(raw.name), country: s(raw.country), destination: s(raw.destination), city: s(raw.city),
+    name: s(raw.name), country: resolveCountry(s(raw.country), s(raw.destination)), destination: s(raw.destination), city: s(raw.city),
     giata_id: n(raw.giata_id) > 0 ? Math.trunc(n(raw.giata_id)) : null,
     stars: Math.min(5, Math.max(0, Math.trunc(n(raw.stars)))),
     rating: raw.rating === null || raw.rating === undefined || raw.rating === '' ? null : Math.min(10, Math.max(0, n(raw.rating))),

@@ -10,6 +10,8 @@ import { climateSection } from './climate';
 import { hasEnoughResults, longtailContext } from './longtail';
 import { getTopic, partnerLinksBlock, sectionsToHtml, type Topic } from './topics';
 
+const GENERIC_DESTINATIONS: Record<string, string> = { pobrezi: 'pobřeží', vnitrozemi: 'vnitrozemí', pevnina: 'pevnina', 'jizni-pobrezi': 'jižní pobřeží', 'baltske-more': 'Baltské moře' };
+
 export interface LandingVars { country?: string; dest?: string; flag?: string; meal?: string; airport?: string; topic?: string; ltopic?: string; partner?: string }
 export interface LandingCtx {
   type: string; filters: Record<string, any>; h1: string; title: string; description: string; path: string; canonical: string;
@@ -216,7 +218,9 @@ export async function landingContext(db: D1Database, page: string, vars: Landing
       const pc = priorityContext(country, label);
       if (pc) Object.assign(ctx, pc);
       if (vars.dest) {
-        const dLabel = destinationLabel(reg, country, vars.dest);
+        // names like "Vnitrozemí" / "Pobřeží" repeat across countries: without the country the title and H1 say nothing and collide
+        const rawLabel = destinationLabel(reg, country, vars.dest);
+        const dLabel = GENERIC_DESTINATIONS[vars.dest] ? `${label} – ${GENERIC_DESTINATIONS[vars.dest]}` : rawLabel;
         ctx.filters.dest = vars.dest; ctx.h1 = 'Dovolená ' + dLabel; ctx.title = `Dovolená ${dLabel} 2026 — zájezdy, hotely a ceny | Kakapo.cz`;
         ctx.description = `Dovolená ${dLabel} (${label}): porovnejte hotely, termíny, stravu, odlety a ceny od českých cestovních kanceláří.`;
         ctx.intro = `Plánujete dovolenou v destinaci ${dLabel} (${label})? Porovnejte nabídky hotelů a zájezdů od prověřených českých cestovních kanceláří na jednom místě — u každé vidíte cenu, termín i stravu předem a rezervaci dokončíte přímo u pořadatele, bez příplatků.`;

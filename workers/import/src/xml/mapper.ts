@@ -16,15 +16,8 @@ export interface Mapping {
   terms?: { item: string; fields: Record<string, FieldDef | string> };
 }
 
-const ISO3: Record<string, string> = {
-  CZE: 'Česko', SVK: 'Slovensko', ITA: 'Itálie', ESP: 'Španělsko', GRC: 'Řecko', TUR: 'Turecko', EGY: 'Egypt', HRV: 'Chorvatsko', CYP: 'Kypr', MLT: 'Malta',
-  TUN: 'Tunisko', MAR: 'Maroko', PRT: 'Portugalsko', FRA: 'Francie', AUT: 'Rakousko', DEU: 'Německo', CHE: 'Švýcarsko', HUN: 'Maďarsko', POL: 'Polsko',
-  SVN: 'Slovinsko', ALB: 'Albánie', MNE: 'Černá Hora', BGR: 'Bulharsko', GBR: 'Velká Británie', NLD: 'Nizozemsko', BEL: 'Belgie', IRL: 'Irsko', ISL: 'Island',
-  NOR: 'Norsko', SWE: 'Švédsko', FIN: 'Finsko', DNK: 'Dánsko', ARE: 'Spojené arabské emiráty', OMN: 'Omán', JOR: 'Jordánsko', ISR: 'Izrael', SAU: 'Saúdská Arábie',
-  GEO: 'Gruzie', ARM: 'Arménie', UZB: 'Uzbekistán', KAZ: 'Kazachstán', THA: 'Thajsko', VNM: 'Vietnam', IDN: 'Indonésie', LKA: 'Srí Lanka', MDV: 'Maledivy',
-  MUS: 'Mauricius', SYC: 'Seychely', TZA: 'Tanzánie', KEN: 'Keňa', ZAF: 'JAR', USA: 'USA', MEX: 'Mexiko', CUB: 'Kuba', DOM: 'Dominikánská republika',
-  BRA: 'Brazílie', CHN: 'Čína', JPN: 'Japonsko', IND: 'Indie', MMR: 'Myanmar',
-};
+
+import { ISO3 } from '../util/country';
 
 export interface MapCtx { today: string }
 

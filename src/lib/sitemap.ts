@@ -39,8 +39,9 @@ export async function collectSitemapUrls(db: D1Database, base: string, now = new
   for (const r of await one("SELECT country_slug || '/' || destination_slug AS k, MAX(updated_at) AS m FROM hotels WHERE offers_active > 0 AND country_slug <> '' AND destination_slug <> '' GROUP BY country_slug, destination_slug")) geo.set(r.k, day(r.m));
   const reg = await loadRegistry(db);
   const landings: Array<{ path: string; cnt?: number }> = [{ path: '/zajezdy/' }, { path: '/last-minute/' }, { path: '/first-minute/' }, ...MEAL_LANDINGS.map((m) => ({ path: `/${m}/` }))];
-  for (const [slug, c] of Object.entries(reg.countries)) landings.push({ path: `/${slug}/`, cnt: c.cnt });
-  for (const [cs, ds] of Object.entries(reg.destinations)) for (const [ds2, d] of Object.entries(ds)) landings.push({ path: `/${cs}/${ds2}/`, cnt: d.cnt });
+  for (const [slug, c] of Object.entries(reg.countries)) if (slug !== '') landings.push({ path: `/${slug}/`, cnt: c.cnt });
+  // a registry entry without a country (feed without country) would become "//slug/" = 404 in the sitemap
+  for (const [cs, ds] of Object.entries(reg.destinations)) if (cs !== '') for (const [ds2, d] of Object.entries(ds)) if (ds2 !== '') landings.push({ path: `/${cs}/${ds2}/`, cnt: d.cnt });
   for (const a of Object.keys(reg.airports)) landings.push({ path: `/odlet-z-${a}/`, cnt: reg.airports[a]!.cnt });
   landings.push(...(await longtailSitemapLandings(db)));
   const seen = new Set(urls.map((u) => u.loc));
