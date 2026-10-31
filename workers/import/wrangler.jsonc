@@ -14,7 +14,7 @@
   "limits": { "cpu_ms": 300000 },
   "d1_databases": [{ "binding": "DB", "database_name": "kakapo-local", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "../../migrations" }],
   "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots-local" }],
-  "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
+  "triggers": { "crons": ["*/10 0-6 * * 1", "30 1 * * 1"] },
   "vars": {
     // exact hosts or *.suffix; redirects are checked against the same list
     "ALLOWED_FEED_HOSTS": "ads.api.cj.com,*.invia.cz,*.dovolena.cz,*.slevomat.cz,*.skrz.cz,*.excursia.cz,*.zazitky.cz,*.radynacestu.cz,*.adrop.cz,export.ceskekormidlo.cz,feeds.mergado.com,www.atis.cz",
@@ -50,7 +50,7 @@
       // public URL is protected by the bearer secret (every route); Malina uploads the Cedok slim feed here
       "workers_dev": true,
       "preview_urls": false,
-      "triggers": { "crons": ["*/10 * * * *", "30 1 * * *"] },
+      "triggers": { "crons": ["*/10 0-6 * * 1", "30 1 * * 1"] },
       "limits": { "cpu_ms": 300000 },
       "d1_databases": [{ "binding": "DB", "database_name": "kakapo-production", "database_id": "302b7cb9-53f0-47f3-bb6a-239a7402334f", "migrations_dir": "../../migrations" }],
       "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "kakapo-snapshots" }],

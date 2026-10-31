@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 import { getEnv } from '../../lib/server/env';
 
 export const prerender = false;
-const MAX_AGE_H = 26;
+const MAX_AGE_H = 200; // imports run weekly (Monday night)
 const MIN_OFFERS = 15_000;
 
 export const GET: APIRoute = async () => {
@@ -16,7 +16,7 @@ export const GET: APIRoute = async () => {
   ]);
   // per feed: overdue (interval + 24 h, the same limit that takes its offers out of sale), held by the size guard, parity warning of the latest run
   const [overdue, latest, hotels] = await db.batch([
-    db.prepare("SELECT partner_slug AS p FROM feeds WHERE enabled = 1 AND paused = 0 AND content_type = 'hotels' AND (last_success_at IS NULL OR last_success_at < datetime('now', '-' || (interval_hours + 24) || ' hours'))"),
+    db.prepare("SELECT partner_slug AS p FROM feeds WHERE enabled = 1 AND paused = 0 AND content_type = 'hotels' AND (last_success_at IS NULL OR last_success_at < datetime('now', '-' || (interval_hours + 168) || ' hours'))"),
     db.prepare("SELECT f.partner_slug AS p, r.status AS st, substr(r.message, 1, 160) AS msg FROM feeds f JOIN import_runs r ON r.id = (SELECT MAX(id) FROM import_runs WHERE feed_id = f.id) WHERE f.enabled = 1 AND f.paused = 0 AND f.content_type = 'hotels' AND (r.status = 'suspicious' OR r.message LIKE 'PARITY:%')"),
     db.prepare("SELECT (SELECT COUNT(*) FROM hotels WHERE offers_active > 0 AND hidden = 0) AS live, (SELECT COUNT(*) FROM hotels WHERE retired_at IS NOT NULL) AS retired"),
   ]);

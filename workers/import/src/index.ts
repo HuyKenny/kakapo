@@ -8,7 +8,7 @@ import { warmImages } from './engine/warm';
 import { reactivateRetired, retireHotels } from './engine/lifecycle';
 import { sqlTime } from './util/text';
 
-const DAILY_CRON = '30 1 * * *';
+const DAILY_CRON = '30 1 * * 1';
 const MAX_UPLOAD = 150 * 1024 * 1024;
 
 export function makeDeps(env: ImportEnv, budgetMs = 9 * 60_000): Deps {
