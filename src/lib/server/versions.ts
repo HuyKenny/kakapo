@@ -10,3 +10,10 @@ export async function dataVersion(): Promise<string> {
   return memo.v;
 }
 export const invalidateVersionMemo = () => { memo = null; };
+
+/** Admin writes (hide, override, redirects, feeds) change what the public pages show; a new version drops the page and query caches at once. */
+export async function bumpDataVersion(): Promise<void> {
+  const now = new Date().toISOString();
+  try { await getEnv().DB.prepare("INSERT INTO site_cache (key,value,updated_at) VALUES ('data_version',?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at").bind(now, now).run(); } catch { /* ignore */ }
+  memo = null;
+}

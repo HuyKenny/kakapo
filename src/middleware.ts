@@ -12,13 +12,13 @@ import { defineMiddleware } from 'astro:middleware';
 import { authenticateAdmin } from './lib/server/access';
 import { allowedHosts, d1Stats, getEnv, isLocal } from './lib/server/env';
 import { clientIp, error } from './lib/server/http';
-import { dataVersion, invalidateVersionMemo } from './lib/server/versions';
+import { bumpDataVersion, dataVersion, invalidateVersionMemo } from './lib/server/versions';
 import { securityHeaders } from './lib/security';
 
 /** Query params that change the rendered content (everything else, e.g. utm_*, fbclid, does not split the cache). */
 const CONTENT_PARAMS = new Set(['country', 'country_exclude', 'dest', 'city', 'q', 'theme', 'stars', 'meal', 'airport', 'partner', 'price_min', 'price_max', 'nights_min', 'nights_max', 'rating_min', 'date_from', 'date_to', 'transport', 'flag', 'adults', 'sort', 'page', 'strana', 'typ', 'kategorie']);
 const NO_CACHE = [/^\/admin\b/, /^\/api\/admin\//, /^\/go\//, /^\/akce\//, /^\/goproduct\//];
-const CACHE_TTL = 600; // data_version changes the key after imports (at most every 20 min), so a longer TTL never serves stale prices for long
+const CACHE_TTL = 3600; // data_version (bumped by imports, now daily, and by admin writes) changes the key, so a longer TTL never serves stale prices
 
 const LEGACY: Array<[RegExp, string]> = [
   [/^\/(wp-)?sitemap\.xml$/, '/sitemap_index.xml'],
@@ -83,7 +83,7 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     if (ctx.request.method !== 'GET' && env.RL_ADMIN && !(await env.RL_ADMIN.limit({ key: auth.email })).success) return finish(error(429, 'Příliš mnoho požadavků.'), url);
     ctx.locals.adminEmail = auth.email;
     const res = await next();
-    if (ctx.request.method !== 'GET') invalidateVersionMemo();
+    if (ctx.request.method !== 'GET') { if (res.status < 400) await bumpDataVersion(); else invalidateVersionMemo(); }
     return finish(res, url, { 'Cache-Control': 'private, no-store' });
   }
 

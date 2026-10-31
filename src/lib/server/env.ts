@@ -1,4 +1,5 @@
 import { env as cfEnv } from 'cloudflare:workers';
+import { cachedDb } from './dbcache';
 
 export interface AppEnv {
   DB: D1Database;
@@ -26,7 +27,7 @@ export interface AppEnv {
 
 /** Per-isolate D1 query counters (debug headers X-D1-* on non-production). */
 export const d1Stats = { n: 0, ms: 0, slow: [] as string[] };
-let wrapped: AppEnv | null = null;
+let dbWrapped: D1Database | null = null;
 
 const originals = new WeakMap<object, D1PreparedStatement>();
 function timedDb(db: D1Database): D1Database {
@@ -54,8 +55,11 @@ function timedDb(db: D1Database): D1Database {
 export function getEnv(): AppEnv {
   const e = cfEnv as unknown as AppEnv;
   (globalThis as any).__D1_TRACE = e.ENVIRONMENT === 'staging';
-  if (e.ENVIRONMENT !== 'staging' && e.ENVIRONMENT !== 'local') return e;
-  return (wrapped ??= Object.assign(Object.create(Object.getPrototypeOf(e)), e, { DB: timedDb(e.DB) }));
+  if (e.ENVIRONMENT === 'local') return e;
+  // Proxy (not a copy): the rest of env stays live; only DB is swapped for the cached / timed wrapper.
+  dbWrapped ??= e.ENVIRONMENT === 'staging' ? timedDb(cachedDb(e.DB)) : cachedDb(e.DB);
+  const db = dbWrapped;
+  return new Proxy(e, { get: (t, k, r) => (k === 'DB' ? db : Reflect.get(t, k, r)) }) as AppEnv;
 }
 
 /** local/test only — never true in staging/production even if a variable leaks in. */
