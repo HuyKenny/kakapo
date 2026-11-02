@@ -225,6 +225,10 @@ export async function landingContext(db: D1Database, page: string, vars: Landing
         ctx.description = `Dovolená ${dLabel} (${label}): porovnejte hotely, termíny, stravu, odlety a ceny od českých cestovních kanceláří.`;
         ctx.intro = `Plánujete dovolenou v destinaci ${dLabel} (${label})? Porovnejte nabídky hotelů a zájezdů od prověřených českých cestovních kanceláří na jednom místě — u každé vidíte cenu, termín i stravu předem a rezervaci dokončíte přímo u pořadatele, bez příplatků.`;
         ctx.seo_text = await destinationSeoText(db, reg, country, vars.dest, label, dLabel);
+        // sister site (same owner, Kenny 2. 11. 2026): one contextual link, never back from the target page
+        if (country === 'slovensko' && vars.dest === 'vysoke-tatry') {
+          ctx.seo_text += '<p>Hledáte místo zájezdu spíš víkend s wellness nebo pobyt na vlastní pěst? Tatranské hotely s vouchery od Zľavomatu a Adropu porovnává slovenský web <a href="https://kuzelnemiesta.sk/pobyty-vo-vysokych-tatrach/">Kúzelné miesta</a>.</p>';
+        }
         ctx.faqs = await destinationFaqs(db, label, dLabel, country, vars.dest);
         ctx.path = `/${country}/${vars.dest}/`;
         ctx.breadcrumbs.push({ label: dLabel, url: '' });
