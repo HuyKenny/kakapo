@@ -166,5 +166,8 @@ export const LEGAL_HTML: Record<string, string> = {
 <p>Rádi zodpovíme dotazy k fungování srovnávače. Upozorňujeme, že Kakapo.cz zájezdy sám neprodává — konkrétní rezervace, platby a reklamace řeší přímo pořádající cestovní kancelář uvedená u dané nabídky.</p>
 
 <h2>Pro cestovní kanceláře</h2>
-<p>Jste cestovní kancelář a chcete své nabídky zobrazovat na Kakapo.cz? Napište nám na <a href="mailto:info@kakapo.cz">info@kakapo.cz</a> a domluvíme si podmínky spolupráce.</p>`,
+<p>Jste cestovní kancelář a chcete své nabídky zobrazovat na Kakapo.cz? Napište nám na <a href="mailto:info@kakapo.cz">info@kakapo.cz</a> a domluvíme si podmínky spolupráce.</p>
+
+<h2>Kdo za webem stojí</h2>
+<p>Kakapo vytvořil Ha Duy Huy (Kenny), SEO konzultant, který si sám staví i vyhledávače zájezdů. Nabídky přebírá přímo od cestovních kanceláří, takže cenu platíte u nich, bez přirážky. Víc o autorovi najdete na <a href="https://huy.cz/" rel="nofollow">huy.cz</a>.</p>`,
 };
