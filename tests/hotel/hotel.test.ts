@@ -96,7 +96,7 @@ describe('loadHotel: offers and texts', () => {
 
 describe('sold out + grace + indexability', () => {
   it('sold-out hotel shows last known price, nearby alternatives and a grace-based description', async () => {
-    addHotel(ctx.raw, { id: 1, slug: 'bez-nabidky', name: 'Bez nabídky', description: LONG, offers_active: 0, offers_last_seen: '2026-09-01 02:00:00' });
+    addHotel(ctx.raw, { id: 1, slug: 'bez-nabidky', name: 'Bez nabídky', description: LONG, offers_active: 0, offers_last_seen: '2026-10-20 02:00:00' });
     ctx.raw.exec(`INSERT INTO price_history (hotel_id,snap_date,min_price) VALUES (1,'2026-08-01',15000),(1,'2026-09-01',17000)`);
     for (const i of [2, 3, 4]) {
       addHotel(ctx.raw, { id: i, slug: `soused-${i}`, name: `Soused ${i}`, description: LONG, offers_active: 1, min_price: 10000 + i });
@@ -112,9 +112,9 @@ describe('sold out + grace + indexability', () => {
     expect(v.sparkline).toContain('<polyline');
     expect(v.descriptionParas.length).toBeGreaterThan(0);
   });
-  it('noindex when out of the 60-day grace (= the retire period), or without text and image', async () => {
+  it('noindex when out of the 14-day grace (= the retire period), or without text and image', async () => {
     expect(withinGrace('2026-08-01 00:00:00', NOW)).toBe(false);
-    expect(withinGrace('2026-09-20 00:00:00', NOW)).toBe(true);
+    expect(withinGrace('2026-10-20 00:00:00', NOW)).toBe(true);
     expect(hotelIsIndexable(0, LONG, '[]', '2026-08-01 00:00:00', NOW)).toBe(false);
     expect(hotelIsIndexable(0, LONG, '[]', null, NOW)).toBe(false);
     expect(hotelIsIndexable(2, 'krátký', '[]', null, NOW)).toBe(false);

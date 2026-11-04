@@ -38,12 +38,12 @@ describe('redirectTarget', () => {
 });
 
 describe('retireHotels', () => {
-  it('retires only hotels without offers for 60+ days and points them at live categories', async () => {
+  it('retires only hotels without offers for 14+ days and points them at live categories', async () => {
     live(15, 'recko', 'kreta'); live(14, 'recko', 'korfu');
     const old = hotel({ country: 'recko', dest: 'kreta' });            // 100 days dead → destination
     const oldOther = hotel({ country: 'recko', dest: 'rhodos' });      // destination too thin → country
     const never = hotel({ country: 'italie', seen: null, created: day(90) }); // never live, created 90 days ago → listing
-    const recent = hotel({ country: 'recko', dest: 'kreta', seen: day(20) });  // only 20 days → stays
+    const recent = hotel({ country: 'recko', dest: 'kreta', seen: day(7) });  // only 7 days → stays
     const liveOne = hotel({ country: 'recko', dest: 'kreta', active: 1, seen: day(0) });
     const hidden = hotel({ hidden: 1 });
     const r = await retireHotels(db, { now: NOW });
