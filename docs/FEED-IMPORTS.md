@@ -1,5 +1,8 @@
 # Feed imports (Import Worker)
 
+> **Od 10. 11. 2026:** slim feedy ATIS a Čedok generuje veřejné repo [`HuyKenny/kakapo-feeds`](https://github.com/HuyKenny/kakapo-feeds) v GitHub Actions (2:10 a 2:30 CET). Cesty `~/ai/scripts/kakapo/*-slim-feed.py` a cron na Malině níže jsou historické.
+
+
 Code: `workers/import/src`, tests: `tests/import`, schema: `migrations/0001_init.sql` + `0002_import.sql`, results: `docs/TEST-REPORT-import.md`.
 Status 26. 10. 2026: **implemented and unit/integration tested on node:sqlite; not yet run in workerd, on a real D1, or against live partner feeds.**
 
