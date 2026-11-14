@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { addFeed, dovolenaXml, makeHarness, manyHotels, one, rows, serve, tickAll, FEED_HOST, NOW } from './helpers';
 import { mapCjHotel, mapCjProduct, cjQuery, type CjProduct } from '../../workers/import/src/adapters/cj';
 import { hostAllowed, openHttp } from '../../workers/import/src/adapters/http';
-import { buildAffiliateUrl } from '../../workers/import/src/adapters/normalize';
+import { buildAffiliateUrl, normalizeProduct, typeFromRules } from '../../workers/import/src/adapters/normalize';
 import { categorize } from '../../workers/import/src/adapters/categories';
 import { handle } from '../../workers/import/src/index';
 import { runDaily } from '../../workers/import/src/engine/daily';
@@ -254,5 +254,20 @@ describe('real feed configuration from the WordPress export', () => {
     const o = rows<Record<string, string | number>>(h, 'SELECT * FROM offers ORDER BY id')[0]!;
     expect(o).toMatchObject({ nights: 7, meal_type: 'all-inclusive', price_total: 30001 });
     expect(String(o.external_id)).toMatch(/^[0-9a-f]{24}$/); // md5(url) prefix, same as the WP importer
+  });
+});
+
+describe('product type from partner categories (Slevomat pobyty)', () => {
+  const rules = [
+    { categories: ['Pobyty a dovolená v lázních'], type: 'wellness' },
+    { categories: ['Lyžařské pobyty'], type: 'lyzovani' },
+  ];
+  it('first matching rule wins, otherwise the default; descriptions are not keyword-scanned', () => {
+    expect(typeFromRules(['Cestování', 'Lyžařské pobyty', 'Pobyty a dovolená v lázních'], rules, 'zazitky')).toBe('wellness');
+    expect(typeFromRules(['lyžařské pobyty'], rules, 'zazitky')).toBe('lyzovani');
+    expect(typeFromRules(['Glamping'], rules, 'zazitky')).toBe('zazitky');
+    const raw = { title: 'Pobyt v Jeseníkách', description: 'kurz lyžování, kultura, Vídeň', price: 1990, affiliate_url: 'https://www.slevomat.cz/akce/1', country: 'Česko', _categories: ['Glamping'] };
+    const r = normalizeProduct(raw, { today: '2026-11-14', affiliateParams: '' }, { defaultType: 'zazitky', forceType: '', typeRules: rules });
+    expect(r.ok && r.value.type).toBe('zazitky');
   });
 });

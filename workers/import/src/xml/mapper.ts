@@ -12,6 +12,9 @@ export interface Mapping {
   default_type?: string;
   force_type?: string;
   product_filter?: { field: string; contains_any: string[] };
+  /** Product type from the partner's own categories (`_categories`), first matching rule wins; no rule → default_type.
+   *  Replaces keyword guessing, which misfires on feeds whose descriptions mention skiing, culture, Vienna… in passing. */
+  type_rules?: Array<{ categories: string[]; type: string }>;
   fields: Record<string, FieldDef>;
   terms?: { item: string; fields: Record<string, FieldDef | string> };
 }

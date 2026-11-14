@@ -78,7 +78,14 @@ export function normalizeOffer(raw: R, ctx: NormCtx): NormOutcome<NormOffer> {
   return parsed.success ? { ok: true, value: parsed.data } : { ok: false, rej: { external_id, reason: 'offer: ' + parsed.error.issues.map((i) => i.path.join('.')).join(',') } };
 }
 
-export interface ProductOpts { defaultType: string; forceType: string; signalsExtra?: string[] }
+export interface ProductOpts { defaultType: string; forceType: string; signalsExtra?: string[]; typeRules?: Array<{ categories: string[]; type: string }> | undefined }
+
+/** First rule whose category list shares a value with the item's categories (case-insensitive exact match). */
+export function typeFromRules(cats: string[], rules: Array<{ categories: string[]; type: string }>, def: string): string {
+  const have = new Set(cats.map((c) => c.toLowerCase()));
+  for (const r of rules) if (typeExists(r.type) && r.categories.some((c) => have.has(c.toLowerCase()))) return r.type;
+  return typeExists(def) ? def : 'zajezdy';
+}
 
 export function normalizeProduct(raw: R, ctx: NormCtx, opts: ProductOpts): NormOutcome<NormProduct> {
   const title = s(raw.title);
@@ -91,7 +98,8 @@ export function normalizeProduct(raw: R, ctx: NormCtx, opts: ProductOpts): NormO
 
   const cats = arr(raw._categories);
   const signals = [s(raw._tour_type), ...cats, title, s(raw.description), s(raw.destination), s(raw.place), country].filter((x) => x !== '');
-  const type = opts.forceType !== '' && typeExists(opts.forceType) ? opts.forceType : categorize(signals, opts.defaultType);
+  const type = opts.forceType !== '' && typeExists(opts.forceType) ? opts.forceType
+    : opts.typeRules?.length ? typeFromRules(cats, opts.typeRules, opts.defaultType) : categorize(signals, opts.defaultType);
   const type_raw = cats.length ? cats.slice(0, 3).join(' | ') : s(raw._tour_type);
 
   const terms: Term[] = [];
