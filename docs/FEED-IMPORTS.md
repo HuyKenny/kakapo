@@ -32,8 +32,8 @@ One invocation has a wall budget (9 min, `Deps.budgetMs`); an unfinished run ret
 | `cj-tui` | TUI (4) | CJ GraphQL | letiště/termíny/noci z `OfferCodeWS` |
 | `cj-generic` | Spa.cz (12, products, parser `spa`) | CJ GraphQL | wellness produkty |
 | `xml-invia_offer` / `xml-invia_hotels` | 7, 13–31 | https | ids = md5(url)[0:24] jako v PHP; ids se mění při každém běhu ⇒ `rotatingIds` (ratio guard vypnutý, platí size guard) |
-| `xml-sdovolena_hotels` / `xml-sdovolena_tours` | 32, 5, 6, 8 | https | |
-| `xml-slevomat_deals` | 9 | https | filtr kategorie „Plavba lodí" |
+| `xml-sdovolena_hotels` / `xml-sdovolena_tours` | 32 (vypnutý 14. 11. 2026 — Slevomat zájezdový feed zrušen, HTTP 523), 5, 6, 8 | https | |
+| `xml-slevomat_deals` | 9, 45 | https | 9: filtr kategorie „Plavba lodí"; 45 Slevomat pobyty: jen akce s `<TRAVEL>` (filtr `_transport`), typ podle kategorií Slevomatu (`type_rules`), země z `TRAVEL/COUNTRY_ID`; celý mapping je v `feeds.mapping_json` |
 | `xml-zbozi_product` | 10, 11 | https | Excursia/Zážitky, `excursia_img` transform |
 | `xml-adrop_pobyty` | 33 | https | |
 | `xml-dovolena_hotels` / `xml-dovolena_products` | 34–40 | https | |
