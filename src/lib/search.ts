@@ -42,7 +42,10 @@ export function normalizeFilters(input: Record<string, unknown>): Filters {
   return f;
 }
 
-const SEA_COUNTRIES = ['recko', 'turecko', 'egypt', 'spanelsko', 'bulharsko', 'chorvatsko', 'italie', 'tunisko', 'kypr', 'portugalsko', 'kanarske-ostrovy', 'spojene-arabske-emiraty', 'maledivy', 'dominikanska-republika', 'mauricius', 'kapverdy', 'kapverdske-ostrovy', 'mexiko', 'thajsko', 'albanie', 'cerna-hora', 'tanzanie', 'oman', 'kena', 'seychely', 'malta', 'vietnam', 'maroko', 'kostarika', 'indonesie', 'sri-lanka', 'jamajka', 'madeira', 'kuba', 'sardinie', 'mallorca', 'menorca', 'djerba', 'tenerife', 'dubaj'];
+const SEA_COUNTRIES = ['recko', 'turecko', 'egypt', 'spanelsko', 'bulharsko', 'chorvatsko', 'italie', 'tunisko', 'kypr', 'portugalsko', 'kanarske-ostrovy', 'spojene-arabske-emiraty', 'maledivy', 'dominikanska-republika', 'mauricius', 'kapverdy', 'kapverdske-ostrovy', 'mexiko', 'thajsko', 'albanie', 'cerna-hora', 'tanzanie', 'oman', 'kena', 'seychely', 'malta', 'vietnam', 'maroko', 'kostarika', 'indonesie', 'sri-lanka', 'jamajka', 'madeira', 'kuba', 'sardinie', 'mallorca', 'menorca', 'djerba', 'tenerife', 'dubaj',
+  'zanzibar', 'barbados', 'aruba', 'katar', 'bahrajn', 'malajsie', 'panama', 'gambie', 'brazilie'];
+/** Seaside countries: 'u moře' landings exist only for these (others redirect to the country page). */
+export const isSeaCountry = (slug: string): boolean => SEA_COUNTRIES.includes(slug);
 const FAMILY_COUNTRIES = ['recko', 'turecko', 'egypt', 'spanelsko', 'bulharsko', 'chorvatsko', 'italie', 'tunisko', 'kypr', 'kanarske-ostrovy', 'cesko', 'slovensko', 'rakousko'];
 const like = (kw: string) => '%' + kw.replace(/[\\%_]/g, '\\$&') + '%';
 

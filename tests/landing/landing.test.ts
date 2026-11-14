@@ -10,6 +10,7 @@ import {
 import { easterRange, resolveRule } from '../../src/lib/landing/dates';
 import { loadRegistry } from '../../src/lib/snapshots';
 import { normalizeFaqs } from '../../src/lib/landing/pages';
+import { resetEligibilityMemo, staleFeedIds } from '../../src/lib/offers/eligibility';
 
 const { raw, db } = memoryDb();
 const NOW = '2026-10-26 10:00:00';
@@ -70,6 +71,26 @@ describe('routing', () => {
     expect(legacyRedirect('/vlastni-dopravou')).toBe('/dovolena-vlastni-dopravou/');
     expect(legacyRedirect('/go/12/')).toBe('');
     expect(legacyRedirect('/recko/')).toBe('');
+  });
+  it('sends seaside landings of non-coastal countries to the country page', () => {
+    expect(legacyRedirect('/japonsko/dovolena-u-more/')).toBe('/japonsko/');
+    expect(legacyRedirect('/japonsko/tokio/dovolena-u-more-all-inclusive/')).toBe('/japonsko/tokio/');
+    expect(legacyRedirect('/rakousko/kam-v-srpnu-k-mori/')).toBe('/rakousko/');
+    expect(legacyRedirect('/recko/dovolena-u-more/')).toBe('');
+    expect(legacyRedirect('/zanzibar/dovolena-u-more/')).toBe('');
+    expect(legacyRedirect('/japonsko/all-inclusive/')).toBe('');
+  });
+});
+
+describe('offer eligibility', () => {
+  it('treats a weekly-imported feed as fresh for a week, stale after interval + 7 days', async () => {
+    const ago = (h: number) => new Date(Date.now() - h * 3600_000).toISOString().slice(0, 19).replace('T', ' ');
+    const { raw: r2, db: d2 } = memoryDb();
+    r2.exec("INSERT INTO partners (slug,name) VALUES ('a','A')");
+    r2.prepare("INSERT INTO feeds (id,name,partner_slug,adapter,content_type,source_ref,interval_hours,last_success_at) VALUES (1,'w','a','cj-atcom','hotels','U1',24,?),(2,'old','a','cj-atcom','hotels','U2',24,?)").run(ago(6 * 24), ago(9 * 24));
+    resetEligibilityMemo();
+    expect(await staleFeedIds(d2)).toEqual([2]);
+    resetEligibilityMemo();
   });
 });
 

@@ -5,6 +5,11 @@ import { COUNTRY_PREFIX_ALIASES } from './country-aliases';
 import { loadRegistry, isCountry, isDestination } from '../snapshots';
 import { existsTopic as longtailExists } from './longtail';
 import { topicExists } from './topics';
+import { isSeaCountry } from '../search';
+import longtailTopics from '../../data/longtail-topics.json';
+
+/** Longtail topics that only list seaside countries (theme 'sea'). */
+const SEA_TOPICS = new Set(Object.entries(longtailTopics as Record<string, { filters?: { theme?: string } }>).filter(([, t]) => t.filters?.theme === 'sea').map(([k]) => k));
 import type { LandingVars } from './pages';
 
 export const MEAL_LANDINGS = ['all-inclusive', 'polopenze', 'snidane', 'bez-stravy', 'plna-penze'];
@@ -45,6 +50,9 @@ export function legacyRedirect(pathIn: string): string {
   if (path === '/dovolena') return '/zajezdy/';
   if (path === '/dovolena-i-more') return '/dovolena-u-more/';
   if (path === '/vlastni-dopravou') return '/dovolena-vlastni-dopravou/';
+  // 'u moře' for a landlocked/city country would always be empty → its country (or destination) page
+  const sea = /^\/([a-z0-9-]+)(\/[a-z0-9-]+)?\/([a-z0-9-]+)$/.exec(path);
+  if (sea && SEA_TOPICS.has(sea[3]!) && !isSeaCountry(sea[1]!) && canonicalAliasTarget(path) === '') return `/${sea[1]}${sea[2] ?? ''}/`;
   if (path !== '' && !path.startsWith('/go') && !path.startsWith('/akce')) {
     const alias = canonicalAliasTarget(path);
     if (alias !== '' && alias.replace(/\/+$/, '') !== path) return alias;

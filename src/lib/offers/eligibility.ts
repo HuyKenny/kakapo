@@ -1,20 +1,23 @@
 // One definition of "an offer we may sell today", used by listings, counts, hotel detail and the sitemap:
 //  - active, departing today or later (Prague time),
-//  - its feed delivered successfully recently — the allowed age depends on the feed's own interval (interval + 24 h),
+//  - its feed delivered successfully recently — the allowed age is the feed's own interval + STALE_GRACE_HOURS (imports run weekly),
 //    so a partner whose import has been failing drops out instead of showing old prices as current.
 // Feeds that never ran (migrated data) are not treated as stale. A temporary failure never deactivates offers by itself.
 import { todayPrague } from '../search';
 
+/** Imports run once a week (Sunday night, Worker cron); a feed is stale only after interval + 7 days. Shared with /api/health. */
+export const STALE_GRACE_HOURS = 168;
+
 interface FeedAge { id: number; stale: boolean }
 let memo: { at: number; stale: number[] } | null = null;
 
-/** Feed ids whose last successful import is older than interval + 24 h. Memoised per isolate for 5 minutes. */
+/** Feed ids whose last successful import is older than interval + STALE_GRACE_HOURS. Memoised per isolate for 5 minutes. */
 export async function staleFeedIds(db: D1Database): Promise<number[]> {
   if (memo && Date.now() - memo.at < 300_000) return memo.stale;
   let stale: number[] = [];
   try {
     const rows = (await db.prepare(
-      "SELECT id, CASE WHEN last_success_at IS NOT NULL AND last_success_at < datetime('now', '-' || (interval_hours + 24) || ' hours') THEN 1 ELSE 0 END AS stale FROM feeds WHERE enabled = 1 AND content_type = 'hotels'",
+      `SELECT id, CASE WHEN last_success_at IS NOT NULL AND last_success_at < datetime('now', '-' || (interval_hours + ${STALE_GRACE_HOURS}) || ' hours') THEN 1 ELSE 0 END AS stale FROM feeds WHERE enabled = 1 AND content_type = 'hotels'`,
     ).all<FeedAge>()).results;
     stale = rows.filter((r) => r.stale).map((r) => Number(r.id));
   } catch { /* table/column missing (tests) → nothing is stale */ }
