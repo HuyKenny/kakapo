@@ -249,7 +249,7 @@ export async function landingContext(db: D1Database, page: string, vars: Landing
         ctx.filters = topic.filters ?? {}; ctx.h1 = topic.h1; ctx.title = topic.title; ctx.description = topic.description; ctx.path = topic.path; ctx.intro = topic.intro;
         if (topic.index_min !== undefined) ctx.index_min = topic.index_min;
         const isCk = !!topic.partner_page;
-        ctx.seo_text = (isCk ? '' : await facts.destinationAnswer(db, ctx.filters, topic.label ?? topic.h1 ?? '')) + sectionsToHtml(topic);
+        ctx.seo_text = (isCk ? '' : await facts.destinationAnswer(db, ctx.filters, topic.label ?? topic.h1 ?? '')) + (topic.seo_text || sectionsToHtml(topic));
         ctx.faqs = [...(isCk ? [] : await facts.answerFaq(db, ctx.filters, topic.h1 ?? topic.label ?? '')), ...(topic.faqs ?? [])];
         ctx.breadcrumbs.push({ label: topic.label, url: '' });
       } else if (!topic) return null;

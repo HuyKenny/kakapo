@@ -16,6 +16,8 @@ export interface Topic {
   filters: Record<string, any>; path: string; label: string; eyebrow?: string; h1: string; title: string; description: string; intro: string;
   hero_image?: string; primary_cta?: Cta; secondary_cta?: Cta; cards?: Array<{ title: string; text: string; url: string; logo?: string }>;
   cards_heading?: string; cards_intro?: string; sections?: Section[]; faqs?: Faq[]; index_min?: number;
+  /** Hand-written HTML guide; replaces `sections` when present. */
+  seo_text?: string;
 }
 
 /** Recursively host-relativise URLs and anchors from the WordPress dump. */
