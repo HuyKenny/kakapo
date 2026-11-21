@@ -17,6 +17,8 @@ import { securityHeaders } from './lib/security';
 
 /** Query params that change the rendered content (everything else, e.g. utm_*, fbclid, does not split the cache). */
 const CONTENT_PARAMS = new Set(['country', 'country_exclude', 'dest', 'city', 'q', 'theme', 'stars', 'meal', 'airport', 'partner', 'price_min', 'price_max', 'nights_min', 'nights_max', 'rating_min', 'date_from', 'date_to', 'transport', 'flag', 'adults', 'sort', 'page', 'strana', 'typ', 'kategorie']);
+/** Same tracking params as hasQuery in src/lib/listing/index.ts ignores. */
+const TRACKING_PARAM = /^(utm_[a-z]+|fbclid|gclid|gbraid|wbraid|msclkid|yclid|mc_[a-z]+|ref|_ga)$/i;
 const NO_CACHE = [/^\/admin\b/, /^\/api\/admin\//, /^\/go\//, /^\/akce\//, /^\/goproduct\//];
 const CACHE_TTL = 3600; // data_version (bumped by imports, now daily, and by admin writes) changes the key, so a longer TTL never serves stale prices
 
@@ -31,6 +33,8 @@ const LEGACY: Array<[RegExp, string]> = [
 
 export function cacheKey(url: URL, version: string): string | null {
   const sp = new URLSearchParams();
+  // Any other non-tracking param makes the listing render noindex (hasQuery) while it would share the clean URL's key → don't cache it.
+  for (const k of url.searchParams.keys()) if (!CONTENT_PARAMS.has(k) && !TRACKING_PARAM.test(k)) return null;
   const entries = [...url.searchParams.entries()].filter(([k]) => CONTENT_PARAMS.has(k)).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   if (entries.length > 12) return null;
   for (const [k, v] of entries) {

@@ -32,6 +32,10 @@ export function autumnRange(t = pragueNow()): Range {
 export function christmasRange(t = pragueNow()): Range {
   return { from: fmt(t.y, 12, 20), to: fmt(t.y, 12, 31), year: t.y };
 }
+/** New Year's Eve departures (26.–31. 12. of the current year), same year logic as christmasRange. */
+export function newYearRange(t = pragueNow()): Range {
+  return { from: fmt(t.y, 12, 26), to: fmt(t.y, 12, 31), year: t.y };
+}
 function easterDate(year: number): { y: number; m: number; d: number } {
   const a = year % 19, b = Math.trunc(year / 100), c = year % 100, d = Math.trunc(b / 4), e = b % 4, f = Math.trunc((b + 8) / 25);
   const g = Math.trunc((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.trunc(c / 4), k = c % 4;
@@ -54,7 +58,7 @@ export function relativeRange(fromDays: number, toDays: number, t = pragueNow())
 /** How a dated topic derives its window. Rules were recovered from the PHP sources (month number from the slug etc.). */
 export type DateRule =
   | { kind: 'month'; month: number }
-  | { kind: 'winter' } | { kind: 'autumn' } | { kind: 'christmas' } | { kind: 'easter' }
+  | { kind: 'winter' } | { kind: 'autumn' } | { kind: 'christmas' } | { kind: 'newyear' } | { kind: 'easter' }
   | { kind: 'relative'; from: number; to: number };
 
 export function resolveRule(rule: DateRule, t = pragueNow()): Range {
@@ -63,6 +67,7 @@ export function resolveRule(rule: DateRule, t = pragueNow()): Range {
     case 'winter': return winterRange(t);
     case 'autumn': return autumnRange(t);
     case 'christmas': return christmasRange(t);
+    case 'newyear': return newYearRange(t);
     case 'easter': return easterRange(t);
     case 'relative': return relativeRange(rule.from, rule.to, t);
   }
@@ -82,6 +87,7 @@ export function ruleForSlug(slug: string): DateRule | null {
   if (rel[slug]) return { kind: 'relative', from: rel[slug]![0], to: rel[slug]![1] };
   if (slug === 'kam-v-zime-k-mori') return { kind: 'winter' };
   if (slug === 'kam-na-vanoce-k-mori') return { kind: 'christmas' };
+  if (slug === 'kam-na-silvestra-k-mori') return { kind: 'newyear' };
   if (slug === 'kam-na-podzim-k-mori') return { kind: 'autumn' };
   if (slug === 'kam-na-velikonoce-k-mori') return { kind: 'easter' };
   if (/^(kam-v-.+-k-mori|dovolena-(kveten|cerven|cervenec|srpen|zari|rijen|listopad|prosinec)|dovolena-v-(zari-u-more|prosinci))$/.test(slug)) {
