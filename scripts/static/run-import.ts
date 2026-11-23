@@ -18,6 +18,8 @@ import { stepFeed } from '../../workers/import/src/engine/run';
 import { runDaily } from '../../workers/import/src/engine/daily';
 import { afterTick } from '../../workers/import/src/engine/post';
 import { sqlTime } from '../../workers/import/src/util/text';
+import { rebuildSnapshots } from '../../src/lib/snapshots';
+import { rebuildSitemaps } from '../../src/lib/sitemap';
 
 const argv = process.argv.slice(2);
 const arg = (k: string) => (argv.includes(k) ? argv[argv.indexOf(k) + 1] : undefined);
@@ -99,7 +101,7 @@ const env = {
   LAST_MINUTE_DAYS: '14',
   FIRST_MINUTE_DAYS: '120',
   WARM_ENABLED: '0',
-  INDEXNOW_KEY: 'fe36085e9198035f67a3f56ddaee9101', // public by design (served as /<key>.txt)
+  // no INDEXNOW_KEY: the ping runs after a successful deploy (scripts/static/indexnow.py, site.json post_deploy)
 } as unknown as ImportEnv & Record<string, unknown>;
 for (const [k, v] of Object.entries(process.env)) if (v && (/^FEED_URL_\d+$/.test(k) || /^CJ_(API_TOKEN|CID|PID)$/.test(k))) env[k] = v;
 // all http feed URLs in one secret (they carry partner tokens): {"FEED_URL_5": "https://…", …}
@@ -109,6 +111,14 @@ if (process.env.FEED_URLS_JSON) {
 }
 console.log(`feed secrets: ${Object.keys(env).filter((k) => k.startsWith('FEED_URL_')).length} http feeds, CJ ${env.CJ_API_TOKEN ? 'set' : 'missing'}`);
 
+// an inbox file feed-<id>.xml for an http feed is used instead of its URL for this run
+const viaInbox: number[] = [];
+for (const f of readdirSync(join(r2root, 'inbox'))) {
+  const m = /^feed-(\d+)\.xml/.exec(f);
+  const row = m ? raw.prepare("SELECT id FROM feeds WHERE id = ? AND source_kind = 'http'").get(Number(m[1])) as { id: number } | undefined : undefined;
+  if (row) { raw.prepare("UPDATE feeds SET source_kind = 'r2' WHERE id = ?").run(row.id); viaInbox.push(row.id); }
+}
+if (viaInbox.length) console.log(`inbox files used for http feeds ${viaInbox.join(',')}`);
 const counts = { hours: 0 };
 const deps: Deps = {
   env, now: () => new Date(), fetch: (i, init) => fetch(i, init), sleep: (ms) => new Promise((r) => setTimeout(r, ms)), budgetMs: 9 * 60_000,
@@ -142,6 +152,11 @@ if (argv.includes('--daily')) {
   const r = await runDaily({ ...deps, budgetMs: 30 * 60_000 });
   console.log('daily:', JSON.stringify(r));
 }
+for (const id of viaInbox) raw.prepare("UPDATE feeds SET source_kind = 'http' WHERE id = ?").run(id);
+// sitemaps + snapshots from the final data (the tick rebuilt them before the daily expiry; daily only when older than 20 h)
+await rebuildSnapshots(db as unknown as D1Database, new Date().toISOString());
+const sm = await rebuildSitemaps(db as unknown as D1Database, 'https://kakapo.cz');
+console.log('sitemaps rebuilt:', JSON.stringify(sm).slice(0, 200));
 const n = (sql: string) => (raw.prepare(sql).get() as { n: number }).n;
 console.log(`import: ${ok} feeds ok, ${failed} failed in ${Math.round((Date.now() - t0) / 1000)} s; active offers ${n('SELECT COUNT(*) n FROM offers WHERE active = 1')}, hotels with offers ${n('SELECT COUNT(*) n FROM hotels WHERE offers_active > 0')}, active products ${n('SELECT COUNT(*) n FROM products WHERE active = 1')}`);
 raw.exec('PRAGMA wal_checkpoint(TRUNCATE)');

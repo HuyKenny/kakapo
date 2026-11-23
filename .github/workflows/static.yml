@@ -40,13 +40,18 @@ jobs:
       - name: ATIS slim feed (feeds 43 + 44)
         if: matrix.feed == 'atis'
         run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/out"
           python3 feeds/scripts/atis-slim-feed.py --no-upload --out "$RUNNER_TEMP/out/feed-43.xml" 2>&1 | tail -5
           mv "$RUNNER_TEMP/out/feed-43-wellness.xml" "$RUNNER_TEMP/out/feed-44.xml"
         env:
           ATIS_FEED_URL: ${{ secrets.ATIS_FEED_URL }}
       - name: Čedok slim feed (feed 41)
         if: matrix.feed == 'cedok'
-        run: python3 feeds/scripts/cedok-slim-feed.py --target r2 --no-upload --out "$RUNNER_TEMP/out/feed-41.xml" 2>&1 | tail -5
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/out"
+          python3 feeds/scripts/cedok-slim-feed.py --target r2 --no-upload --out "$RUNNER_TEMP/out/feed-41.xml" 2>&1 | tail -5
         env:
           CEDOK_SFTP_HOST: ${{ secrets.CEDOK_SFTP_HOST }}
           CEDOK_SFTP_USER: ${{ secrets.CEDOK_SFTP_USER }}
@@ -54,6 +59,7 @@ jobs:
           CEDOK_SFTP_FILE: ${{ secrets.CEDOK_SFTP_FILE }}
       - name: Encrypt (partner data must not be public)
         run: |
+          ls "$RUNNER_TEMP"/out/feed-*.xml >/dev/null || { echo "no feed file produced"; exit 1; }
           ls -la "$RUNNER_TEMP/out" | tail -n +2
           tar cz -C "$RUNNER_TEMP/out" . | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:STATE_KEY -out "$RUNNER_TEMP/feeds-${{ matrix.feed }}.enc"
         env:

@@ -8,7 +8,7 @@ import { chunk, runBatches, MAX_PARAMS, qs } from './db';
 import { afterRun } from './post';
 import { reactivateRetired, retireHotels } from './lifecycle';
 
-const RETENTION_DAYS = 180, DROP_MIN_PCT = 5, DROP_MIN_CZK = 500;
+const RETENTION_DAYS = 180, DROP_MIN_PCT = 5, DROP_MIN_CZK = 500, FAILED_FEED_GRACE_DAYS = 7;
 
 export interface DailyReport { expiredOffers: number; expiredProducts: number; windowFlags: number; hotelsWritten: number; snapshots: number; dropsSet: number; prunedHistory: number; prunedOffers: number; prunedProducts: number; prunedRuns: number; retiredHotels: number; reactivatedHotels: number }
 
@@ -22,7 +22,11 @@ export async function runDaily(deps: Deps): Promise<DailyReport> {
 
   // departures in the past, products past their validity
   r.expiredOffers = await changes('UPDATE offers SET active = 0 WHERE active = 1 AND departure_date < ?', today);
-  r.expiredProducts = await changes('UPDATE products SET active = 0 WHERE active = 1 AND COALESCE(date_to, date_from) IS NOT NULL AND COALESCE(date_to, date_from) < ?', today);
+  // A feed whose latest run failed (partner export down, timeout) keeps its products for FAILED_FEED_GRACE_DAYS after its last
+  // success: date_from is only the nearest departure and the next successful run moves it (kormidlo export hung 23. 11.).
+  r.expiredProducts = await changes(`UPDATE products SET active = 0 WHERE active = 1 AND COALESCE(date_to, date_from) IS NOT NULL AND COALESCE(date_to, date_from) < ?
+    AND feed_id NOT IN (SELECT f.id FROM feeds f WHERE f.last_success_at >= ? AND COALESCE((SELECT x.status FROM import_runs x WHERE x.feed_id = f.id ORDER BY x.id DESC LIMIT 1), 'ok') <> 'ok')`,
+    today, sqlTime(new Date(now.getTime() - FAILED_FEED_GRACE_DAYS * 86400_000)));
   // sliding last/first minute windows: only rows whose flag actually flips are written
   const lmLimit = addDays(today, lm), fmLimit = addDays(today, fm);
   r.windowFlags = await changes('UPDATE offers SET is_last_minute = CASE WHEN departure_date <= ? THEN 1 ELSE 0 END, is_first_minute = CASE WHEN departure_date >= ? THEN 1 ELSE 0 END WHERE active = 1 AND (is_last_minute <> (departure_date <= ?) OR is_first_minute <> (departure_date >= ?))', lmLimit, fmLimit, lmLimit, fmLimit);
