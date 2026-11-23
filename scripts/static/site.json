@@ -19,7 +19,7 @@
  ],
  "crawl": {
   "workers": 4,
-  "extra_until": 0,
+  "extra_until": 110000,
   "no_go": true,
   "skip": [
    "/akce/",
