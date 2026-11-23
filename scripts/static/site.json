@@ -1,0 +1,57 @@
+{
+ "domain": "kakapo.cz",
+ "worker": "kakapo",
+ "port": 8811,
+ "db_binding": "DB",
+ "go": "kakapo",
+ "import": [
+  [
+   "pnpm",
+   "exec",
+   "tsx",
+   "scripts/static/run-import.ts",
+   "--db",
+   "{db}",
+   "--inbox",
+   "{inbox}",
+   "--daily"
+  ]
+ ],
+ "crawl": {
+  "workers": 4,
+  "extra_until": 0,
+  "no_go": true,
+  "skip": [
+   "/akce/",
+   "/goproduct/"
+  ],
+  "exits": "/go/,/akce/"
+ },
+ "fts": [],
+ "min_pages": 5000,
+ "smoke_paths": [
+  "/zajezdy/",
+  "/last-minute/"
+ ],
+ "actions": {
+  "repo": "HuyKenny/kakapo",
+  "cred": ".kakapo-credentials.env",
+  "zone": "kakapo.cz",
+  "secrets": {
+   "CJ_API_TOKEN": ".kakapo-credentials.env:CJ_API_TOKEN",
+   "CJ_CID": ".kakapo-credentials.env:CJ_CID",
+   "CJ_PID": ".kakapo-credentials.env:CJ_PID",
+   "ATIS_FEED_URL": ".kakapo-credentials.env:ATIS_FEED_URL",
+   "CEDOK_SFTP_HOST": ".kakapo-credentials.env:CEDOK_SFTP_HOST",
+   "CEDOK_SFTP_USER": ".kakapo-credentials.env:CEDOK_SFTP_USER",
+   "CEDOK_SFTP_PASS": ".kakapo-credentials.env:CEDOK_SFTP_PASS",
+   "CEDOK_SFTP_FILE": ".kakapo-credentials.env:CEDOK_SFTP_FILE"
+  },
+  "feed_urls": {
+   "FEED_URL_5": ".kouzelnydeda-feeds.json#radynacestu",
+   "FEED_URL_8": ".kouzelnydeda-feeds.json#kormidlo_sdovolena",
+   "FEED_URL_9": ".kakapo-credentials.env:SLEVOMAT_DEALS_FEED_URL",
+   "FEED_URL_45": ".kakapo-credentials.env:SLEVOMAT_DEALS_FEED_URL"
+  }
+ }
+}

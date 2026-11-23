@@ -1,0 +1,143 @@
+name: static
+# kakapo.cz is served as static files by assets-only Workers (Cloudflare Workers Free, 2026-11): `kakapo` (zone route
+# kakapo.cz/*) + prefix shards `kakapo-zNN`. Every night: slim supplier feeds (scripts of the public repo HuyKenny/kakapo-feeds),
+# import into the SQLite state (code of workers/import), render the SSR app locally, freeze, deploy the changed files.
+# See scripts/static/build.py. PUBLIC repo: logs are public — scripts print only counts and HTTP statuses; credentials come
+# from secrets (masked by GitHub); the state and the feed files between jobs are encrypted with STATE_KEY.
+# Quick path for CSS/JS/template/text fixes: Actions -> static -> Run workflow -> mode "quick" (no feeds, no import, ~minutes).
+on:
+  schedule:
+    - cron: "5 0 * * *"      # 01:05 CET: feeds job (~45 min Čedok stream), then the build
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "quick = render + deploy from the saved state (fixes); full = feeds + import + render + deploy"
+        type: choice
+        options: [quick, full]
+        default: quick
+concurrency:
+  group: static
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  feeds:
+    if: github.event_name == 'schedule' || inputs.mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        feed: [atis, cedok]
+    steps:
+      - name: Supplier feed scripts (public repo HuyKenny/kakapo-feeds)
+        uses: actions/checkout@v4
+        with:
+          repository: HuyKenny/kakapo-feeds
+          ref: 3c6c15625c62c2f484a7b7b74b6fa4ee530180e7
+          path: feeds
+          persist-credentials: false
+      - name: ATIS slim feed (feeds 43 + 44)
+        if: matrix.feed == 'atis'
+        run: |
+          python3 feeds/scripts/atis-slim-feed.py --no-upload --out "$RUNNER_TEMP/out/feed-43.xml" 2>&1 | tail -5
+          mv "$RUNNER_TEMP/out/feed-43-wellness.xml" "$RUNNER_TEMP/out/feed-44.xml"
+        env:
+          ATIS_FEED_URL: ${{ secrets.ATIS_FEED_URL }}
+      - name: Čedok slim feed (feed 41)
+        if: matrix.feed == 'cedok'
+        run: python3 feeds/scripts/cedok-slim-feed.py --target r2 --no-upload --out "$RUNNER_TEMP/out/feed-41.xml" 2>&1 | tail -5
+        env:
+          CEDOK_SFTP_HOST: ${{ secrets.CEDOK_SFTP_HOST }}
+          CEDOK_SFTP_USER: ${{ secrets.CEDOK_SFTP_USER }}
+          CEDOK_SFTP_PASS: ${{ secrets.CEDOK_SFTP_PASS }}
+          CEDOK_SFTP_FILE: ${{ secrets.CEDOK_SFTP_FILE }}
+      - name: Encrypt (partner data must not be public)
+        run: |
+          ls -la "$RUNNER_TEMP/out" | tail -n +2
+          tar cz -C "$RUNNER_TEMP/out" . | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:STATE_KEY -out "$RUNNER_TEMP/feeds-${{ matrix.feed }}.enc"
+        env:
+          STATE_KEY: ${{ secrets.STATE_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: feeds-${{ matrix.feed }}
+          path: ${{ runner.temp }}/feeds-${{ matrix.feed }}.enc
+          retention-days: 1
+
+  build:
+    needs: feeds
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    environment: production
+    permissions:
+      contents: write          # release asset with the encrypted state
+    env:
+      MODE: ${{ github.event_name == 'schedule' && 'full' || inputs.mode }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: "Cost guard - the repo must stay public (private repos burn the shared 2 000 free minutes)"
+        run: |
+          [ "$(gh api repos/${{ github.repository }} --jq .private)" = "false" ] || { echo "repo is private - stopping to protect free minutes"; exit 1; }
+          [ -n "$STATE_KEY" ] && [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo "secrets STATE_KEY / CLOUDFLARE_API_TOKEN not set yet (scripts/static/setup-actions.py)"; exit 1; }
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATE_KEY: ${{ secrets.STATE_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build the SSR app (render env)
+        run: |
+          pnpm exec astro build > /tmp/astro-build.log 2>&1 || { tail -40 /tmp/astro-build.log; exit 1; }
+          tail -2 /tmp/astro-build.log
+        env:
+          CLOUDFLARE_ENV: render
+          SITE_URL: https://kakapo.cz
+          BUILD_ID: ${{ github.sha }}
+      - name: Restore state (encrypted)
+        run: |
+          scripts/static/state.sh pull
+          echo "STATE_OK=1" >> "$GITHUB_ENV"
+        env:
+          STATE_KEY: ${{ secrets.STATE_KEY }}
+          GH_TOKEN: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        if: env.MODE == 'full'
+        continue-on-error: true
+        with:
+          pattern: feeds-*
+          path: ${{ runner.temp }}/feeds
+          merge-multiple: true
+      - name: Decrypt the feeds of this night
+        if: env.MODE == 'full'
+        run: |
+          mkdir -p .static-work/inbox
+          for f in "$RUNNER_TEMP"/feeds/*.enc; do
+            [ -f "$f" ] || continue
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:STATE_KEY -in "$f" | tar xz -C .static-work/inbox
+          done
+          ls -la .static-work/inbox | tail -n +2
+        env:
+          STATE_KEY: ${{ secrets.STATE_KEY }}
+      - name: Import + render + deploy
+        run: python3 -u scripts/static/build.py run --mode "$MODE"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CJ_API_TOKEN: ${{ secrets.CJ_API_TOKEN }}
+          CJ_CID: ${{ secrets.CJ_CID }}
+          CJ_PID: ${{ secrets.CJ_PID }}
+          FEED_URLS_JSON: ${{ secrets.FEED_URLS_JSON }}
+      - name: Save state (encrypted)
+        if: always() && env.STATE_OK == '1'
+        run: scripts/static/state.sh push
+        env:
+          STATE_KEY: ${{ secrets.STATE_KEY }}
+          GH_TOKEN: ${{ github.token }}
