@@ -91,7 +91,8 @@ def run_imports(db):
     for cmd in SITE.get('import', []):
         argv = [x.replace('{db}', str(db)).replace('{inbox}', str(WORK / 'inbox')).replace('{work}', str(WORK)) for x in cmd]
         t = time.time()
-        r = subprocess.run(argv, cwd=APP, env={**os.environ, 'STATIC_DB': str(db)})
+        (WORK / 'reports').mkdir(parents=True, exist_ok=True)
+        r = subprocess.run(argv, cwd=APP, env={**os.environ, 'STATIC_DB': str(db), 'STATIC_REPORTS': str(WORK / 'reports')})
         log(f'import step {argv[2] if len(argv) > 2 else argv[0]}: exit {r.returncode} in {time.time() - t:.0f} s')
         ok &= r.returncode == 0
     return ok
@@ -217,6 +218,12 @@ def main():
     group('render + crawl')
     with Server():
         meta = crawl(a.limit)
+    for cmd in SITE.get('post_crawl', []):   # e.g. eroka: thumbnails -> R2 img.eroka.cz + URL rewrite
+        argv = [x.replace('{out}', str(OUT)).replace('{data}', str(DATA)) for x in cmd]
+        r = subprocess.run(argv, cwd=APP)
+        log(f'post-crawl {argv[1] if len(argv) > 1 else argv[0]}: exit {r.returncode}')
+        if r.returncode:
+            sys.exit('post-crawl step failed')
     group('exits')
     sys.path.insert(0, str(HERE))
     import go_exits
@@ -226,6 +233,10 @@ def main():
              'at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
     log('stats:', json.dumps(stats))
     # the import result is kept even if the deploy is refused (next run starts from it)
+    import sqlite3
+    c = sqlite3.connect(db)
+    c.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+    c.close()
     shutil.copyfile(db, STATE_DB)
     bad = guard(meta, stats)
     if bad and not a.limit:

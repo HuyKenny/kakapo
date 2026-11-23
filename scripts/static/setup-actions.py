@@ -7,10 +7,11 @@ Reads site.json "actions":
   repo      GitHub repo (public), e.g. HuyKenny/kakapo
   cred      the site's credentials file in ~/ai/credentials (STATE_KEY_STATIC + CF_API_TOKEN_STATIC are stored there)
   secrets   {"SECRET_NAME": "<cred file>:<KEY>"} copied 1:1
+  feeds_ce  Content Egg feeds export (feeds.Feed__<n>.feed_url -> FEED_URL_<n>)
   feed_urls {"FEED_URL_<id>": "<cred file>:<KEY>" | "<feeds json>#<key>"} + every FEED_URL_<id>=… line of the cred file -> one secret FEED_URLS_JSON
 1. STATE_KEY: generated once (encrypts the state release asset and the feed files between jobs).
-2. CLOUDFLARE_API_TOKEN: a scoped token, created once — Workers Scripts Write (account) + Workers Routes Write and Zone Read
-   (only the site's zone). CLOUDFLARE_ACCOUNT_ID alongside.
+2. CLOUDFLARE_API_TOKEN: a scoped token, created once — Workers Scripts Write (account; + Workers R2 Storage Write when
+   "r2_write": true, eroka thumbnails) + Workers Routes Write and Zone Read (only the site's zone). CLOUDFLARE_ACCOUNT_ID alongside.
 Idempotent (existing key/token are reused). Prints only names and "ok", never values.
 """
 import json
@@ -62,6 +63,7 @@ for name, ref in A.get('feed_urls', {}).items():
     if '#' in ref:   # "<feeds json>#<key>": a feed URL another site of the portfolio already uses (same partner export)
         f, _, k = ref.partition('#')
         v = json.loads((CRED / f).read_text()).get(k) if (CRED / f).exists() else None
+        v = v.replace('http://', 'https://') if isinstance(v, str) else v
     else:
         f, _, k = ref.partition(':')
         v = env(f).get(k)
@@ -69,6 +71,10 @@ for name, ref in A.get('feed_urls', {}).items():
         feeds.setdefault(name, v)
     else:
         missing.append(f'{name} ({ref})')
+if A.get('feeds_ce'):   # Content Egg export (alkoholicky, eroka): feeds.Feed__<n>.feed_url -> FEED_URL_<n>
+    for k, v in json.loads((CRED / A['feeds_ce']).read_text())['feeds'].items():
+        if v.get('feed_url'):
+            feeds.setdefault(f"FEED_URL_{k.split('__')[1]}", v['feed_url'])
 if A.get('feed_urls') is not None or feeds:
     secret('FEED_URLS_JSON', json.dumps(feeds))
     print(f'   ({len(feeds)} feed URLs)')
@@ -97,7 +103,7 @@ if not tok:
     groups = {g['name']: g['id'] for g in api('GET', '/user/tokens/permission_groups')['result']}
     body = {'name': f'{SITE["domain"]} nightly static deploy (GitHub Actions {REPO})', 'policies': [
         {'effect': 'allow', 'resources': {f'com.cloudflare.api.account.{acc}': '*'},
-         'permission_groups': [{'id': groups['Workers Scripts Write']}]},
+         'permission_groups': [{'id': groups['Workers Scripts Write']}] + ([{'id': groups['Workers R2 Storage Write']}] if A.get('r2_write') else [])},
         {'effect': 'allow', 'resources': {f'com.cloudflare.api.account.zone.{zone}': '*'},
          'permission_groups': [{'id': groups['Workers Routes Write']}, {'id': groups['Zone Read']}]}]}
     r = api('POST', '/user/tokens', body)
