@@ -25,7 +25,11 @@
    "/akce/",
    "/goproduct/"
   ],
-  "exits": "/go/,/akce/"
+  "exits": "/go/,/akce/",
+  "extra_paths_sql": [
+   "SELECT '/data/zajezdy/index.json'",
+   "SELECT '/data/zajezdy/' || CASE WHEN country_slug = '' THEN '_' ELSE country_slug END || '.json' FROM hotels WHERE offers_active > 0 AND hidden = 0 GROUP BY country_slug"
+  ]
  },
  "fts": [],
  "min_pages": 5000,

@@ -1,6 +1,7 @@
 ---
 // Shared listing (landings, countries, destinations, last/first minute, meals, airports, topic listings). Port of templates/search.php.
-// First page is server-rendered (SEO); filter changes go through Alpine kakapoFilters → /api/search + /api/filters.
+// First page is server-rendered (SEO); filter changes go through Alpine kakapoFilters (frontend.js) → the client-side engine
+// (src/lib/listing/client.ts) over the static /data/zajezdy/*.json — the frozen site has no Worker on the request path.
 import Breadcrumbs from '../Breadcrumbs.astro';
 import CardHotel from './CardHotel.astro';
 import Filters from './Filters.astro';
@@ -265,6 +266,10 @@ const empty = !result.hotels.length;
 		</div>
 	)}
 </main>
+
+<script>
+	import '../../lib/listing/client';
+</script>
 
 <template id="kakapo-skeleton">
 	{[0, 1, 2, 3, 4, 5].map(() => (

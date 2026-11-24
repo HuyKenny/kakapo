@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /goproduct/
 Disallow: /go/
 Disallow: /akce/
+Disallow: /data/
 Content-Signal: search=yes,ai-train=no,use=reference
 Disallow: /wp-admin/
 Allow: /wp-admin/admin-ajax.php

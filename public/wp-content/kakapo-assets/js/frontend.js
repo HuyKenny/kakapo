@@ -2,7 +2,7 @@
  * Kakapo Travel Engine — frontend (vanilla JS + Alpine.js komponenty).
  *
  * Komponenty: kakapoFilters, kakapoOffers, kakapoGallery, kakapoSearchbar, kakapoOffcanvas.
- * renderCard() musí generovat stejný markup jako templates/parts/card-hotel.php.
+ * Karty výsledků renderuje src/lib/listing/engine.ts (1:1 s CardHotel.astro) nad statickými /data/zajezdy/*.json.
  */
 (function () {
 	'use strict';
@@ -35,10 +35,6 @@
 		return n + ' nocí';
 	}
 
-	function fmtRating(r) {
-		return (Math.round(Number(r) * 10) / 10).toFixed(1).replace('.', ',');
-	}
-
 	function esc(s) {
 		var div = document.createElement('div');
 		div.textContent = s === null || s === undefined ? '' : String(s);
@@ -47,113 +43,6 @@
 
 	function escAttr(s) {
 		return esc(s).replace(/"/g, '&quot;');
-	}
-
-	var STAR_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.26 6.86.83-5.07 4.7 1.35 6.77L12 17.2l-6.04 3.36 1.35-6.77-5.07-4.7 6.86-.83z"/></svg>';
-
-	var PLACEHOLDER_SVG = '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14M9 9h1m4 0h1M9 13h1m4 0h1M9 17h1m4 0h1"/></svg>';
-
-	/**
-	 * Karta hotelu — 1:1 markup s templates/parts/card-hotel.php.
-	 * Vstup: položka z REST /search (image, url, best_offer.meal_label, partners…).
-	 */
-	/** Visitor's choice from the listing URL, carried to the hotel detail (same whitelist as selectionQuery() in src/lib/hotel/selection.ts). */
-	function selectionQuery() {
-		var keys = ['airport', 'meal', 'nights', 'nights_min', 'nights_max', 'date_from', 'date_to', 'price_max', 'transport', 'partner'];
-		var q = new URLSearchParams(window.location.search), out = new URLSearchParams();
-		keys.forEach(function (k) { if (q.get(k)) { out.set(k, q.get(k)); } });
-		var r = out.toString();
-		return r ? '?' + r : '';
-	}
-
-	function renderCard(h) {
-		var best = h.best_offer || null;
-		var price = null;
-		var priceOriginal = null;
-		var discount = null;
-
-		if (best) {
-			price = best.price_pp;
-			if (best.price_original && best.price_original > best.price_pp) {
-				priceOriginal = best.price_original;
-				discount = best.discount !== null && best.discount !== undefined
-					? best.discount
-					: Math.round(100 * (1 - best.price_pp / best.price_original));
-			}
-		}
-
-		var isLm = best ? !!best.is_last_minute : false;
-		var stars = Math.max(0, Math.min(5, parseInt(h.stars, 10) || 0));
-		var partners = parseInt(h.partners, 10) || 0;
-
-		var html = '<article class="card-k group">';
-
-		html += '<div class="card-k-img">';
-		if (h.image) {
-			var cardSrcset = h.image_srcset ? ' srcset="' + escAttr(h.image_srcset) + '" sizes="(max-width:639px) 7.6rem, (min-width:1280px) 22vw, (min-width:1024px) 30vw, 45vw"' : '';
-			html += '<img src="' + escAttr(h.image) + '"' + cardSrcset + ' alt="' + escAttr(h.name) + '" width="640" height="480" loading="lazy" decoding="async" onerror="this.style.display=\'none\'">';
-		} else {
-			html += '<div class="flex h-full w-full items-center justify-center text-slate-300" aria-hidden="true">' + PLACEHOLDER_SVG + '</div>';
-		}
-		html += '<div class="absolute left-3 top-3 flex flex-wrap gap-1.5">';
-		if (isLm) {
-			html += '<span class="badge badge-lm">Last minute</span>';
-		}
-		if (discount !== null && discount > 0) {
-			html += '<span class="badge badge-sale">−' + esc(discount) + ' %</span>';
-		}
-		html += '</div></div>';
-
-		html += '<div class="flex flex-1 flex-col pt-3">';
-		html += '<div class="flex items-start justify-between gap-3">';
-		html += '<h3 class="text-[15px] font-bold leading-snug text-ink"><a href="' + escAttr(h.url) + '" class="text-ink no-underline after:absolute after:inset-0 after:z-10 after:rounded-2xl focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ink">' + esc(h.name) + '</a></h3>';
-		if (h.rating !== null && h.rating !== undefined && Number(h.rating) > 0) {
-			html += '<span class="rating-badge" aria-label="Hodnocení ' + escAttr(fmtRating(h.rating)) + ' z 10">' + esc(fmtRating(h.rating)) + '</span>';
-		}
-		html += '</div>';
-
-		html += '<p class="mt-0.5 flex items-center gap-1.5 text-sm text-slate-500">';
-		if (h.country_flag_url) {
-			// SVG vlajka (emoji vlajky Windows nezobrazuje — renderuje jen "EG")
-			html += '<img src="' + esc(h.country_flag_url) + '" alt="" class="shrink-0" style="width:18px;height:13.5px;border-radius:2px;object-fit:cover" loading="lazy">';
-		} else if (h.country_flag) {
-			html += '<span class="shrink-0 text-base leading-none" aria-hidden="true">' + esc(h.country_flag) + '</span>';
-		}
-		html += '<span class="truncate">' + esc(h.country) + (h.destination ? ' · ' + esc(h.destination) : '') + '</span>';
-		if (stars > 0) {
-			html += '<span class="ml-auto inline-flex shrink-0 items-center gap-px text-amber-400" role="img" aria-label="' + stars + ' z 5 hvězdiček">';
-			for (var i = 0; i < stars; i++) {
-				html += STAR_SVG;
-			}
-			html += '</span>';
-		}
-		html += '</p>';
-
-		if (best) {
-			var bits = [fmtDate(best.departure_date), nightsLabel(best.nights), best.meal_label || ''];
-			if (best.airport) {
-				bits.push('odlet ' + best.airport);
-			}
-			if (best.transport && best.transport !== 'letecky' && best.transport !== 'neuvedeno') {
-				bits.push(best.transport === 'vlastni' ? 'vlastní doprava' : best.transport);
-			}
-			html += '<p class="text-sm text-slate-500">' + esc(bits.filter(Boolean).join(' · ')) + '</p>';
-		}
-
-		html += '<div class="mt-auto pt-2">';
-		if (price !== null && price !== undefined) {
-			html += '<p class="text-[15px] text-ink"><span class="text-slate-500">od</span> <strong class="whitespace-nowrap font-extrabold">' + esc(fmtPrice(price)) + '</strong> <span class="text-slate-500">/ os.</span>';
-			if (priceOriginal !== null) {
-				html += ' <span class="ml-1 whitespace-nowrap text-sm text-slate-400 line-through">' + esc(fmtPrice(priceOriginal)) + '</span>';
-			}
-			html += '</p>';
-		}
-		if (partners > 1) {
-			html += '<p class="text-sm font-semibold text-coral-dark">Porovnat ' + partners + ' ' + (partners >= 5 ? 'nabídek' : 'nabídky') + '</p>';
-		}
-		html += '</div></div></article>';
-
-		return html;
 	}
 
 	function totalLabel(total) {
@@ -171,23 +60,138 @@
 	document.addEventListener('alpine:init', function () {
 
 		/**
-		 * Listing: fasety + AJAX přepis gridu + URL sync.
+		 * Listing: fasety + přepis gridu + URL sync. Statický web (Workers assets ignorují query) → výsledky počítá
+		 * window.kakapoListing (src/lib/listing/client.ts) nad /data/zajezdy/*.json; data se stahují až při použití
+		 * filtru nebo když URL filtr obsahuje. Bez JS zůstává předrenderovaný nefiltrovaný výpis.
 		 */
+		var LISTING_KEYS = ['country', 'dest', 'q', 'meal', 'stars', 'airport', 'partner', 'price_min', 'price_max', 'rating_min', 'date_from', 'date_to', 'nights_min', 'nights_max', 'adults', 'flag', 'theme', 'transport', 'sort'];
+
+		function listingEngine() {
+			if (window.kakapoListing) {
+				return Promise.resolve(window.kakapoListing);
+			}
+			return new Promise(function (resolve, reject) {
+				var t = setTimeout(function () { reject(new Error('kakapoListing not loaded')); }, 15000);
+				document.addEventListener('kakapo:listing', function () {
+					clearTimeout(t);
+					resolve(window.kakapoListing);
+				}, { once: true });
+			});
+		}
+
 		Alpine.data('kakapoFilters', function (cfg) {
 			cfg = cfg || {};
 			return {
 				open: false,
 				loading: false,
-				sort: cfg.sort || 'price',
+				sort: cfg.sort || 'recommended',
+				defaultSort: cfg.sort || 'recommended',
 				total: cfg.total || 0,
 				q: cfg.q || '',
 				adults: cfg.adults || 0,
 				pathFilters: cfg.pathFilters || {},
+				extra: {},
+				page: 1,
 				activeCount: 0,
-				lastQuery: null,
+				lastQuery: '',
+				initial: null,
 
 				init: function () {
+					var self = this;
+					var form = this.$refs.form;
+					// výchozí stav formuláře (= landing bez GET filtrů), na něj se vrací reset i zpět v historii
+					this.initial = form ? Array.prototype.map.call(form.elements, function (el) {
+						return [el, el.checked, el.value];
+					}) : [];
+					this.initialGrid = this.$refs.grid ? this.$refs.grid.innerHTML : '';
+					this.initialPager = this.$refs.pagination ? this.$refs.pagination.innerHTML : '';
+					this.initialTotal = this.total;
+					var robots = document.querySelector('meta[name="robots"]');
+					this.robotsMeta = robots;
+					this.robotsInitial = robots ? robots.getAttribute('content') : null;
+					if (this.syncFromUrl()) {
+						this.lastQuery = null;
+						this.render(false);
+					}
 					this.activeCount = this.countActive();
+					window.addEventListener('popstate', function () {
+						self.syncFromUrl();
+						self.render(false);
+					});
+					if (this.$refs.pagination) {
+						// stránkování v místě (odkazy ?strana=N zůstávají pro roboty a bez JS)
+						this.$refs.pagination.addEventListener('click', function (e) {
+							var a = e.target.closest ? e.target.closest('a[href]') : null;
+							if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button > 0) {
+								return;
+							}
+							var n = parseInt(new URL(a.href, window.location.href).searchParams.get('strana') || '1', 10) || 1;
+							e.preventDefault();
+							self.page = n;
+							self.render(true, true);
+						});
+					}
+				},
+
+				/** URL → formulář (statické HTML má vždy výchozí stav landingu). Vrací true, když URL něco filtruje. */
+				syncFromUrl: function () {
+					var sp = new URLSearchParams(window.location.search);
+					var form = this.$refs.form;
+					var self = this;
+					var any = false;
+					(this.initial || []).forEach(function (r) {
+						r[0].checked = r[1];
+						r[0].value = r[2];
+					});
+					this.extra = {};
+					this.q = '';
+					this.adults = 0;
+					this.sort = this.defaultSort;
+					LISTING_KEYS.forEach(function (k) {
+						var v = (sp.get(k) || '').trim();
+						if (v === '') {
+							return;
+						}
+						any = true;
+						if (k === 'q') {
+							self.q = v.slice(0, 100);
+							return;
+						}
+						if (k === 'adults') {
+							self.adults = parseInt(v, 10) || 0;
+							return;
+						}
+						if (k === 'sort') {
+							var opt = self.$refs.sort ? Array.prototype.some.call(self.$refs.sort.options, function (o) { return o.value === v; }) : false;
+							if (opt) {
+								self.sort = v;
+							}
+							return;
+						}
+						var els = form ? Array.prototype.filter.call(form.elements, function (el) { return el.name === k; }) : [];
+						if (!els.length) {
+							self.extra[k] = v;
+							return;
+						}
+						var type = els[0].type;
+						if (type === 'radio' || type === 'checkbox') {
+							var vals = type === 'radio' ? [v] : v.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+							var known = vals.every(function (x) { return els.some(function (el) { return el.value === x; }); });
+							els.forEach(function (el) {
+								el.checked = known && vals.indexOf(el.value) !== -1;
+							});
+							if (!known) {
+								self.extra[k] = v;
+							}
+							return;
+						}
+						els[0].value = v;
+					});
+					if (this.$refs.sort) {
+						this.$refs.sort.value = this.sort;
+					}
+					this.page = Math.max(1, parseInt(sp.get('strana') || '1', 10) || 1);
+					return any || this.page > 1;
 				},
 
 				/** Hodnoty formuláře faset — vícenásobné checkboxy jako CSV. */
@@ -219,31 +223,32 @@
 							return pv !== vals[k];
 						}
 						return true;
-					}).length;
+					}).length + Object.keys(this.extra).length + (this.q ? 1 : 0);
 				},
 
-				/** Parametry pro REST — path filtry + formulář (formulář vyhrává). */
+				/** Parametry hledání — path filtry + parametry z URL bez ovládacího prvku + formulář (formulář vyhrává). */
 				restParams: function () {
 					var params = {};
 					var pf = this.pathFilters;
 					Object.keys(pf).forEach(function (k) {
 						params[k] = Array.isArray(pf[k]) ? pf[k].join(',') : String(pf[k]);
 					});
-					Object.assign(params, this.formValues());
+					Object.assign(params, this.extra, this.formValues());
 					if (this.q) {
 						params.q = this.q;
 					}
 					if (this.adults) {
-						params.adults = this.adults;
+						params.adults = String(this.adults);
 					}
 					params.sort = this.sort;
 					return params;
 				},
 
 				/** Query string do adresního řádku — bez hodnot implikovaných cestou a defaultů. */
-				urlQuery: function (params) {
+				urlQuery: function (params, page) {
 					var out = new URLSearchParams();
 					var pf = this.pathFilters;
+					var self = this;
 					Object.keys(params).forEach(function (k) {
 						var pathVal = pf[k];
 						if (pathVal !== undefined) {
@@ -252,11 +257,14 @@
 								return;
 							}
 						}
-						if (k === 'sort' && params[k] === 'price') {
+						if (k === 'sort' && params[k] === self.defaultSort) {
 							return;
 						}
 						out.set(k, params[k]);
 					});
+					if (page > 1) {
+						out.set('strana', String(page));
+					}
 					return out.toString();
 				},
 
@@ -267,54 +275,81 @@
 					}
 				},
 
+				/** Změna filtru / řazení → první strana. */
 				apply: function () {
+					this.page = 1;
+					this.render(false);
+				},
+
+				render: function (push, scroll) {
 					var self = this;
 					var params = this.restParams();
-					var qs = new URLSearchParams(params).toString();
-					if (qs === this.lastQuery) {
+					var uq = this.urlQuery(params, this.page);
+					if (uq === this.lastQuery) {
 						return;
 					}
-					this.lastQuery = qs;
+					this.lastQuery = uq;
 					this.activeCount = this.countActive();
+					this.updateUrl(uq, push);
+					if (uq === '') {
+						// výchozí stav = předrenderovaný výpis, data netřeba
+						this.restore();
+						return;
+					}
 					this.loading = true;
 					this.showSkeleton();
-
-					Promise.all([
-						fetch(window.KAKAPO.rest + '/search?' + qs).then(function (r) { return r.json(); }),
-						fetch(window.KAKAPO.rest + '/filters?' + qs).then(function (r) { return r.json(); })
-					]).then(function (res) {
-						var search = res[0] || {};
-						self.total = search.total || 0;
-						self.renderGrid(search.hotels || []);
-						self.renderPagination(search.pages || 0, search.page || 1, params);
+					var page = this.page;
+					listingEngine().then(function (eng) {
+						return eng.run(self.pathFilters, params, page, uq);
+					}).then(function (res) {
+						if (self.lastQuery !== uq) {
+							return;
+						}
+						self.total = res.total || 0;
+						self.renderGrid(res.html || '');
+						self.renderPagination(res.pages || 0, res.page || 1, params);
 						self.updateCount();
-						self.updateFacets(res[1] || {});
-						self.updateUrl(params);
-					}).catch(function () {
-						// při chybě AJAXu klasická navigace se stejnými filtry
-						var fallback = self.urlQuery(params);
-						window.location.search = fallback ? '?' + fallback : '';
+						self.updateFacets(res.facets || {});
+						if (scroll && self.$refs.grid) {
+							self.$refs.grid.scrollIntoView({ block: 'start' });
+						}
+					}).catch(function (e) {
+						if (window.console) {
+							console.warn('kakapo: filtry nejsou dostupné', e);
+						}
+						self.restore();
 					}).finally(function () {
 						self.loading = false;
 					});
 				},
 
-				renderGrid: function (hotels) {
+				restore: function () {
+					if (this.$refs.grid) {
+						this.$refs.grid.innerHTML = this.initialGrid;
+					}
+					if (this.$refs.pagination) {
+						this.$refs.pagination.innerHTML = this.initialPager;
+					}
+					this.total = this.initialTotal;
+					this.updateCount();
+				},
+
+				renderGrid: function (html) {
 					if (!this.$refs.grid) {
 						return;
 					}
-					if (!hotels.length) {
+					if (!html) {
 						this.$refs.grid.innerHTML =
 							'<div class="col-span-full rounded-3xl bg-paper p-8 text-center sm:p-12">' +
 							'<p class="text-lg font-semibold text-ink">Této kombinaci nic neodpovídá</p>' +
 							'<p class="mx-auto mt-1 max-w-md text-sm text-slate-500">Zkuste zrušit filtry nebo rozšířit termín odletu — dovolenou tu najdete vždy.</p>' +
 							'<div class="mt-5 flex flex-wrap items-center justify-center gap-2">' +
-							'<a href="' + location.pathname + '" class="btn-primary btn-sm">Zrušit filtry</a>' +
+							'<a href="' + escAttr(location.pathname) + '" class="btn-primary btn-sm">Zrušit filtry</a>' +
 							'<a href="/last-minute/" class="btn-ghost btn-sm">Last minute nabídky</a>' +
 							'</div></div>';
 						return;
 					}
-					this.$refs.grid.innerHTML = hotels.map(renderCard).join('');
+					this.$refs.grid.innerHTML = html;
 				},
 
 				updateCount: function () {
@@ -323,22 +358,20 @@
 					}
 				},
 
-				/** Přepsání počtů u faset podle REST /filters. */
+				/** Počty u faset (skupiny, které klient spočítal; ostatní zůstávají ze statického HTML). */
 				updateFacets: function (facets) {
-					var counts = {};
-					['countries', 'destinations', 'stars', 'meals', 'airports', 'partners', 'nights'].forEach(function (group) {
-						(facets[group] || []).forEach(function (row) {
-							var key = row.slug !== undefined ? row.slug : row.value;
-							counts[group + ':' + key] = parseInt(row.cnt, 10) || 0;
-						});
-					});
+					var groups = facets.groups || [];
+					var counts = facets.counts || {};
 					this.$root.querySelectorAll('[data-facet]').forEach(function (el) {
 						var key = el.getAttribute('data-facet');
+						if (groups.indexOf(key.split(':')[0]) === -1) {
+							return;
+						}
 						el.textContent = '(' + (counts[key] !== undefined ? counts[key] : 0) + ')';
 					});
 				},
 
-				/** Stránkování po AJAXu — odkazy = plná navigace (SEO-safe). */
+				/** Stránkování — markup 1:1 s Listing.astro; odkazy ?strana=N, klik se obslouží v místě. */
 				renderPagination: function (pages, page, params) {
 					var nav = this.$refs.pagination;
 					if (!nav) {
@@ -348,18 +381,16 @@
 						nav.innerHTML = '';
 						return;
 					}
-					var qs = this.urlQuery(params);
+					var self = this;
 					var base = window.location.pathname;
 					var link = function (n) {
-						var p = new URLSearchParams(qs);
-						if (n > 1) {
-							p.set('strana', n);
-						}
-						var s = p.toString();
+						var s = self.urlQuery(params, n);
 						return base + (s ? '?' + s : '');
 					};
-					// Okno musí být 1:1 s PHP v templates/search.php (~ř. 408):
-					// 1 … p-2..p+2 … dekadické skoky … poslední.
+					var arrow = function (d) {
+						return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+					};
+					// 1 … p-2..p+2 … dekadické skoky … poslední (jako Listing.astro)
 					var items = [1, pages];
 					for (var n = Math.max(2, page - 2); n <= Math.min(pages - 1, page + 2); n++) {
 						items.push(n);
@@ -373,7 +404,7 @@
 
 					var html = '';
 					if (page > 1) {
-						html += '<a class="page-link" href="' + escAttr(link(page - 1)) + '" aria-label="Předchozí stránka">‹</a>';
+						html += '<a class="page-link" href="' + escAttr(link(page - 1)) + '" aria-label="Předchozí stránka">' + arrow('m15 18-6-6 6-6') + '</a>';
 					}
 					var prev = 0;
 					items.forEach(function (n) {
@@ -388,14 +419,28 @@
 						}
 					});
 					if (page < pages) {
-						html += '<a class="page-link" href="' + escAttr(link(page + 1)) + '" aria-label="Další stránka">›</a>';
+						html += '<a class="page-link" href="' + escAttr(link(page + 1)) + '" aria-label="Další stránka">' + arrow('m9 18 6-6-6-6') + '</a>';
 					}
 					nav.innerHTML = html;
 				},
 
-				updateUrl: function (params) {
-					var qs = this.urlQuery(params);
-					window.history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+				/** Adresní řádek; filtrovaný stav není k indexaci (canonical zůstává čistá URL landingu). */
+				updateUrl: function (qs, push) {
+					// parametry mimo filtry (utm_*, gclid…) v adrese zůstávají
+					var out = new URLSearchParams(qs);
+					new URLSearchParams(window.location.search).forEach(function (v, k) {
+						if (LISTING_KEYS.indexOf(k) === -1 && k !== 'strana') {
+							out.append(k, v);
+						}
+					});
+					var s = out.toString();
+					var url = window.location.pathname + (s ? '?' + s : '');
+					if (url !== window.location.pathname + window.location.search) {
+						window.history[push ? 'pushState' : 'replaceState'](null, '', url);
+					}
+					if (this.robotsMeta && this.robotsInitial !== null) {
+						this.robotsMeta.setAttribute('content', qs ? 'noindex, follow' : this.robotsInitial);
+					}
 				},
 
 				resetFilters: function () {
@@ -412,6 +457,9 @@
 							el.value = '';
 						}
 					});
+					this.extra = {};
+					this.q = '';
+					this.adults = 0;
 					this.apply();
 				}
 			};

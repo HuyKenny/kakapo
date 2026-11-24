@@ -17,7 +17,8 @@ export type { LandingCtx, ListingDeps } from './landing-types';
 export { facets } from './facets';
 export { normalizeFaqs, homeFaqs } from './seo';
 
-export const GET_KEYS = ['country', 'dest', 'q', 'meal', 'stars', 'airport', 'partner', 'price_min', 'price_max', 'rating_min', 'date_from', 'date_to', 'nights_min', 'nights_max', 'adults', 'flag', 'theme', 'transport', 'sort'];
+import { GET_KEYS } from './engine';
+export { GET_KEYS };
 export const SORT_OPTIONS: Record<string, string> = { recommended: 'Doporučené', price: 'Nejlevnější', 'price-desc': 'Nejdražší', departure: 'Nejbližší odlet', discount: 'Největší sleva', drop: 'Největší zlevnění', rating: 'Nejlépe hodnocené' };
 
 const TOPICS = topicData as unknown as Record<string, any>;

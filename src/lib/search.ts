@@ -95,13 +95,14 @@ function buildConditions(f: Filters): { where: string[]; params: unknown[]; oc: 
 }
 
 function orderClause(sort: string): string {
+  // h.id last: a stable order, identical to the client-side engine of the static site (src/lib/listing/engine.ts)
   switch (sort) {
-    case 'recommended': return "(h.images_json IS NOT NULL AND h.images_json <> '' AND h.images_json <> '[]') DESC, (h.stars > 0) DESC, h.rating IS NULL, h.rating DESC, h.offers_active DESC, h.min_price ASC";
-    case 'price-desc': return 'h.min_price DESC';
-    case 'rating': return 'h.rating IS NULL, h.rating DESC, h.min_price ASC';
-    case 'discount': return 'h.has_last_minute DESC, h.min_price ASC';
-    case 'drop': return 'h.price_drop_pct DESC, h.min_price ASC';
-    default: return 'h.min_price ASC';
+    case 'recommended': return "(h.images_json IS NOT NULL AND h.images_json <> '' AND h.images_json <> '[]') DESC, (h.stars > 0) DESC, h.rating IS NULL, h.rating DESC, h.offers_active DESC, h.min_price ASC, h.id ASC";
+    case 'price-desc': return 'h.min_price DESC, h.id ASC';
+    case 'rating': return 'h.rating IS NULL, h.rating DESC, h.min_price ASC, h.id ASC';
+    case 'discount': return 'h.has_last_minute DESC, h.min_price ASC, h.id ASC';
+    case 'drop': return 'h.price_drop_pct DESC, h.min_price ASC, h.id ASC';
+    default: return 'h.min_price ASC, h.id ASC';
   }
 }
 
