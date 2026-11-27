@@ -61,6 +61,13 @@ export type DateRule =
   | { kind: 'winter' } | { kind: 'autumn' } | { kind: 'christmas' } | { kind: 'newyear' } | { kind: 'easter' }
   | { kind: 'relative'; from: number; to: number };
 
+/** Night the stay must include for holiday windows: 24→25. 12. (Christmas) and 31. 12.→1. 1. (New Year's Eve); null for other rules. */
+export function stayNightFor(rule: DateRule, r: Range): string | null {
+  if (rule.kind === 'christmas') return fmt(r.year, 12, 24);
+  if (rule.kind === 'newyear') return fmt(r.year, 12, 31);
+  return null;
+}
+
 export function resolveRule(rule: DateRule, t = pragueNow()): Range {
   switch (rule.kind) {
     case 'month': return monthRange(rule.month, t);

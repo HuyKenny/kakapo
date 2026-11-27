@@ -94,6 +94,7 @@ function offerPred(f: Filters, today: string, stale: boolean): Pred<Offer> | nul
   if (f.partner?.length) { const pp = new Set(f.partner); oc.push((o) => pp.has(o.partner)); }
   if (f.date_from) oc.push((o) => o.dep >= f.date_from!);
   if (f.date_to) oc.push((o) => o.dep <= f.date_to!);
+  if (f.stay_night) oc.push((o) => o.dep <= f.stay_night! && addDays(o.dep, o.nights) > f.stay_night!);
   if (f.nights_min) oc.push((o) => o.nights >= f.nights_min!);
   if (f.nights_max) oc.push((o) => o.nights <= f.nights_max!);
   if (f.adults) oc.push((o) => o.adults >= f.adults!);

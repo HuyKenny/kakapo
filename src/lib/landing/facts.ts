@@ -64,18 +64,19 @@ export async function faqs(db: D1Database, countrySlug: string, destSlug: string
 }
 
 interface AnswerRow { slug: string; label: string; hotels: number; price_min: number; offers: number; ai_offers: number }
-async function answerRows(db: D1Database, filters: { date_from?: string; date_to?: string; theme?: string }, limit = 12): Promise<AnswerRow[]> {
+async function answerRows(db: D1Database, filters: { date_from?: string; date_to?: string; stay_night?: string; theme?: string }, limit = 12): Promise<AnswerRow[]> {
   const from = filters.date_from ?? ''; const to = filters.date_to ?? '';
   if (!from || !to) return [];
-  const theme = filters.theme ?? '';
-  return remember(`danswer:${from}:${to}:${theme}:${limit}`, FACT_TTL_MS, async () => {
+  const theme = filters.theme ?? ''; const night = /^\d{4}-\d{2}-\d{2}$/.test(filters.stay_night ?? '') ? filters.stay_night! : '';
+  return remember(`danswer:${from}:${to}:${night}:${theme}:${limit}`, FACT_TTL_MS, async () => {
     const where = ['o.active = 1', 'h.hidden = 0', 'o.price_pp > 0', 'o.departure_date BETWEEN ? AND ?']; const params: unknown[] = [from, to];
+    if (night) { where.push("o.departure_date <= ? AND date(o.departure_date, '+' || o.nights || ' days') > ?"); params.push(night, night); }
     if (theme) { const [s, p] = themeConditionSql(theme, 'h'); if (s) { where.push(s); params.push(...p); } }
     return (await db.prepare(`SELECT h.country_slug AS slug, h.country AS label, COUNT(DISTINCT h.id) AS hotels, MIN(o.price_pp) AS price_min, COUNT(*) AS offers, SUM(o.meal_type = 'all-inclusive') AS ai_offers FROM offers o INNER JOIN hotels h ON h.id = o.hotel_id WHERE ${where.join(' AND ')} GROUP BY h.country_slug, h.country HAVING hotels >= 3 ORDER BY hotels DESC LIMIT ${Math.trunc(limit)}`).bind(...params).all<AnswerRow>()).results;
   });
 }
 
-export async function destinationAnswer(db: D1Database, filters: { date_from?: string; date_to?: string; theme?: string }, whenLabel: string, limit = 12): Promise<string> {
+export async function destinationAnswer(db: D1Database, filters: { date_from?: string; date_to?: string; stay_night?: string; theme?: string }, whenLabel: string, limit = 12): Promise<string> {
   const rows = await answerRows(db, filters, limit);
   if (rows.length < 3) return '';
   const cheapest = rows.reduce((a, r) => (r.price_min < a.price_min ? r : a), rows[0]!);
@@ -88,7 +89,7 @@ export async function destinationAnswer(db: D1Database, filters: { date_from?: s
   return out + '</tbody></table><p class="text-sm">Pořadí i ceny počítáme z aktuálních nabídek českých cestovek a přepočítáváme několikrát denně.</p>';
 }
 
-export async function answerFaq(db: D1Database, filters: { date_from?: string; date_to?: string; theme?: string }, question: string, limit = 5): Promise<Faq[]> {
+export async function answerFaq(db: D1Database, filters: { date_from?: string; date_to?: string; stay_night?: string; theme?: string }, question: string, limit = 5): Promise<Faq[]> {
   const rows = await answerRows(db, filters, limit);
   if (rows.length < 3) return [];
   const parts = rows.map((r) => `${r.label} (od ${formatPrice(r.price_min)})`);

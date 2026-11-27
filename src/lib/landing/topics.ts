@@ -7,7 +7,7 @@ import partnerConsts from '../../data/partner-consts.json';
 import { rel, relHtml } from '../url';
 import { partnerLabel } from '../helpers';
 import { esc, formatPrice, nightsLabel, countLabel, nf, remember, FACT_TTL_MS, type Faq } from './util';
-import { pragueNow, resolveRule, ruleForSlug, type Ymd } from './dates';
+import { pragueNow, resolveRule, ruleForSlug, stayNightFor, type Ymd } from './dates';
 
 export interface Cta { label: string; url: string; external?: boolean }
 export interface Section { h2: string; body?: string; table?: string[][]; list?: string[] }
@@ -36,6 +36,7 @@ function applyDates(t: any, slug: string, now: Ymd): void {
   const oldYear = String(t.filters.date_from).slice(0, 4);
   const r = resolveRule(rule, now);
   t.filters.date_from = r.from; t.filters.date_to = r.to;
+  const night = stayNightFor(rule, r); if (night) t.filters.stay_night = night;
   const newYear = r.to.slice(0, 4);
   if (rule.kind === 'month' && newYear !== oldYear) {
     for (const k of ['title', 'h1', 'description', 'intro', 'label']) if (typeof t[k] === 'string') t[k] = t[k].replace(new RegExp(`\\b${oldYear}\\b`, 'g'), newYear);
@@ -192,6 +193,7 @@ export function longtailTopic(slug: string, now: Ymd = pragueNow()): LongtailTop
   const rule = ruleForSlug(slug);
   if (rule && t.filters && 'date_from' in t.filters) {
     const r = resolveRule(rule, now); t.filters.date_from = r.from; t.filters.date_to = r.to;
+    const night = stayNightFor(rule, r); if (night) t.filters.stay_night = night;
     if (rule.kind === 'month') t.year = r.year;
   }
   return t;

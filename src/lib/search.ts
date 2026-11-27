@@ -12,7 +12,7 @@ export interface Filters {
   country?: string; country_exclude?: string[]; dest?: string; city?: string; q?: string; theme?: string;
   stars?: number[]; meal?: string[]; airport?: string[]; partner?: string[];
   price_min?: number; price_max?: number; nights_min?: number; nights_max?: number; rating_min?: number;
-  date_from?: string; date_to?: string; transport?: string; flag?: string; adults?: number;
+  date_from?: string; date_to?: string; /** YYYY-MM-DD: the stay must include this night (departure <= it < return), e.g. 24. 12. for Christmas */ stay_night?: string; transport?: string; flag?: string; adults?: number;
   sort: string; page: number;
 }
 export const PER_PAGE = 24;
@@ -34,6 +34,7 @@ export function normalizeFilters(input: Record<string, unknown>): Filters {
   for (const k of ['price_min', 'price_max', 'nights_min', 'nights_max'] as const) { const n = parseInt(String(input[k] ?? ''), 10); if (n > 0) f[k] = n; }
   if (input.rating_min) f.rating_min = Math.min(10, Math.max(0, parseFloat(String(input.rating_min)) || 0));
   for (const k of ['date_from', 'date_to'] as const) if (/^\d{4}-\d{2}-\d{2}$/.test(String(input[k] ?? ''))) f[k] = String(input[k]);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(input.stay_night ?? ''))) f.stay_night = String(input.stay_night);
   if (['letecky', 'autobusem', 'vlastni'].includes(String(input.transport))) f.transport = String(input.transport);
   if (['last-minute', 'first-minute', 'zlevneno'].includes(String(input.flag))) f.flag = String(input.flag);
   if (input.adults) f.adults = Math.min(10, Math.max(1, parseInt(String(input.adults), 10) || 1));
@@ -84,6 +85,8 @@ function buildConditions(f: Filters): { where: string[]; params: unknown[]; oc: 
   if (f.partner?.length) { oc.push(`o.partner_slug IN (${qs(f.partner.length)})`); op.push(...f.partner); }
   if (f.date_from) { oc.push('o.departure_date >= ?'); op.push(f.date_from); }
   if (f.date_to) { oc.push('o.departure_date <= ?'); op.push(f.date_to); }
+  // the guest sleeps in the hotel on that night: departure on/before it and return after it (return = departure + nights, like the static shards)
+  if (f.stay_night) { oc.push("o.departure_date <= ? AND date(o.departure_date, '+' || o.nights || ' days') > ?"); op.push(f.stay_night, f.stay_night); }
   if (f.nights_min) { oc.push('o.nights >= ?'); op.push(f.nights_min); }
   if (f.nights_max) { oc.push('o.nights <= ?'); op.push(f.nights_max); }
   if (f.adults) { oc.push('o.adults >= ?'); op.push(f.adults); }

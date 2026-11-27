@@ -34,7 +34,7 @@ const CASES: Array<Record<string, unknown>> = [
   { country: 'turecko' }, { country: 'turecko', meal: 'all-inclusive' }, { country: 'recko', dest: 'kreta' }, { country_exclude: 'cesko,slovensko' },
   { meal: 'all-inclusive,polopenze', sort: 'price' }, { airport: 'praha' }, { airport: 'praha,brno', meal: 'snidane' }, { stars: '4,5' },
   { rating_min: 8 }, { price_max: 15000 }, { price_min: 12000, price_max: 30000, meal: 'all-inclusive' }, { flag: 'last-minute' },
-  { flag: 'first-minute', sort: 'price' }, { flag: 'zlevneno' }, { theme: 'sea' }, { theme: 'children' }, { date_from: day(20), date_to: day(60) },
+  { flag: 'first-minute', sort: 'price' }, { flag: 'zlevneno' }, { theme: 'sea' }, { theme: 'children' }, { date_from: day(20), date_to: day(60) }, { stay_night: day(30) }, { stay_night: day(30), date_from: day(20), date_to: day(30), sort: 'price' }, { stay_night: day(40), country: 'recko', sort: 'price' },
   { nights_min: 7, nights_max: 8 }, { adults: 2 }, { adults: 3 }, { transport: 'vlastni' }, { partner: 'fischer' }, { country: 'egypt', airport: 'praha', date_from: day(10), nights_min: 6, sort: 'price', page: 1 },
 ];
 
@@ -71,6 +71,16 @@ describe('static engine vs SSR search (fixture)', () => {
 
   it('every filter/sort/page combination matches', async () => {
     for (const c of CASES) await compare(db, data.hotels, data.stale, c);
+  });
+
+  it('stay_night keeps only stays that include that night (departure <= night < departure + nights)', () => {
+    const night = day(30);
+    const r = search(data.hotels, normalizeFilters({ stay_night: night, sort: 'departure' }), TODAY, data.stale);
+    expect(r.total).toBeGreaterThan(0);
+    const add = (d: string, n: number) => new Date(Date.parse(d + 'T00:00:00Z') + n * 86_400_000).toISOString().slice(0, 10);
+    for (const it of r.items) { expect(it.best!.dep <= night).toBe(true); expect(add(it.best!.dep, it.best!.nights) > night).toBe(true); }
+    // a plain departure window is wider: some offers in it do not cover the night
+    expect(search(data.hotels, normalizeFilters({ date_from: day(20), date_to: night }), TODAY, data.stale).total).toBeGreaterThanOrEqual(r.total);
   });
 
   it('merges landing filters with GET params like mergeFilters()', () => {

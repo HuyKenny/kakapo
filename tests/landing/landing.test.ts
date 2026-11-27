@@ -220,3 +220,13 @@ describe('date windows', () => {
     expect((await getTopic(db, 'fischer-zajezdy'))!.partner).toBe('fischer');
   });
 });
+
+describe('holiday landings need the holiday night', () => {
+  it('christmas and new year topics carry stay_night, other dated topics do not', async () => {
+    const { getTopicStatic } = await import('../../src/lib/landing/topics');
+    const now = { y: 2026, m: 11, d: 27 };
+    expect(getTopicStatic('kam-na-vanoce-k-mori', now)?.filters?.stay_night).toBe('2026-12-24');
+    expect(getTopicStatic('kam-na-silvestra-k-mori', now)?.filters?.stay_night).toBe('2026-12-31');
+    expect(getTopicStatic('kam-na-velikonoce-k-mori', now)?.filters?.stay_night).toBeUndefined();
+  });
+});
