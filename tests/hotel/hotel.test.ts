@@ -117,6 +117,8 @@ describe('sold out + grace + indexability', () => {
     expect(withinGrace('2026-10-20 00:00:00', NOW)).toBe(true);
     expect(hotelIsIndexable(0, LONG, '[]', '2026-08-01 00:00:00', NOW)).toBe(false);
     expect(hotelIsIndexable(0, LONG, '[]', null, NOW)).toBe(false);
+    expect(hotelIsIndexable(0, LONG, '[]', '2026-08-01 00:00:00', NOW, true)).toBe(true); // kept: ranks in Google
+    expect(hotelIsIndexable(0, '', '[]', null, NOW, true)).toBe(false);                   // …but never an empty page
     expect(hotelIsIndexable(2, 'krátký', '[]', null, NOW)).toBe(false);
     expect(hotelIsIndexable(2, 'krátký', '["https://x/a.jpg"]', null, NOW)).toBe(true);
     addHotel(ctx.raw, { id: 1, slug: 'stary', name: 'Starý', description: LONG, offers_active: 0, offers_last_seen: '2026-02-01 00:00:00' });

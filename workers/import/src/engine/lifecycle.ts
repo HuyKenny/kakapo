@@ -3,6 +3,7 @@
 // the slug and dedup_key stay reserved, so a returning hotel is not duplicated and a retired URL can never shadow a new page.
 import type { Db, D1Stmt } from '../deps';
 import { HOTEL_RETIRE_DAYS } from '../../../../src/lib/hotel/retention';
+import { isKeptHotel } from '../../../../src/lib/hotel/keep';
 import { COUNTRY_PREFIX_ALIASES } from '../../../../src/lib/landing/country-aliases';
 import { MIN_INDEX_RESULTS } from '../../../../src/lib/landing/meta';
 import { chunk, runBatches, selectIn } from './db';
@@ -25,7 +26,7 @@ export async function retireHotels(db: Db, o: { now: Date; dry?: boolean; limit?
   const cutoff = sqlTime(new Date(o.now.getTime() - HOTEL_RETIRE_DAYS * 86400_000));
   const cands = (await db.prepare(`SELECT id, slug, country_slug, destination_slug FROM hotels
       WHERE hidden = 0 AND offers_active = 0 AND retired_at IS NULL AND COALESCE(offers_last_seen, created_at) < ?
-      ORDER BY COALESCE(offers_last_seen, created_at) ASC, id LIMIT ?`).bind(cutoff, o.limit && o.limit > 0 ? o.limit : 50_000).all<Cand>()).results.filter((h) => /^[a-z0-9-]+$/.test(h.slug));
+      ORDER BY COALESCE(offers_last_seen, created_at) ASC, id LIMIT ?`).bind(cutoff, o.limit && o.limit > 0 ? o.limit : 50_000).all<Cand>()).results.filter((h) => /^[a-z0-9-]+$/.test(h.slug) && !isKeptHotel(h.slug)); // ranking hotels stay pages
   const report: RetireReport = { candidates: cands.length, retired: 0, byTarget: {}, sample: [] };
   if (!cands.length) return report;
 
@@ -53,11 +54,13 @@ export async function retireHotels(db: Db, o: { now: Date; dry?: boolean; limit?
   return report;
 }
 
-/** A retired hotel that has an active offer again: drop its redirect and the flag. `ids` limits the check (finalize of a feed). */
+/** A retired hotel that has an active offer again (or is on the keep list): drop its redirect and the flag. `ids` limits the check (finalize of a feed). */
 export async function reactivateRetired(db: Db, ids?: number[]): Promise<number> {
-  const rows: Array<{ id: number; slug: string }> = ids
-    ? await selectIn(db, 'SELECT id, slug FROM hotels WHERE retired_at IS NOT NULL AND offers_active > 0 AND id IN ({IN})', ids)
-    : (await db.prepare('SELECT id, slug FROM hotels WHERE retired_at IS NOT NULL AND offers_active > 0').all<{ id: number; slug: string }>()).results;
+  // back to life: an active offer again, or the hotel ranks in Google (keep list: it must never stay redirected)
+  const all: Array<{ id: number; slug: string; offers_active: number }> = ids
+    ? await selectIn(db, 'SELECT id, slug, offers_active FROM hotels WHERE retired_at IS NOT NULL AND id IN ({IN})', ids)
+    : (await db.prepare('SELECT id, slug, offers_active FROM hotels WHERE retired_at IS NOT NULL').all<{ id: number; slug: string; offers_active: number }>()).results;
+  const rows = all.filter((h) => h.offers_active > 0 || isKeptHotel(h.slug));
   let n = 0;
   for (const part of chunk(rows, 25)) {
     await runBatches(db, part.flatMap((h) => [

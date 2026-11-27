@@ -4,6 +4,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { makeDb, makeR2 } from './helpers';
 import type { Db } from '../../workers/import/src/deps';
 import { reactivateRetired, redirectTarget, retireHotels } from '../../workers/import/src/engine/lifecycle';
+import KEEP from '../../src/data/keep-hotels.json';
 import { checkParity } from '../../workers/import/src/engine/parity';
 import { blockKey } from '../../workers/import/src/engine/blocks';
 
@@ -114,5 +115,20 @@ describe('checkParity', () => {
     const missing = await checkParity(db, r2, { id: 1 }, 5, 1, 200, 0); // feed has 200 items, only 50 active, none rejected
     expect(missing.note).toContain('150 feed items have no active offer');
     expect((await checkParity(db, r2, { id: 1 }, 5, 1, 200, 150)).note).not.toContain('no active offer'); // rejected items explain the gap
+  });
+});
+
+describe('hotels that rank in Google (keep list)', () => {
+  const slug = (KEEP as string[])[0]!;
+  it('are never retired, and a retired one comes back without an offer', async () => {
+    live(15, 'recko');
+    const kept = hotel({ slug }); const other = hotel();
+    expect((await retireHotels(db, { now: NOW })).retired).toBe(1); // only `other`
+    expect(redirect(kept.slug)).toBeUndefined(); expect(retiredAt(kept.id)).toBeNull(); expect(retiredAt(other.id)).not.toBeNull();
+    // an earlier run had already redirected it
+    raw.prepare("UPDATE hotels SET retired_at = ? WHERE id = ?").run(day(5), kept.id);
+    raw.prepare("INSERT INTO redirects (from_path, to_path, status, reason, created_at) VALUES (?, '/recko/', 301, 'retired', ?)").run(`/hotel/${kept.slug}/`, day(5));
+    expect(await reactivateRetired(db)).toBe(1);
+    expect(redirect(kept.slug)).toBeUndefined(); expect(retiredAt(kept.id)).toBeNull(); expect(retiredAt(other.id)).not.toBeNull();
   });
 });

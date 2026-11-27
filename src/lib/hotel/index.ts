@@ -7,6 +7,7 @@ import { sameDestination, similar, todayPrague, type HotelRow } from '../search'
 
 export const HOTEL_MIN_DESC = 200;
 import { HOTEL_RETIRE_DAYS } from './retention';
+import { isKeptHotel } from './keep';
 /** a hotel without offers stays indexable (sold-out page) only until it is retired */
 export const HOTEL_GRACE_DAYS = HOTEL_RETIRE_DAYS;
 export const RATING_MIN_COUNT = 3;
@@ -41,11 +42,11 @@ export function withinGrace(offersLastSeen: string | null | undefined, now: stri
   if (Number.isNaN(ts)) return false;
   return ts >= wall(now) - HOTEL_GRACE_DAYS * 86400_000;
 }
-export function hotelIsIndexable(offersActive: number, description: string | null, imagesJson: string | null, offersLastSeen: string | null, now: string): boolean {
+export function hotelIsIndexable(offersActive: number, description: string | null, imagesJson: string | null, offersLastSeen: string | null, now: string, kept = false): boolean {
   const hasDesc = String(description ?? '').length >= HOTEL_MIN_DESC;
   const hasImg = !!jsonArr<string>(imagesJson)[0];
   if (!hasDesc && !hasImg) return false;
-  if (Number(offersActive) > 0) return true;
+  if (Number(offersActive) > 0 || kept) return true;
   return withinGrace(offersLastSeen, now);
 }
 
@@ -356,7 +357,7 @@ export async function loadHotel(db: D1Database, slug: string, opts: LoadOpts = {
   const canonical = `${site}/hotel/${h.slug}/`;
   const meta = {
     title: hotelTitle(h.name, place, seasonYear()), description: desc.slice(0, DESC_MAX), canonical,
-    robots: hotelIsIndexable(h.offers_active, h.description, h.images_json, h.offers_last_seen, now) ? ['index', 'follow'] : ['noindex', 'follow'],
+    robots: hotelIsIndexable(h.offers_active, h.description, h.images_json, h.offers_last_seen, now, isKeptHotel(h.slug)) ? ['index', 'follow'] : ['noindex', 'follow'],
     image: images[0] ?? '', jsonLd: [] as Record<string, unknown>[],
   };
 

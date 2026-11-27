@@ -8,6 +8,7 @@
  *     Never for /go, /akce, /api/admin, /admin; never when Authorization is present.
  *  6. security headers; non-production hosts get X-Robots-Tag noindex.
  */
+import { isKeptHotel } from './lib/hotel/keep';
 import { defineMiddleware } from 'astro:middleware';
 import { authenticateAdmin } from './lib/server/access';
 import { allowedHosts, d1Stats, getEnv, isLocal } from './lib/server/env';
@@ -98,7 +99,8 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     }
     if (url.pathname === '/' && url.searchParams.has('s')) return finish(redirect('/zajezdy/' + (url.searchParams.get('s') ? '?q=' + encodeURIComponent(url.searchParams.get('s')!.slice(0, 100)) : ''), 301), url);
     for (const [re, to] of LEGACY) if (re.test(url.pathname)) return finish(redirect(to + url.search), url);
-    if (!NO_CACHE.some((r) => r.test(url.pathname)) && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/wp-content/')) {
+    const keptHotel = /^\/hotel\/([a-z0-9-]+)\/$/.exec(url.pathname.toLowerCase());
+    if (!NO_CACHE.some((r) => r.test(url.pathname)) && !url.pathname.startsWith('/api/') && !url.pathname.startsWith('/wp-content/') && !(keptHotel && isKeptHotel(keptHotel[1]!))) {
       try {
         const r = await env.DB.prepare('SELECT to_path, status FROM redirects WHERE from_path = ?').bind(url.pathname.toLowerCase()).first<{ to_path: string; status: number }>();
         if (r) return finish(r.status === 410 ? new Response('Gone', { status: 410, headers: { 'cache-control': 'public, max-age=3600' } }) : redirect(r.to_path + url.search, r.status), url);

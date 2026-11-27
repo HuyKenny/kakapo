@@ -1,6 +1,7 @@
 // Sitemap URL collection (port of Kakapo_Seo::collect_sitemap_urls). Heavy (counts per landing), so it is
 // materialised into site_cache by rebuildSitemaps() (import Worker after each run + daily) and only read at request time.
 import { countHotels, normalizeFilters } from './search';
+import { keptSlugsSql } from './hotel/keep';
 import { loadRegistry } from './snapshots';
 import { MEAL_LANDINGS, longtailSitemapLandings, canonicalAliasTarget, getTopicStatic, topicPaths } from './landing';
 import { productRepo, LANDINGS as PRODUCT_LANDINGS, CATEGORIES as PRODUCT_CATEGORIES } from './products';
@@ -68,7 +69,7 @@ export async function collectSitemapUrls(db: D1Database, base: string, now = new
   // hotels: (description >= min OR >= 1 photo) AND (active offer OR last offer within grace) — mirrors hotel_is_indexable
   const grace = new Date(now.getTime() - HOTEL_GRACE_DAYS * 864e5).toISOString().slice(0, 19).replace('T', ' ');
   for (const r of await one(
-    `SELECT slug, updated_at FROM hotels WHERE hidden = 0 AND retired_at IS NULL AND (offers_active > 0 OR offers_last_seen >= ?)
+    `SELECT slug, updated_at FROM hotels WHERE hidden = 0 AND ((retired_at IS NULL AND (offers_active > 0 OR offers_last_seen >= ?)) OR slug IN (${keptSlugsSql()}))
        AND (length(description) >= ? OR (images_json IS NOT NULL AND images_json <> '' AND images_json <> '[]' AND images_json NOT LIKE '[""%'))
      ORDER BY offers_active DESC, id ASC LIMIT 40000`, grace, HOTEL_MIN_DESC))
     urls.push({ loc: `${base}/hotel/${r.slug}/`, mod: day(r.updated_at, today), cf: 'daily' });
