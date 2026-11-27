@@ -133,7 +133,7 @@ export async function loadListing(db: D1Database, ctx: LandingCtx, query: URLSea
   const slim = (r: SearchResult): SearchResult => ({ ...r, hotels: r.hotels.map(({ description: _d, images_json: _i, amenities_json: _a, ...h }) => ({ ...h, images: (h.images ?? []).slice(0, 3) }) as HotelRow) }); // cards need no texts
   const heavy = async () => ({ result: slim(await search(db, filters, today)), fct: await facets(db, filters) });
   const { result, fct } = plain && deps.dataVersion && filters.page === 1
-    ? await versionedJson(db, `lp:${ctx.path}`, `${today}|${deps.dataVersion}`, heavy)
+    ? await versionedJson(db, `lp:${ctx.path}`, `${today}|${deps.dataVersion}|${typeof __BUILD_ID__ === 'undefined' ? '' : __BUILD_ID__}`, heavy) // build id: a code change (filters, ranking) must not keep serving results stored by the previous build
     : await heavy();
   const active = normalizeFilters(filters as unknown as Record<string, unknown>);
   const sort = SORT_OPTIONS[active.sort] ? active.sort : 'recommended';
