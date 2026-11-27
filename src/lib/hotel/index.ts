@@ -54,7 +54,9 @@ const hotelLabel = (name: string) => (NAME_KINDS.test(name.trim()) ? name.trim()
 const decode = (s: string) => String(s ?? '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").trim();
 export function hotelTitle(name: string, place: string, year: number): string {
   name = decode(name); place = decode(place);
-  const suffix = ` ceny ${year}`; const brand = ' | Kakapo.cz';
+  // Search Console: hotel pages rank for "<hotel> recenze / ceny" — "recenze" goes into the title when the name is short enough
+  const brand = ' | Kakapo.cz';
+  const suffix = (name + ` recenze a ceny ${year}`).length <= TITLE_MAX - 4 ? ` recenze a ceny ${year}` : ` ceny ${year}`;
   if ((name + suffix).length > TITLE_MAX) {
     const cut = name.slice(0, TITLE_MAX - 1); const sp = cut.lastIndexOf(' ');
     return (sp > 20 ? cut.slice(0, sp) : cut) + '…';
